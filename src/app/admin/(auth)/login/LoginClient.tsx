@@ -10,6 +10,12 @@ import {
   type LoginActionState,
 } from "@/lib/admin/auth-actions";
 
+type LoginIntent =
+  | { kind: "credentials"; formData: FormData }
+  | { kind: "code"; formData: FormData }
+  | { kind: "resend" }
+  | { kind: "cancel" };
+
 export default function LoginClient({
   initialState,
   invitedNotice,
@@ -17,32 +23,40 @@ export default function LoginClient({
   initialState: LoginActionState;
   invitedNotice: boolean;
 }) {
-  const [credState, credAction, credPending] = useActionState(loginStepOneAction, initialState);
-  const [codeState, codeAction, codePending] = useActionState(verifyLoginCodeAction, initialState);
-  const [resendState, resendAction, resendPending] = useActionState(resendCodeAction, initialState);
+  // One state for the whole flow: the latest server reply always decides which step is shown.
+  // (Three separate action states made a failed sign-in look like "nothing happened", because
+  // an error on the credentials step was indistinguishable from the untouched initial state.)
+  const [state, dispatch, pending] = useActionState(
+    async (prev: LoginActionState, intent: LoginIntent): Promise<LoginActionState> => {
+      switch (intent.kind) {
+        case "credentials":
+          return loginStepOneAction(prev, intent.formData);
+        case "code":
+          return verifyLoginCodeAction(prev, intent.formData);
+        case "resend":
+          return resendCodeAction(prev);
+        case "cancel":
+          return cancelChallengeAction();
+      }
+    },
+    initialState,
+  );
+  const [pendingKind, setPendingKind] = useState<LoginIntent["kind"] | null>(null);
+  const run = (intent: LoginIntent) => {
+    setPendingKind(intent.kind);
+    dispatch(intent);
+  };
 
+  const [email, setEmail] = useState("");
   const [backupMode, setBackupMode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
 
-  // Determine the most recent active step across the three actions
-  const activeState: LoginActionState =
-    codeState.step === "backup_codes"
-      ? codeState
-      : resendState.step === "code" && credState.step === "code"
-        ? resendState
-        : codeState.step !== initialState.step
-          ? codeState
-          : credState.step !== initialState.step
-            ? credState
-            : initialState;
-
-  // Prefer the latest error/notice from whichever action was triggered last
-  const displayError =
-    (activeState.step !== "backup_codes" && activeState.error) ||
-    (codeState.step === "code" && codeState.error) ||
-    (resendState.step === "code" && resendState.error) ||
-    null;
+  const activeState = state;
+  const displayError = activeState.step !== "backup_codes" ? activeState.error : null;
+  const credPending = pending && pendingKind === "credentials";
+  const codePending = pending && pendingKind === "code";
+  const resendPending = pending && pendingKind === "resend";
 
   const resendAtMs = activeState.step === "code" ? new Date(activeState.resendAvailableAt).getTime() : 0;
   const secondsLeft = Math.max(0, Math.ceil((resendAtMs - nowMs) / 1000));
@@ -88,7 +102,7 @@ export default function LoginClient({
   }
 
   if (activeState.step === "code") {
-    const notice = resendState.step === "code" ? resendState.notice : null;
+    const notice = activeState.notice ?? null;
     return (
       <div className="admin-auth-wrap">
         <div className="admin-auth-card">
@@ -102,7 +116,7 @@ export default function LoginClient({
           {displayError ? <div className="admin-alert error" role="alert">{displayError}</div> : null}
           {notice ? <div className="admin-alert ok" role="status">{notice}</div> : null}
 
-          <form action={codeAction} className="admin-form">
+          <form action={(formData) => run({ kind: "code", formData })} className="admin-form">
             <div className="admin-field">
               <label htmlFor="admin-code">{backupMode ? "Backup code" : "6-digit code"}</label>
               <input
@@ -136,7 +150,7 @@ export default function LoginClient({
               {backupMode ? "Use email code" : "Use backup code"}
             </button>
 
-            <form action={resendAction}>
+            <form action={() => run({ kind: "resend" })}>
               <button
                 type="submit"
                 className="admin-btn sm"
@@ -146,7 +160,12 @@ export default function LoginClient({
               </button>
             </form>
 
-            <form action={cancelChallengeAction}>
+            <form
+              action={() => {
+                setBackupMode(false);
+                run({ kind: "cancel" });
+              }}
+            >
               <button type="submit" className="admin-btn sm">
                 Back
               </button>
@@ -177,7 +196,7 @@ export default function LoginClient({
           </div>
         ) : null}
 
-        <form action={credAction} className="admin-form">
+        <form action={(formData) => run({ kind: "credentials", formData })} className="admin-form">
           <div className="admin-field">
             <label htmlFor="admin-email">Email</label>
             <input
@@ -186,6 +205,8 @@ export default function LoginClient({
               type="email"
               className="admin-input"
               autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               autoFocus
             />

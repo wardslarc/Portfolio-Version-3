@@ -320,10 +320,10 @@ export async function resendCodeAction(prev: LoginActionState): Promise<LoginAct
   };
 }
 
-export async function cancelChallengeAction(): Promise<void> {
+export async function cancelChallengeAction(): Promise<LoginActionState> {
   const cookieStore = await cookies();
   cookieStore.delete({ name: CHALLENGE_COOKIE_NAME, path: "/admin" });
-  redirect("/admin/login");
+  return { step: "credentials", error: null };
 }
 
 export async function signOutAction(): Promise<void> {
