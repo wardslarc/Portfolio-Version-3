@@ -3,8 +3,9 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { site } from "@/content/site";
+import { renderMarkdown } from "@/lib/blog/markdown";
 import { deleteMediaItem, registerMedia, type SerializedMedia } from "@/lib/blog/media";
-import { deletePost, duplicatePost, unpublishPost } from "@/lib/blog/posts";
+import { deletePost, duplicatePost, publishPost, unpublishPost, updatePost } from "@/lib/blog/posts";
 import { getDb } from "@/lib/mongodb";
 import { requireAdminAction } from "./auth";
 import { sendInviteEmail } from "./email";
@@ -276,4 +277,121 @@ export async function deletePostAction(
     deletedMediaCount: res.deletedMediaCount,
     failedMediaUrls: res.failedMediaUrls,
   };
+}
+
+const coverSchema = z
+  .object({
+    url: z.string().trim().url().max(1000),
+    alt: z.string().max(300),
+    width: z.number().int().min(1).max(20_000),
+    height: z.number().int().min(1).max(20_000),
+  })
+  .nullable();
+
+const postPatchSchema = z.object({
+  title: z.string().max(140),
+  slug: z.string().trim().max(80),
+  excerpt: z.string().max(200),
+  body: z.string().max(100_000),
+  cover: coverSchema,
+  tags: z.array(z.string().max(24)).max(5),
+});
+
+export type PostEditorPayload = z.infer<typeof postPatchSchema>;
+
+export async function savePostAction(
+  postId: string,
+  payload: PostEditorPayload,
+  opts?: { audit?: boolean },
+): Promise<
+  | { ok: true; slug: string; updatedAt: string; readingMinutes: number }
+  | { ok: false; error: string; field?: "slug" }
+> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) return { ok: false, error: "Invalid post ID." };
+  const parsedBody = postPatchSchema.safeParse(payload);
+  if (!parsedBody.success) {
+    return { ok: false, error: parsedBody.error.issues[0]?.message ?? "Invalid post fields." };
+  }
+
+  const { admin } = await requireAdminAction("blog:write");
+  const db = await getDb();
+  const res = await updatePost(db, admin, parsedId.data, parsedBody.data, {
+    audit: opts?.audit ?? true,
+  });
+  if (!res.ok) return res;
+
+  if (res.post.status === "published") {
+    updateTag("posts");
+    updateTag(`post:${res.post.slug}`);
+    if (res.previousSlug !== res.post.slug) {
+      updateTag(`post:${res.previousSlug}`);
+    }
+  }
+  revalidatePath("/admin/blog");
+  revalidatePath(`/admin/blog/${parsedId.data}`);
+  revalidatePath("/admin/media");
+
+  return {
+    ok: true,
+    slug: res.post.slug,
+    updatedAt: res.post.updatedAt.toISOString(),
+    readingMinutes: res.post.readingMinutes,
+  };
+}
+
+const publishInputSchema = z.object({
+  mode: z.enum(["now", "schedule"]),
+  scheduledAt: z.string().optional(),
+  patch: postPatchSchema,
+});
+
+export async function publishPostAction(
+  postId: string,
+  input: z.infer<typeof publishInputSchema>,
+): Promise<
+  | { ok: true; slug: string; publishedAt: string; updatedAt: string; scheduled: boolean }
+  | { ok: false; error: string; field?: "slug" | "scheduledAt" }
+> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) return { ok: false, error: "Invalid post ID." };
+  const parsed = publishInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid publish request." };
+  }
+
+  const { admin } = await requireAdminAction("blog:write");
+  const db = await getDb();
+  const scheduledDate = parsed.data.scheduledAt ? new Date(parsed.data.scheduledAt) : undefined;
+
+  const res = await publishPost(db, admin, parsedId.data, {
+    mode: parsed.data.mode,
+    scheduledAt: scheduledDate,
+    patch: parsed.data.patch,
+  });
+  if (!res.ok) return res;
+
+  updateTag("posts");
+  updateTag(`post:${res.post.slug}`);
+  if (res.previousSlug !== res.post.slug) {
+    updateTag(`post:${res.previousSlug}`);
+  }
+  revalidatePath("/admin/blog");
+  revalidatePath(`/admin/blog/${parsedId.data}`);
+  revalidatePath("/admin/media");
+
+  return {
+    ok: true,
+    slug: res.post.slug,
+    publishedAt: res.post.publishedAt?.toISOString() ?? new Date().toISOString(),
+    updatedAt: res.post.updatedAt.toISOString(),
+    scheduled: res.scheduled,
+  };
+}
+
+export async function renderPreviewAction(markdown: string): Promise<{ html: string }> {
+  const parsed = z.string().max(100_000).parse(markdown);
+  await requireAdminAction("blog:view");
+  const html = await renderMarkdown(parsed);
+  return { html };
 }
