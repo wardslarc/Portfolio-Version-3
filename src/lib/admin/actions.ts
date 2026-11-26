@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { site } from "@/content/site";
+import { deleteMediaItem, registerMedia, type SerializedMedia } from "@/lib/blog/media";
 import { getDb } from "@/lib/mongodb";
 import { requireAdminAction } from "./auth";
 import { sendInviteEmail } from "./email";
@@ -179,4 +180,44 @@ export async function revokeOwnSessionAction(sessionTokenHash: string): Promise<
   const db = await getDb();
   await revokeOwnSession(db, admin, hash);
   revalidatePath("/admin/admins");
+}
+
+const registerMediaSchema = z.object({
+  url: z.string().trim().url().max(1000),
+  width: z.number().int().min(1).max(20_000),
+  height: z.number().int().min(1).max(20_000),
+});
+
+export async function registerMediaAction(input: {
+  url: string;
+  width: number;
+  height: number;
+}): Promise<{ ok: true; media: SerializedMedia } | { ok: false; error: string }> {
+  const parsed = registerMediaSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid media metadata." };
+  }
+  const { admin } = await requireAdminAction("blog:write");
+  const db = await getDb();
+  const res = await registerMedia(db, admin, parsed.data);
+  if (res.ok) {
+    revalidatePath("/admin/media");
+  }
+  return res;
+}
+
+export async function deleteMediaAction(
+  mediaId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsedId = idSchema.safeParse(mediaId);
+  if (!parsedId.success) {
+    return { ok: false, error: "Invalid media ID." };
+  }
+  const { admin } = await requireAdminAction("blog:write");
+  const db = await getDb();
+  const res = await deleteMediaItem(db, admin, parsedId.data);
+  if (res.ok) {
+    revalidatePath("/admin/media");
+  }
+  return res;
 }
