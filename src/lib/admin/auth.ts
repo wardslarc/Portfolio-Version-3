@@ -29,8 +29,10 @@ export const CHALLENGE_COOKIE_NAME = "admin_challenge";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 export const DEVICE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 export const CHALLENGE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+export const CHALLENGE_MAX_LIFETIME_MS = 30 * 60 * 1000; // 30 minutes
 export const CHALLENGE_RESEND_COOLDOWN_MS = 60 * 1000; // 60 seconds
 export const CHALLENGE_MAX_ATTEMPTS = 5;
+export const CHALLENGE_MAX_RESENDS = 3;
 export const INVITE_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
 const SESSION_SLIDE_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -72,6 +74,8 @@ export interface AdminLoginChallengeDoc {
   adminId: ObjectId;
   codeHash: string;
   attempts: number;
+  resendCount: number;
+  createdAt: Date;
   expiresAt: Date;
   resendAvailableAt: Date;
 }
@@ -206,6 +210,8 @@ export async function createLoginChallenge(
     adminId,
     codeHash,
     attempts: 0,
+    resendCount: 0,
+    createdAt: now,
     expiresAt,
     resendAvailableAt,
   });
@@ -219,29 +225,43 @@ export async function resendLoginChallenge(
   now = new Date(),
 ): Promise<
   | { ok: true; adminId: ObjectId; code: string; resendAvailableAt: Date }
-  | { ok: false; reason: "not_found" | "expired" | "cooldown"; retryAfterSec?: number }
+  | { ok: false; reason: "not_found" | "expired" | "cooldown" | "resend_limit"; retryAfterSec?: number }
 > {
   const col = db.collection<AdminLoginChallengeDoc>(ADMIN_CHALLENGES_COLLECTION);
-  const challenge = await col.findOne({ _id: challengeId });
-  if (!challenge) return { ok: false, reason: "not_found" };
-  if (challenge.expiresAt.getTime() <= now.getTime()) return { ok: false, reason: "expired" };
-
-  const remainingMs = challenge.resendAvailableAt.getTime() - now.getTime();
-  if (remainingMs > 0) {
-    return { ok: false, reason: "cooldown", retryAfterSec: Math.ceil(remainingMs / 1000) };
-  }
+  const existing = await col.findOne({ _id: challengeId }, { projection: { createdAt: 1 } });
+  if (!existing) return { ok: false, reason: "not_found" };
 
   const code = generateSixDigitCode();
   const codeHash = hmacHash("challenge", code);
-  const expiresAt = new Date(now.getTime() + CHALLENGE_TTL_MS);
+  const maxExpiresAt = existing.createdAt.getTime() + CHALLENGE_MAX_LIFETIME_MS;
+  const expiresAt = new Date(Math.min(now.getTime() + CHALLENGE_TTL_MS, maxExpiresAt));
   const resendAvailableAt = new Date(now.getTime() + CHALLENGE_RESEND_COOLDOWN_MS);
 
-  await col.updateOne(
-    { _id: challengeId },
-    { $set: { codeHash, attempts: 0, expiresAt, resendAvailableAt } },
+  const updated = await col.findOneAndUpdate(
+    {
+      _id: challengeId,
+      expiresAt: { $gt: now },
+      resendAvailableAt: { $lte: now },
+      resendCount: { $lt: CHALLENGE_MAX_RESENDS },
+    },
+    { $set: { codeHash, expiresAt, resendAvailableAt }, $inc: { resendCount: 1 } },
+    { returnDocument: "after" },
   );
 
-  return { ok: true, adminId: challenge.adminId, code, resendAvailableAt };
+  if (!updated) {
+    const current = await col.findOne({ _id: challengeId });
+    if (!current) return { ok: false, reason: "not_found" };
+    if (current.expiresAt.getTime() <= now.getTime()) return { ok: false, reason: "expired" };
+    if (current.resendCount >= CHALLENGE_MAX_RESENDS) return { ok: false, reason: "resend_limit" };
+    const remainingMs = current.resendAvailableAt.getTime() - now.getTime();
+    return {
+      ok: false,
+      reason: "cooldown",
+      retryAfterSec: Math.max(1, Math.ceil(remainingMs / 1000)),
+    };
+  }
+
+  return { ok: true, adminId: updated.adminId, code, resendAvailableAt };
 }
 
 export async function verifyLoginChallengeCode(
@@ -254,13 +274,18 @@ export async function verifyLoginChallengeCode(
   | { ok: false; reason: "not_found" | "expired" | "too_many_attempts" | "invalid_code" | "disabled" }
 > {
   const challenges = db.collection<AdminLoginChallengeDoc>(ADMIN_CHALLENGES_COLLECTION);
-  const challenge = await challenges.findOne({ _id: challengeId });
-  if (!challenge) return { ok: false, reason: "not_found" };
-  if (challenge.expiresAt.getTime() <= now.getTime()) {
-    await challenges.deleteOne({ _id: challengeId });
-    return { ok: false, reason: "expired" };
-  }
-  if (challenge.attempts >= CHALLENGE_MAX_ATTEMPTS) {
+  const challenge = await challenges.findOneAndUpdate(
+    { _id: challengeId, expiresAt: { $gt: now }, attempts: { $lt: CHALLENGE_MAX_ATTEMPTS } },
+    { $inc: { attempts: 1 } },
+    { returnDocument: "after" },
+  );
+  if (!challenge) {
+    const existing = await challenges.findOne({ _id: challengeId });
+    if (!existing) return { ok: false, reason: "not_found" };
+    if (existing.expiresAt.getTime() <= now.getTime()) {
+      await challenges.deleteOne({ _id: challengeId });
+      return { ok: false, reason: "expired" };
+    }
     return { ok: false, reason: "too_many_attempts" };
   }
 
@@ -274,7 +299,8 @@ export async function verifyLoginChallengeCode(
   const trimmed = inputCode.trim();
   const candidateCodeHash = hmacHash("challenge", trimmed);
   if (safeEqualHex(candidateCodeHash, challenge.codeHash)) {
-    await challenges.deleteOne({ _id: challengeId });
+    const claimed = await challenges.findOneAndDelete({ _id: challengeId, codeHash: challenge.codeHash });
+    if (!claimed) return { ok: false, reason: "not_found" };
     return { ok: true, admin, usedBackupCode: false };
   }
 
@@ -293,12 +319,12 @@ export async function verifyLoginChallengeCode(
       { $pull: { backupCodeHashes: matchedBackupHash } },
     );
     if (pullRes.modifiedCount === 1) {
-      await challenges.deleteOne({ _id: challengeId });
+      const claimed = await challenges.findOneAndDelete({ _id: challengeId });
+      if (!claimed) return { ok: false, reason: "not_found" };
       return { ok: true, admin, usedBackupCode: true };
     }
   }
 
-  await challenges.updateOne({ _id: challengeId }, { $inc: { attempts: 1 } });
   return { ok: false, reason: "invalid_code" };
 }
 

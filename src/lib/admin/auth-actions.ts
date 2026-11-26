@@ -199,6 +199,22 @@ export async function verifyLoginCodeAction(
 
   const db = await getDb();
   await ensureAdminIndexes(db);
+  const meta = await getRequestMeta();
+  const rateOk = await consumeRateLimit(
+    db,
+    `admin-code:ip:${meta.ipHash}`,
+    15 * 60 * 1000,
+    20,
+  );
+  if (!rateOk) {
+    return {
+      step: "code",
+      maskedEmail: prev.step === "code" ? prev.maskedEmail : "***",
+      resendAvailableAt: prev.step === "code" ? prev.resendAvailableAt : new Date().toISOString(),
+      error: "Too many attempts. Wait 15 minutes and try again.",
+    };
+  }
+
   const result = await verifyLoginChallengeCode(db, challengeId, parsed.data.code);
 
   if (!result.ok) {
@@ -219,7 +235,6 @@ export async function verifyLoginCodeAction(
   }
 
   cookieStore.delete({ name: CHALLENGE_COOKIE_NAME, path: "/admin" });
-  const meta = await getRequestMeta();
   const session = await createSession(db, result.admin._id, meta);
   cookieStore.set(
     SESSION_COOKIE_NAME,
@@ -282,7 +297,11 @@ export async function resendCodeAction(prev: LoginActionState): Promise<LoginAct
       };
     }
     cookieStore.delete({ name: CHALLENGE_COOKIE_NAME, path: "/admin" });
-    return { step: "credentials", error: "Sign-in session expired. Sign in again." };
+    const msg =
+      res.reason === "resend_limit"
+        ? "Too many codes requested. Sign in again."
+        : "Sign-in session expired. Sign in again.";
+    return { step: "credentials", error: msg };
   }
 
   const admin = await db.collection<AdminDoc>(ADMINS_COLLECTION).findOne({ _id: res.adminId });

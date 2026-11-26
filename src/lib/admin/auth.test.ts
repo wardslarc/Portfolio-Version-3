@@ -1,6 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { MongoClient, ObjectId, type Db } from "mongodb";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { AdminLoginChallengeDoc } from "./auth";
 
 vi.mock("server-only", () => ({}));
 
@@ -230,5 +231,107 @@ describe("admin auth core", () => {
     const rejected = await getSessionAndAdmin(db, session.token, now);
     expect(rejected).toBeNull();
     expect(await db.collection("admin_sessions").countDocuments({})).toBe(0);
+  });
+
+  it("caps parallel wrong code attempts atomically at 5", async () => {
+    const admin = await insertTestAdmin();
+    const now = new Date("2026-11-26T12:00:00Z");
+    const c = await createLoginChallenge(db, admin._id, now);
+
+    const results = await Promise.all(
+      Array.from({ length: 20 }, () => verifyLoginChallengeCode(db, c.challengeId, "000000", now)),
+    );
+
+    const invalidCount = results.filter((r) => !r.ok && r.reason === "invalid_code").length;
+    const lockedCount = results.filter((r) => !r.ok && r.reason === "too_many_attempts").length;
+    expect(invalidCount).toBe(5);
+    expect(lockedCount).toBe(15);
+
+    const stored = await db
+      .collection<AdminLoginChallengeDoc>(ADMIN_CHALLENGES_COLLECTION)
+      .findOne({ _id: c.challengeId });
+    expect(stored?.attempts).toBe(5);
+  });
+
+  it("does not reset attempt count on resend", async () => {
+    const admin = await insertTestAdmin();
+    const now = new Date("2026-11-26T12:00:00Z");
+    const c = await createLoginChallenge(db, admin._id, now);
+
+    for (let i = 0; i < 4; i++) {
+      const bad = await verifyLoginChallengeCode(db, c.challengeId, "000000", now);
+      expect(bad).toEqual({ ok: false, reason: "invalid_code" });
+    }
+
+    const resent = await resendLoginChallenge(db, c.challengeId, new Date(now.getTime() + 61_000));
+    expect(resent.ok).toBe(true);
+    if (!resent.ok) return;
+
+    const fifth = await verifyLoginChallengeCode(
+      db,
+      c.challengeId,
+      resent.code,
+      new Date(now.getTime() + 62_000),
+    );
+    expect(fifth.ok).toBe(true);
+
+    const sixth = await verifyLoginChallengeCode(
+      db,
+      c.challengeId,
+      resent.code,
+      new Date(now.getTime() + 63_000),
+    );
+    expect(sixth.ok).toBe(false);
+  });
+
+  it("enforces max 3 resends and caps expiresAt at createdAt + 30 min", async () => {
+    const admin = await insertTestAdmin();
+    const createdAt = new Date("2026-11-26T12:00:00Z");
+    const c = await createLoginChallenge(db, admin._id, createdAt);
+
+    // Resend 1 at +9m, Resend 2 at +18m, Resend 3 at +27m -> expiresAt capped at +30m
+    const r1 = await resendLoginChallenge(db, c.challengeId, new Date(createdAt.getTime() + 9 * 60_000));
+    expect(r1.ok).toBe(true);
+    const r2 = await resendLoginChallenge(db, c.challengeId, new Date(createdAt.getTime() + 18 * 60_000));
+    expect(r2.ok).toBe(true);
+    const r3 = await resendLoginChallenge(db, c.challengeId, new Date(createdAt.getTime() + 27 * 60_000));
+    expect(r3.ok).toBe(true);
+
+    const stored = await db
+      .collection<AdminLoginChallengeDoc>(ADMIN_CHALLENGES_COLLECTION)
+      .findOne({ _id: c.challengeId });
+    expect(stored?.expiresAt.getTime()).toBeLessThanOrEqual(createdAt.getTime() + 30 * 60_000);
+    expect(stored?.expiresAt.getTime()).toBe(createdAt.getTime() + 30 * 60_000);
+
+    const r4 = await resendLoginChallenge(db, c.challengeId, new Date(createdAt.getTime() + 28 * 60_000 + 61_000));
+    expect(r4).toEqual({ ok: false, reason: "resend_limit" });
+  });
+
+  it("allows parallel submissions of the correct code to succeed only once", async () => {
+    const admin = await insertTestAdmin();
+    const now = new Date("2026-11-26T12:00:00Z");
+    const c = await createLoginChallenge(db, admin._id, now);
+
+    const [a, b] = await Promise.all([
+      verifyLoginChallengeCode(db, c.challengeId, c.code, now),
+      verifyLoginChallengeCode(db, c.challengeId, c.code, now),
+    ]);
+
+    expect([a.ok, b.ok].filter(Boolean)).toHaveLength(1);
+  });
+
+  it("allows parallel submissions of the same backup code to succeed only once", async () => {
+    const admin = await insertTestAdmin();
+    const codes = await generateAndStoreBackupCodes(db, admin._id);
+    const now = new Date("2026-11-26T12:00:00Z");
+    const c1 = await createLoginChallenge(db, admin._id, now);
+    const c2 = await createLoginChallenge(db, admin._id, now);
+
+    const [a, b] = await Promise.all([
+      verifyLoginChallengeCode(db, c1.challengeId, codes[0]!, now),
+      verifyLoginChallengeCode(db, c2.challengeId, codes[0]!, now),
+    ]);
+
+    expect([a.ok, b.ok].filter(Boolean)).toHaveLength(1);
   });
 });
