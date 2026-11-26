@@ -1,4 +1,4 @@
-import { MongoMemoryServer } from "mongodb-memory-server";
+import { MongoMemoryReplSet } from "mongodb-memory-server";
 import { MongoClient, ObjectId, type Db } from "mongodb";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AdminInviteDoc, AdminSessionDoc } from "./auth";
@@ -25,21 +25,21 @@ const {
 } = await import("./mutations");
 
 describe("admin management guards", () => {
-  let mongod: MongoMemoryServer;
+  let replSet: MongoMemoryReplSet;
   let client: MongoClient;
   let db: Db;
 
   beforeAll(async () => {
     process.env.ADMIN_SECRET = "test-admin-secret-for-admins";
-    mongod = await MongoMemoryServer.create();
-    client = await MongoClient.connect(mongod.getUri());
+    replSet = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
+    client = await MongoClient.connect(replSet.getUri());
     db = client.db("admin_guards_test");
     await ensureAdminIndexes(db);
   });
 
   afterAll(async () => {
     await client?.close();
-    await mongod?.stop();
+    await replSet?.stop();
   });
 
   beforeEach(async () => {
@@ -49,6 +49,7 @@ describe("admin management guards", () => {
       db.collection(ADMIN_SESSIONS_COLLECTION).deleteMany({}),
       db.collection(ADMIN_TRUSTED_DEVICES_COLLECTION).deleteMany({}),
       db.collection("admin_audit").deleteMany({}),
+      db.collection("admin_meta").deleteMany({}),
     ]);
   });
 
@@ -140,5 +141,54 @@ describe("admin management guards", () => {
 
     expect(await db.collection<AdminSessionDoc>(ADMIN_SESSIONS_COLLECTION).findOne({ _id: s1.tokenHash })).not.toBeNull();
     expect(await db.collection<AdminSessionDoc>(ADMIN_SESSIONS_COLLECTION).findOne({ _id: s2.tokenHash })).toBeNull();
+  });
+
+  it("prevents two Owners from concurrently demoting each other", async () => {
+    const ownerA = await seedAdmin("owner-a@example.com", "owner");
+    const ownerB = await seedAdmin("owner-b@example.com", "owner");
+
+    const results = await Promise.all([
+      changeAdminRole(db, ownerA, ownerB._id.toString(), "admin"),
+      changeAdminRole(db, ownerB, ownerA._id.toString(), "admin"),
+    ]);
+
+    const successes = results.filter((r) => r.ok);
+    const failures = results.filter((r) => !r.ok);
+    expect(successes).toHaveLength(1);
+    expect(failures).toEqual([{ ok: false, error: "Cannot demote the last Owner." }]);
+    expect(await db.collection(ADMINS_COLLECTION).countDocuments({ role: "owner", disabledAt: null })).toBe(1);
+  });
+
+  it("prevents two Owners from concurrently removing each other", async () => {
+    const ownerA = await seedAdmin("owner-a@example.com", "owner");
+    const ownerB = await seedAdmin("owner-b@example.com", "owner");
+
+    const results = await Promise.all([
+      removeAdmin(db, ownerA, ownerB._id.toString()),
+      removeAdmin(db, ownerB, ownerA._id.toString()),
+    ]);
+
+    const successes = results.filter((r) => r.ok);
+    const failures = results.filter((r) => !r.ok);
+    expect(successes).toHaveLength(1);
+    expect(failures).toEqual([{ ok: false, error: "Cannot remove the last Owner." }]);
+    expect(await db.collection(ADMINS_COLLECTION).countDocuments({ role: "owner", disabledAt: null })).toBe(1);
+  });
+
+  it("prevents concurrent remove and demote between two Owners", async () => {
+    const ownerA = await seedAdmin("owner-a@example.com", "owner");
+    const ownerB = await seedAdmin("owner-b@example.com", "owner");
+
+    const results = await Promise.all([
+      removeAdmin(db, ownerA, ownerB._id.toString()),
+      changeAdminRole(db, ownerB, ownerA._id.toString(), "admin"),
+    ]);
+
+    const successes = results.filter((r) => r.ok);
+    const failures = results.filter((r) => !r.ok);
+    expect(successes).toHaveLength(1);
+    expect(failures).toHaveLength(1);
+    expect(failures[0]).toMatchObject({ ok: false });
+    expect(await db.collection(ADMINS_COLLECTION).countDocuments({ role: "owner", disabledAt: null })).toBe(1);
   });
 });

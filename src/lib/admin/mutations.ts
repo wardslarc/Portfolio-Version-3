@@ -1,6 +1,6 @@
 import "server-only";
 import { Chess } from "chess.js";
-import { ObjectId, type Db } from "mongodb";
+import { ObjectId, type ClientSession, type Db } from "mongodb";
 import {
   GAMES_COLLECTION,
   LOCKS_COLLECTION,
@@ -342,6 +342,43 @@ export async function revokeAdminInvite(
   return false;
 }
 
+const ADMIN_META_COLLECTION = "admin_meta";
+
+async function touchOwnerGuard(db: Db, session: ClientSession) {
+  await db
+    .collection<{ _id: string; v: number }>(ADMIN_META_COLLECTION)
+    .updateOne({ _id: "owner-guard" }, { $inc: { v: 1 } }, { upsert: true, session });
+}
+
+async function runWithTxRetry<T>(
+  db: Db,
+  fn: (session: ClientSession) => Promise<{ commit: true; value: T } | { commit: false; value: T }>,
+): Promise<T> {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const session = db.client.startSession();
+    try {
+      session.startTransaction({
+        readConcern: { level: "snapshot" },
+        writeConcern: { w: "majority" },
+      });
+      const result = await fn(session);
+      if (!result.commit) {
+        await session.abortTransaction();
+        return result.value;
+      }
+      await session.commitTransaction();
+      return result.value;
+    } catch (err) {
+      await session.abortTransaction().catch(() => {});
+      if (attempt < 3 && isTransientTxError(err)) continue;
+      throw err;
+    } finally {
+      await session.endSession();
+    }
+  }
+  throw new Error("Transaction failed after retries");
+}
+
 export async function changeAdminRole(
   db: Db,
   actor: AdminDoc,
@@ -352,19 +389,33 @@ export async function changeAdminRole(
   if (!ObjectId.isValid(targetAdminId)) return { ok: false, error: "Invalid admin ID." };
 
   const admins = db.collection<AdminDoc>(ADMINS_COLLECTION);
-  const target = await admins.findOne({ _id: new ObjectId(targetAdminId) });
-  if (!target) return { ok: false, error: "Admin not found." };
+  const res = await runWithTxRetry<
+    { ok: true; target?: AdminDoc; changed: boolean } | { ok: false; error: string }
+  >(db, async (session) => {
+    await touchOwnerGuard(db, session);
 
-  if (target.role === "owner" && newRole !== "owner") {
-    const ownerCount = await admins.countDocuments({ role: "owner", disabledAt: null });
-    if (ownerCount <= 1) {
-      return { ok: false, error: "Cannot demote the last Owner." };
+    const target = await admins.findOne({ _id: new ObjectId(targetAdminId) }, { session });
+    if (!target) return { commit: false, value: { ok: false, error: "Admin not found." } };
+
+    if (target.role === "owner" && newRole !== "owner") {
+      const ownerCount = await admins.countDocuments({ role: "owner", disabledAt: null }, { session });
+      if (ownerCount <= 1) {
+        return { commit: false, value: { ok: false, error: "Cannot demote the last Owner." } };
+      }
     }
-  }
 
-  if (target.role === newRole) return { ok: true };
-  await admins.updateOne({ _id: target._id }, { $set: { role: newRole } });
-  await logAudit(db, actor, "admin.role_changed", target.email, `${target.role} -> ${newRole}`);
+    if (target.role === newRole) {
+      return { commit: false, value: { ok: true, changed: false } };
+    }
+
+    await admins.updateOne({ _id: target._id }, { $set: { role: newRole } }, { session });
+    return { commit: true, value: { ok: true, target, changed: true } };
+  });
+
+  if (!res.ok) return res;
+  if (res.changed && res.target) {
+    await logAudit(db, actor, "admin.role_changed", res.target.email, `${res.target.role} -> ${newRole}`);
+  }
   return { ok: true };
 }
 
@@ -377,22 +428,32 @@ export async function removeAdmin(
   if (!ObjectId.isValid(targetAdminId)) return { ok: false, error: "Invalid admin ID." };
 
   const admins = db.collection<AdminDoc>(ADMINS_COLLECTION);
-  const target = await admins.findOne({ _id: new ObjectId(targetAdminId) });
-  if (!target) return { ok: false, error: "Admin not found." };
+  const res = await runWithTxRetry<{ ok: true; target: AdminDoc } | { ok: false; error: string }>(
+    db,
+    async (session) => {
+      await touchOwnerGuard(db, session);
 
-  if (target.role === "owner") {
-    const ownerCount = await admins.countDocuments({ role: "owner", disabledAt: null });
-    if (ownerCount <= 1) {
-      return { ok: false, error: "Cannot remove the last Owner." };
-    }
-  }
+      const target = await admins.findOne({ _id: new ObjectId(targetAdminId) }, { session });
+      if (!target) return { commit: false, value: { ok: false, error: "Admin not found." } };
 
-  await admins.deleteOne({ _id: target._id });
+      if (target.role === "owner") {
+        const ownerCount = await admins.countDocuments({ role: "owner", disabledAt: null }, { session });
+        if (ownerCount <= 1) {
+          return { commit: false, value: { ok: false, error: "Cannot remove the last Owner." } };
+        }
+      }
+
+      await admins.deleteOne({ _id: target._id }, { session });
+      return { commit: true, value: { ok: true, target } };
+    },
+  );
+
+  if (!res.ok) return res;
   await Promise.all([
-    revokeAllAdminSessions(db, target._id),
-    revokeAllAdminDevices(db, target._id),
+    revokeAllAdminSessions(db, res.target._id),
+    revokeAllAdminDevices(db, res.target._id),
   ]);
-  await logAudit(db, actor, "admin.removed", target.email, `Was ${target.role}`);
+  await logAudit(db, actor, "admin.removed", res.target.email, `Was ${res.target.role}`);
   return { ok: true };
 }
 
