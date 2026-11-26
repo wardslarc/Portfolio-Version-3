@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/lib/admin/auth-actions";
-import type { AdminRole } from "@/lib/admin/permissions";
+import { ROLE_LABELS, type AdminRole } from "@/lib/admin/permissions";
 
 export default function AdminShellNav({
   adminName,
@@ -15,6 +16,17 @@ export default function AdminShellNav({
   unreadCount: number;
 }) {
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
+  const activeLinkRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const activeEl = activeLinkRef.current;
+    if (!nav || !activeEl) return;
+    if (nav.scrollWidth > nav.clientWidth) {
+      activeEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+  }, [pathname]);
 
   const links = [
     { href: "/admin", label: "Overview", exact: true },
@@ -37,11 +49,16 @@ export default function AdminShellNav({
         </Link>
       </div>
 
-      <nav className="admin-nav">
+      <nav className="admin-nav" ref={navRef}>
         {links.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
-            <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}>
+            <Link
+              key={item.href}
+              href={item.href}
+              ref={active ? activeLinkRef : undefined}
+              aria-current={active ? "page" : undefined}
+            >
               <span>{item.label}</span>
               {item.badge !== undefined ? (
                 <span className="admin-badge accent" aria-label={`${item.badge} unread messages`}>
@@ -56,7 +73,7 @@ export default function AdminShellNav({
       <div className="admin-sidebar-footer">
         <div className="admin-user-meta">
           <div className="admin-user-name">{adminName}</div>
-          <div className="admin-user-role">signed in as · {adminRole}</div>
+          <div className="admin-user-role">Signed in as · {ROLE_LABELS[adminRole]}</div>
         </div>
         <form action={signOutAction}>
           <button type="submit" className="admin-btn sm">

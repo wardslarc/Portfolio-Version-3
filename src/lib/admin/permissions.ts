@@ -1,5 +1,11 @@
 export type AdminRole = "owner" | "admin" | "viewer";
 
+export const ROLE_LABELS: Record<AdminRole, string> = {
+  owner: "Owner",
+  admin: "Admin",
+  viewer: "Viewer",
+};
+
 export type AdminAction =
   | "overview:view"
   | "messages:view"

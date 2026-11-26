@@ -18,7 +18,7 @@ import type {
   SerializedInviteRow,
   SerializedSessionRow,
 } from "@/lib/admin/data";
-import type { AdminRole } from "@/lib/admin/permissions";
+import { ROLE_LABELS, type AdminRole } from "@/lib/admin/permissions";
 
 function formatDate(iso: string | null): string {
   if (!iso) return "Never";
@@ -179,9 +179,9 @@ export default function AdminsClient({
                           });
                         }}
                       >
-                        <option value="owner">owner</option>
-                        <option value="admin">admin</option>
-                        <option value="viewer">viewer</option>
+                        <option value="owner">{ROLE_LABELS.owner}</option>
+                        <option value="admin">{ROLE_LABELS.admin}</option>
+                        <option value="viewer">{ROLE_LABELS.viewer}</option>
                       </select>
                     </td>
                     <td className="mono" style={{ color: "var(--muted)" }}>
@@ -223,7 +223,7 @@ export default function AdminsClient({
                     {invites.map((inv) => (
                       <tr key={inv.email}>
                         <td className="mono">{inv.email}</td>
-                        <td className="mono">{inv.role}</td>
+                        <td className="mono">{ROLE_LABELS[inv.role]}</td>
                         <td className="mono" style={{ color: "var(--muted)" }}>
                           {formatDate(inv.expiresAt)}
                         </td>
@@ -474,9 +474,9 @@ export default function AdminsClient({
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value as AdminRole)}
             >
-              <option value="admin">admin</option>
-              <option value="viewer">viewer</option>
-              <option value="owner">owner</option>
+              <option value="admin">{ROLE_LABELS.admin}</option>
+              <option value="viewer">{ROLE_LABELS.viewer}</option>
+              <option value="owner">{ROLE_LABELS.owner}</option>
             </select>
           </div>
           <div className="admin-row-actions" style={{ justifyContent: "flex-end" }}>
