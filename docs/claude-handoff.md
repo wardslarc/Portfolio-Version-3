@@ -7,7 +7,10 @@ Paste this into a new chat to continue: "Read `docs/claude-handoff.md` and `docs
 - **Phase:** Gemini implemented all 12 tasks (`c944c8d`..`78ee619`). Claude reviewed them on 2026-11-26:
   lint/test/build pass, and five race/trust issues are written up as a fix spec in `docs/admin-fixes.md`
   (4 tasks). Gemini fixed them (`9cd1ce3`..`9507197`, plus `44efb76` for an empty-`SITE_URL`
-  fallback), and Claude re-reviewed them: 59 tests pass. Next: the UI vs. mockup check (themes, 360px/1280px).
+  fallback), and Claude re-reviewed them: 59 tests pass. Claude then ran a screenshot pass and fixed a
+  `connection()` prerender error and the mobile overflow (`bf5e0d6`). Gemini then did the UI polish in
+  `docs/admin-polish.md` (`ccff502`..`8fac170`), and Claude made a final pass on the chess move log and the sidebar header.
+  All specs are done. What's left is Carls's manual deploy setup and a real Resend email test.
 - **Who codes:** Gemini in Antigravity implements `docs/admin-plan.md`. Claude's role is planning,
   design, review and answering questions. Don't start implementing unless Carls asks.
 - **Git:** on `main`, clean at `4dd3024` when the session started. `docs/admin-plan.md` and this file are
@@ -18,6 +21,7 @@ Paste this into a new chat to continue: "Read `docs/claude-handoff.md` and `docs
 | What | Where |
 | --- | --- |
 | Security fix spec from the review (4 tasks) | `docs/admin-fixes.md` |
+| UI polish spec from the screenshot pass (4 tasks) | `docs/admin-polish.md` |
 | Full implementation spec (decisions, data model, flows, roles, 12 tasks, definition of done) | `docs/admin-plan.md` |
 | Clickable layout mockup (sample data): login + email code, invite accept, overview, messages, chess, admins | https://claude.ai/artifact/CwdKnwY2DUgKvmBg2UFPQj (slug `60b51305-6448-4a9d-ae2f-2df4a15245b8`, version `1795700292-5f9e`) |
 
