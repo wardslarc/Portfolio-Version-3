@@ -1,11 +1,28 @@
+import Image from "next/image";
 import { site } from "@/content/site";
+import photo from "../../public/carls-dale-escalo.jpg";
 import { FileIcon, GitHubIcon, LinkedInIcon, XIcon } from "./Icons";
 
 export default function Intro() {
   return (
     <section className="intro" id="top" aria-label="Introduction">
-      <h1>{site.name}</h1>
-      <p className="role">{site.role}</p>
+      <div className="intro-head">
+        <Image
+          className="avatar"
+          src={photo}
+          alt={`Portrait of ${site.name}`}
+          width={72}
+          height={72}
+          sizes="72px"
+          placeholder="blur"
+          loading="eager"
+          fetchPriority="high"
+        />
+        <div>
+          <h1>{site.name}</h1>
+          <p className="role">{site.role}</p>
+        </div>
+      </div>
       <p className="lede">
         I build internal tools that teams use every day: learning platforms, ticketing systems and
         company websites. I&apos;m currently a Systems Developer at <strong>{site.employer}</strong>,

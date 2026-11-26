@@ -6,13 +6,14 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-const title = `${site.name} | Systems & Full-Stack Developer`;
+const title = `${site.name} | ${site.headline}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title,
   description: site.description,
-  authors: [{ name: site.name }],
+  applicationName: site.name,
+  authors: [{ name: site.name, url: site.url }],
   creator: site.name,
   alternates: { canonical: "/" },
   openGraph: {
@@ -21,9 +22,11 @@ export const metadata: Metadata = {
     url: "/",
     siteName: site.name,
     locale: "en_US",
-    type: "website",
+    type: "profile",
+    firstName: "Carls Dale",
+    lastName: "Escalo",
   },
-  twitter: { card: "summary_large_image", title, description: site.description },
+  twitter: { card: "summary_large_image", title, description: site.description, creator: "@daleonigiri" },
   robots: { index: true, follow: true },
 };
 
