@@ -89,7 +89,7 @@ const roleSchema = z.enum(["owner", "admin", "viewer"]);
 const emailSchema = z.string().trim().toLowerCase().email("Enter a valid email.").max(200);
 
 function inviteUrl(token: string): string {
-  const base = (process.env.SITE_URL ?? site.url).replace(/\/+$/, "");
+  const base = (process.env.SITE_URL?.trim() || site.url).replace(/\/+$/, "");
   return `${base}/admin/invite/${token}`;
 }
 
