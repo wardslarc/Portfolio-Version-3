@@ -72,12 +72,32 @@ Open http://localhost:3000. The contact form returns a "not available" message u
 - **Receiving:** Cloudflare's free **Email Routing** can forward `mail@carlsdaleescalo.com` to your personal inbox.
 - **Sending:** to send notifications from `noreply@carlsdaleescalo.com`, verify the domain in Resend. This means adding the SPF and DKIM records Resend gives you in Cloudflare DNS.
 
+## Admin area
+
+The `/admin` area is a guarded control panel for managing contact messages, moderating visitor chess, and managing admin access.
+
+- **Authentication:** Email + password followed by a 6-digit one-time code sent via Resend (or a one-time backup code), with an optional 30-day trusted-device cookie.
+- **Roles:** `owner` (full access including team management), `admin` (messages, chess moderation, activity log), and `viewer` (read-only).
+- **Bootstrap the first Owner:**
+
+```bash
+# Set ADMIN_OWNER_EMAIL, ADMIN_SECRET, and MONGODB_URI in .env.local
+npm run admin:setup
+```
+
+Open the printed one-time `/admin/invite/<token>` link to set your name and password, then sign in at `/admin/login`.
+
+## Vercel Analytics
+
+Vercel Web Analytics and Speed Insights are enabled on the public site (`src/components/Telemetry.tsx`). Both use a `beforeSend` filter (`src/lib/analytics.ts`) to drop any `/admin` URLs, and `/admin` is disallowed in `src/app/robots.ts`.
+
 ## Scripts
 
-| Command         | What it does             |
-|-----------------|--------------------------|
-| `npm run dev`   | Start the dev server     |
-| `npm run build` | Production build         |
-| `npm run start` | Serve the production build |
-| `npm run lint`  | ESLint                   |
-| `npm test`      | Run unit tests (Vitest)  |
+| Command               | What it does                               |
+|-----------------------|--------------------------------------------|
+| `npm run dev`         | Start the dev server                       |
+| `npm run build`       | Production build                           |
+| `npm run start`       | Serve the production build                 |
+| `npm run lint`        | ESLint                                     |
+| `npm test`            | Run unit tests (Vitest)                    |
+| `npm run admin:setup` | Create the initial Owner invite in MongoDB |

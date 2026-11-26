@@ -280,7 +280,7 @@ export default function ChessAdminClient({
                           <button
                             type="button"
                             className="admin-btn sm"
-                            style={{ minHeight: "30px", padding: "0 8px" }}
+                            style={{ minWidth: "44px", padding: "0 10px" }}
                             onClick={() => setViewPly(m.ply)}
                           >
                             {m.ply}
