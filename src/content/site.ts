@@ -5,8 +5,7 @@ export const site = {
   url: "https://www.carlsdaleescalo.com",
   description:
     "Carls Dale Escalo is a systems and full-stack developer in Makati who builds internal tools, learning platforms and company websites with Next.js, Node.js and MongoDB.",
-  // TODO: confirm this address exists (e.g. via Cloudflare Email Routing) before launch.
-  email: "hello@carlsdaleescalo.com",
+  email: "mail@carlsdaleescalo.com",
   resume: "/Escalo-CarlsDale_Resume.pdf",
   availability: "Open to freelance projects",
   employer: "Rustan Marketing Corporation",

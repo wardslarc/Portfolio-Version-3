@@ -69,7 +69,7 @@ Open http://localhost:3000. The contact form returns a "not available" message u
 
 ### Email on your domain
 
-- **Receiving:** Cloudflare's free **Email Routing** can forward `hello@carlsdaleescalo.com` to your personal inbox.
+- **Receiving:** Cloudflare's free **Email Routing** can forward `mail@carlsdaleescalo.com` to your personal inbox.
 - **Sending:** to send notifications from `noreply@carlsdaleescalo.com`, verify the domain in Resend. This means adding the SPF and DKIM records Resend gives you in Cloudflare DNS.
 
 ## Scripts
