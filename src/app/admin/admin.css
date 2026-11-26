@@ -530,10 +530,12 @@ dialog.admin-dialog::backdrop {
 /* Mobile tab strip at <= 760px */
 @media (max-width: 760px) {
   .admin-shell {
-    grid-template-columns: 1fr;
+    /* minmax(0, …) lets the tab strip scroll instead of widening the page. */
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .admin-sidebar {
+    min-width: 0;
     position: sticky;
     top: 0;
     z-index: 10;

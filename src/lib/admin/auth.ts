@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { ObjectId, type Db } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import { ADMIN_AUDIT_COLLECTION } from "./audit";
@@ -420,6 +421,8 @@ export async function revokeAllAdminDevices(db: Db, adminId: ObjectId): Promise<
 }
 
 export async function getCurrentAdmin(): Promise<{ admin: AdminDoc; session: AdminSessionDoc } | null> {
+  // Session checks read the current time, which Next only allows at request time.
+  await connection();
   const cookieStore = await cookies();
   const rawToken = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!rawToken) return null;
