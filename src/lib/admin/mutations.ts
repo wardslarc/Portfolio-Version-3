@@ -9,9 +9,21 @@ import {
   type ChessMoveLockDoc,
 } from "@/lib/chess";
 import { logAudit } from "./audit";
-import type { AdminDoc } from "./auth";
+import {
+  ADMINS_COLLECTION,
+  ADMIN_INVITES_COLLECTION,
+  ADMIN_SESSIONS_COLLECTION,
+  INVITE_TTL_MS,
+  generateAndStoreBackupCodes,
+  revokeAllAdminDevices,
+  revokeAllAdminSessions,
+  type AdminDoc,
+  type AdminInviteDoc,
+  type AdminSessionDoc,
+} from "./auth";
+import { generateRandomToken, hashPassword, hmacHash, verifyPassword } from "./crypto";
 import type { MessageRecord } from "./data";
-import { can } from "./permissions";
+import { can, type AdminRole } from "./permissions";
 
 export async function mutateMessageRead(
   db: Db,
@@ -246,4 +258,189 @@ export async function endChessGame(
     `Ended as draw; started Game ${nextGame.number}`,
   );
   return { ok: true, nextGameNumber: nextGame.number };
+}
+
+export async function createAdminInvite(
+  db: Db,
+  actor: AdminDoc,
+  input: { email: string; role: AdminRole },
+  now = new Date(),
+): Promise<{ ok: true; token: string; email: string; role: AdminRole } | { ok: false; error: string }> {
+  if (!can(actor.role, "admins:manage")) throw new Error("Forbidden");
+  const email = input.email.trim().toLowerCase();
+
+  const existing = await db.collection<AdminDoc>(ADMINS_COLLECTION).findOne({ email });
+  if (existing) {
+    return { ok: false, error: "An admin account with this email already exists." };
+  }
+
+  const invites = db.collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION);
+  await invites.deleteMany({ email, acceptedAt: null });
+
+  const token = generateRandomToken(32);
+  const tokenHash = hmacHash("invite", token);
+  await invites.insertOne({
+    _id: tokenHash,
+    email,
+    role: input.role,
+    invitedBy: actor._id,
+    createdAt: now,
+    expiresAt: new Date(now.getTime() + INVITE_TTL_MS),
+    acceptedAt: null,
+  });
+
+  await logAudit(db, actor, "admin.invite", email, `Role: ${input.role}`);
+  return { ok: true, token, email, role: input.role };
+}
+
+export async function resendAdminInvite(
+  db: Db,
+  actor: AdminDoc,
+  emailInput: string,
+  now = new Date(),
+): Promise<{ ok: true; token: string; email: string; role: AdminRole } | { ok: false; error: string }> {
+  if (!can(actor.role, "admins:manage")) throw new Error("Forbidden");
+  const email = emailInput.trim().toLowerCase();
+  const invites = db.collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION);
+  const existing = await invites.findOne({ email, acceptedAt: null });
+  if (!existing) {
+    return { ok: false, error: "No pending invite found for this email." };
+  }
+
+  await invites.deleteMany({ email, acceptedAt: null });
+  const token = generateRandomToken(32);
+  const tokenHash = hmacHash("invite", token);
+  await invites.insertOne({
+    _id: tokenHash,
+    email,
+    role: existing.role,
+    invitedBy: actor._id,
+    createdAt: now,
+    expiresAt: new Date(now.getTime() + INVITE_TTL_MS),
+    acceptedAt: null,
+  });
+
+  await logAudit(db, actor, "admin.invite_resent", email, `Role: ${existing.role}`);
+  return { ok: true, token, email, role: existing.role };
+}
+
+export async function revokeAdminInvite(
+  db: Db,
+  actor: AdminDoc,
+  emailInput: string,
+): Promise<boolean> {
+  if (!can(actor.role, "admins:manage")) throw new Error("Forbidden");
+  const email = emailInput.trim().toLowerCase();
+  const res = await db.collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION).deleteMany({
+    email,
+    acceptedAt: null,
+  });
+  if (res.deletedCount > 0) {
+    await logAudit(db, actor, "admin.invite_revoked", email);
+    return true;
+  }
+  return false;
+}
+
+export async function changeAdminRole(
+  db: Db,
+  actor: AdminDoc,
+  targetAdminId: string,
+  newRole: AdminRole,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!can(actor.role, "admins:manage")) throw new Error("Forbidden");
+  if (!ObjectId.isValid(targetAdminId)) return { ok: false, error: "Invalid admin ID." };
+
+  const admins = db.collection<AdminDoc>(ADMINS_COLLECTION);
+  const target = await admins.findOne({ _id: new ObjectId(targetAdminId) });
+  if (!target) return { ok: false, error: "Admin not found." };
+
+  if (target.role === "owner" && newRole !== "owner") {
+    const ownerCount = await admins.countDocuments({ role: "owner", disabledAt: null });
+    if (ownerCount <= 1) {
+      return { ok: false, error: "Cannot demote the last Owner." };
+    }
+  }
+
+  if (target.role === newRole) return { ok: true };
+  await admins.updateOne({ _id: target._id }, { $set: { role: newRole } });
+  await logAudit(db, actor, "admin.role_changed", target.email, `${target.role} -> ${newRole}`);
+  return { ok: true };
+}
+
+export async function removeAdmin(
+  db: Db,
+  actor: AdminDoc,
+  targetAdminId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!can(actor.role, "admins:manage")) throw new Error("Forbidden");
+  if (!ObjectId.isValid(targetAdminId)) return { ok: false, error: "Invalid admin ID." };
+
+  const admins = db.collection<AdminDoc>(ADMINS_COLLECTION);
+  const target = await admins.findOne({ _id: new ObjectId(targetAdminId) });
+  if (!target) return { ok: false, error: "Admin not found." };
+
+  if (target.role === "owner") {
+    const ownerCount = await admins.countDocuments({ role: "owner", disabledAt: null });
+    if (ownerCount <= 1) {
+      return { ok: false, error: "Cannot remove the last Owner." };
+    }
+  }
+
+  await admins.deleteOne({ _id: target._id });
+  await Promise.all([
+    revokeAllAdminSessions(db, target._id),
+    revokeAllAdminDevices(db, target._id),
+  ]);
+  await logAudit(db, actor, "admin.removed", target.email, `Was ${target.role}`);
+  return { ok: true };
+}
+
+export async function changeOwnPassword(
+  db: Db,
+  actor: AdminDoc,
+  currentSessionTokenHash: string,
+  input: { currentPassword: string; newPassword: string },
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!can(actor.role, "security:self")) throw new Error("Forbidden");
+  const valid = await verifyPassword(input.currentPassword, actor.passwordHash);
+  if (!valid) {
+    return { ok: false, error: "Current password is incorrect." };
+  }
+  if (input.newPassword.length < 12) {
+    return { ok: false, error: "New password must be at least 12 characters." };
+  }
+
+  const passwordHash = await hashPassword(input.newPassword);
+  await db.collection<AdminDoc>(ADMINS_COLLECTION).updateOne(
+    { _id: actor._id },
+    { $set: { passwordHash, passwordChangedAt: new Date() } },
+  );
+  await revokeAllAdminSessions(db, actor._id, currentSessionTokenHash);
+  await logAudit(db, actor, "security.password_changed", actor.email, "Signed out other sessions");
+  return { ok: true };
+}
+
+export async function regenerateOwnBackupCodes(db: Db, actor: AdminDoc): Promise<string[]> {
+  if (!can(actor.role, "security:self")) throw new Error("Forbidden");
+  const codes = await generateAndStoreBackupCodes(db, actor._id);
+  await logAudit(db, actor, "security.backup_codes_regenerated", actor.email);
+  return codes;
+}
+
+export async function revokeOwnSession(
+  db: Db,
+  actor: AdminDoc,
+  sessionTokenHash: string,
+): Promise<boolean> {
+  if (!can(actor.role, "security:self")) throw new Error("Forbidden");
+  const res = await db.collection<AdminSessionDoc>(ADMIN_SESSIONS_COLLECTION).deleteOne({
+    _id: sessionTokenHash,
+    adminId: actor._id,
+  });
+  if (res.deletedCount > 0) {
+    await logAudit(db, actor, "security.session_revoked", actor.email);
+    return true;
+  }
+  return false;
 }

@@ -1,6 +1,16 @@
 import "server-only";
 import { ObjectId, type Db, type Filter } from "mongodb";
 import { GAMES_COLLECTION, type ChessGameDoc } from "@/lib/chess";
+import { ADMIN_AUDIT_COLLECTION, type AdminAuditDoc } from "./audit";
+import {
+  ADMINS_COLLECTION,
+  ADMIN_INVITES_COLLECTION,
+  ADMIN_SESSIONS_COLLECTION,
+  type AdminDoc,
+  type AdminInviteDoc,
+  type AdminSessionDoc,
+} from "./auth";
+import type { AdminRole } from "./permissions";
 
 export const MESSAGE_PAGE_SIZE = 25;
 export type MessageFilter = "all" | "unread" | "noemail" | "archived";
@@ -220,5 +230,110 @@ export async function queryAdminChessData(
       startedAt: g.startedAt.toISOString(),
       endedAt: g.endedAt ? g.endedAt.toISOString() : null,
     })),
+  };
+}
+
+export interface SerializedAdminRow {
+  id: string;
+  email: string;
+  name: string;
+  role: AdminRole;
+  lastSignInAt: string | null;
+  createdAt: string;
+  disabledAt: string | null;
+}
+
+export interface SerializedInviteRow {
+  email: string;
+  role: AdminRole;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface SerializedSessionRow {
+  id: string;
+  userAgent: string;
+  city: string | null;
+  country: string | null;
+  createdAt: string;
+  lastSeenAt: string;
+  isCurrent: boolean;
+}
+
+export interface SerializedAuditRow {
+  id: string;
+  adminName: string;
+  action: string;
+  target: string;
+  detail: string;
+  at: string;
+}
+
+export async function queryAdminsPageData(
+  db: Db,
+  currentAdmin: AdminDoc,
+  currentSessionTokenHash: string,
+  opts: { canManageAdmins: boolean; canViewAudit: boolean },
+) {
+  const now = new Date();
+  const [adminDocs, inviteDocs, sessionDocs, auditDocs] = await Promise.all([
+    opts.canManageAdmins
+      ? db
+          .collection<AdminDoc>(ADMINS_COLLECTION)
+          .find({}, { projection: { passwordHash: 0, backupCodeHashes: 0 } })
+          .sort({ createdAt: 1 })
+          .toArray()
+      : Promise.resolve([]),
+    opts.canManageAdmins
+      ? db
+          .collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION)
+          .find({ acceptedAt: null, expiresAt: { $gt: now } }, { projection: { _id: 0 } })
+          .sort({ createdAt: -1 })
+          .toArray()
+      : Promise.resolve([]),
+    db
+      .collection<AdminSessionDoc>(ADMIN_SESSIONS_COLLECTION)
+      .find({ adminId: currentAdmin._id, expiresAt: { $gt: now } })
+      .sort({ lastSeenAt: -1 })
+      .toArray(),
+    opts.canViewAudit
+      ? db.collection<AdminAuditDoc>(ADMIN_AUDIT_COLLECTION).find({}).sort({ at: -1 }).limit(50).toArray()
+      : Promise.resolve([]),
+  ]);
+
+  return {
+    admins: adminDocs.map((a): SerializedAdminRow => ({
+      id: a._id.toString(),
+      email: a.email,
+      name: a.name,
+      role: a.role,
+      lastSignInAt: a.lastSignInAt ? a.lastSignInAt.toISOString() : null,
+      createdAt: a.createdAt.toISOString(),
+      disabledAt: a.disabledAt ? a.disabledAt.toISOString() : null,
+    })),
+    invites: inviteDocs.map((i): SerializedInviteRow => ({
+      email: i.email,
+      role: i.role,
+      createdAt: i.createdAt.toISOString(),
+      expiresAt: i.expiresAt.toISOString(),
+    })),
+    sessions: sessionDocs.map((s): SerializedSessionRow => ({
+      id: s._id,
+      userAgent: s.userAgent,
+      city: s.city,
+      country: s.country,
+      createdAt: s.createdAt.toISOString(),
+      lastSeenAt: s.lastSeenAt.toISOString(),
+      isCurrent: s._id === currentSessionTokenHash,
+    })),
+    audit: auditDocs.map((e): SerializedAuditRow => ({
+      id: e._id?.toString() ?? `${e.at.getTime()}-${e.action}`,
+      adminName: e.adminName,
+      action: e.action,
+      target: e.target,
+      detail: e.detail,
+      at: e.at.toISOString(),
+    })),
+    backupCodesRemaining: currentAdmin.backupCodeHashes.length,
   };
 }
