@@ -28,6 +28,18 @@ function formatDate(iso: string): string {
   });
 }
 
+// Date and time as separate unbreakable parts, so a narrow column wraps between them only.
+function DateTimeParts({ iso }: { iso: string }) {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return (
+    <span>
+      <span className="admin-nowrap">{date},</span> <span className="admin-nowrap">{time}</span>
+    </span>
+  );
+}
+
 export default function ChessAdminClient({
   game,
   activeGameNumber,
@@ -254,8 +266,8 @@ export default function ChessAdminClient({
           {game.moves.length === 0 ? (
             <p className="admin-auth-sub">No moves played yet.</p>
           ) : (
-            <div className="admin-table-wrap" style={{ maxHeight: "420px", overflowY: "auto" }}>
-              <table className="admin-table stack-mobile">
+            <div className="admin-table-wrap admin-move-log">
+              <table className="admin-table stack-mobile compact">
                 <thead>
                   <tr>
                     <th>Ply</th>
@@ -282,6 +294,7 @@ export default function ChessAdminClient({
                               type="button"
                               className="admin-btn sm"
                               style={{ minWidth: "44px", padding: "0 10px" }}
+                              aria-label={`Show position at ply ${m.ply}`}
                               onClick={() => setViewPly(m.ply)}
                             >
                               {m.ply}
@@ -292,12 +305,14 @@ export default function ChessAdminClient({
                           {m.san}
                         </td>
                         <td data-label="From → To" className="mono">
-                          {m.from} → {m.to}
+                          <span className="admin-nowrap">
+                            {m.from} → {m.to}
+                          </span>
                         </td>
                         <td data-label="Location">{loc}</td>
                         <td data-label="Visitor" className="mono">{m.visitorPrefix}</td>
                         <td data-label="Time" className="mono" style={{ color: "var(--muted)" }}>
-                          {formatDate(m.playedAt)}
+                          <DateTimeParts iso={m.playedAt} />
                         </td>
                         {canMutate ? (
                           <td data-label="Cooldown">
@@ -306,6 +321,7 @@ export default function ChessAdminClient({
                                 type="button"
                                 className="admin-btn sm"
                                 disabled={pending}
+                                aria-label={`Clear cooldown for visitor ${m.visitorPrefix}`}
                                 onClick={() => {
                                   startTransition(async () => {
                                     const res = await clearChessCooldownAction(m.visitorPrefix);

@@ -180,7 +180,7 @@
 .admin-shell {
   min-height: 100svh;
   display: grid;
-  grid-template-columns: 236px minmax(0, 1fr);
+  grid-template-columns: 256px minmax(0, 1fr);
 }
 
 .admin-sidebar {
@@ -200,7 +200,26 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 4px 8px;
+  padding: 4px 4px 4px 8px;
+}
+
+.admin-brand .admin-btn.sm {
+  padding: 0 10px;
+}
+
+.admin-nowrap {
+  white-space: nowrap;
+}
+
+.admin-move-log {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* Seven columns share the space beside the board, so use tighter cell padding. */
+.admin-move-log .admin-table th,
+.admin-move-log .admin-table td {
+  padding-inline: 8px;
 }
 
 .admin-brand > div {
@@ -503,6 +522,17 @@ dialog.admin-dialog::backdrop {
   align-items: start;
 }
 
+/* Below this width the move log (7 columns) no longer fits beside the board. */
+@media (max-width: 1240px) {
+  .admin-chess-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-chess-grid > :first-child {
+    max-width: 380px;
+  }
+}
+
 .admin-board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -627,5 +657,44 @@ dialog.admin-dialog::backdrop {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--faint);
+  }
+}
+
+/* Compact stacked rows for long tables (chess move log): ply button and row action share the
+   first line, and every other cell shows its label beside the value. */
+@media (max-width: 760px) {
+  .admin-move-log {
+    max-height: 70svh;
+  }
+
+  .admin-table.stack-mobile.compact tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 12px;
+  }
+
+  .admin-table.stack-mobile.compact td {
+    grid-column: 1 / -1;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .admin-table.stack-mobile.compact td[data-label="Ply"],
+  .admin-table.stack-mobile.compact td[data-label="Cooldown"] {
+    grid-row: 1;
+    grid-template-columns: auto;
+  }
+
+  .admin-table.stack-mobile.compact td[data-label="Ply"] {
+    grid-column: 1;
+  }
+
+  .admin-table.stack-mobile.compact td[data-label="Cooldown"] {
+    grid-column: 2;
+  }
+
+  .admin-table.stack-mobile.compact td[data-label="Ply"]::before,
+  .admin-table.stack-mobile.compact td[data-label="Cooldown"]::before {
+    display: none;
   }
 }
