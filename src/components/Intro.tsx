@@ -1,33 +1,14 @@
-import Image from "next/image";
 import { site } from "@/content/site";
-import photo from "../../public/carls-dale-escalo.jpg";
+import Greeting from "./Greeting";
 import { FileIcon, GitHubIcon, LinkedInIcon, XIcon } from "./Icons";
 
+// Text-only hero that fills the first screen; the photo and bio live in About, just below the fold.
 export default function Intro() {
   return (
     <section className="intro" id="top" aria-label="Introduction">
-      <div className="intro-head">
-        <Image
-          className="avatar"
-          src={photo}
-          alt={`Portrait of ${site.name}`}
-          width={72}
-          height={72}
-          sizes="72px"
-          placeholder="blur"
-          loading="eager"
-          fetchPriority="high"
-        />
-        <div>
-          <h1>{site.name}</h1>
-          <p className="role">{site.role}</p>
-        </div>
-      </div>
-      <p className="lede">
-        I build internal tools that teams use every day: learning platforms, ticketing systems and
-        company websites. I&apos;m currently a Systems Developer at <strong>{site.employer}</strong>,
-        where I built and launched RMK Learning Hub, the company&apos;s learning platform.
-      </p>
+      <Greeting />
+      <h1>{site.name}</h1>
+      <p className="role">{site.role}. I build internal tools that teams use every day.</p>
       <div className="avail">
         <i aria-hidden="true" />
         {site.availability}
@@ -52,6 +33,11 @@ export default function Intro() {
           </a>
         </div>
       </div>
+      <a className="scroll-cue" href="#about" aria-label="Scroll to About me">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 5v14M6 13l6 6 6-6" />
+        </svg>
+      </a>
     </section>
   );
 }

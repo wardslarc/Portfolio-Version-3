@@ -1,3 +1,4 @@
+import About from "@/components/About";
 import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
 import { Experience, Skills } from "@/components/Experience";
@@ -76,6 +77,7 @@ export default function Home() {
       <Header />
       <main id="main" className="wrap">
         <Intro />
+        <About />
         <Work />
         <Experience />
         <Skills />
