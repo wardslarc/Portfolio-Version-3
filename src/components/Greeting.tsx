@@ -22,7 +22,7 @@ const INTERVAL_MS = 2200;
 
 // Slides each greeting up and out, swaps the word, then slides the next one in.
 // The word is swapped directly on the node (no React state) so the hero never re-renders.
-// With reduced motion it stays on "Hello,".
+// "I'm" stays fixed after it. With reduced motion it stays on "Hello, I'm".
 export default function Greeting() {
   const wordRef = useRef<HTMLSpanElement>(null);
 
@@ -60,9 +60,12 @@ export default function Greeting() {
   }, []);
 
   return (
-    <p className="hello" aria-label="Hello">
+    <p className="hello" aria-label="Hello, I'm">
       <span ref={wordRef} className="hello-word" lang="en" aria-hidden="true">
         Hello,
+      </span>{" "}
+      <span className="hello-im" aria-hidden="true">
+        I&rsquo;m
       </span>
     </p>
   );
