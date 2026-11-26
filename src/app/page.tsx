@@ -1,3 +1,4 @@
+import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
 import { Experience, Skills } from "@/components/Experience";
 import Header from "@/components/Header";
@@ -39,6 +40,7 @@ export default function Home() {
         <Work />
         <Experience />
         <Skills />
+        <ChessSection />
         <Contact />
       </main>
       <footer className="site-footer">
