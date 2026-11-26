@@ -1,5 +1,6 @@
 import "server-only";
 import { ObjectId, type Db, type Filter } from "mongodb";
+import { GAMES_COLLECTION, type ChessGameDoc } from "@/lib/chess";
 
 export const MESSAGE_PAGE_SIZE = 25;
 export type MessageFilter = "all" | "unread" | "noemail" | "archived";
@@ -128,4 +129,96 @@ export async function openMessageForAdmin(
 
   const existing = await col.findOne({ _id });
   return { message: existing ? serializeMessage(existing) : null, markedRead: false };
+}
+
+export interface AdminChessMove {
+  ply: number;
+  san: string;
+  from: string;
+  to: string;
+  promotion: "q" | "r" | "b" | "n" | null;
+  city: string | null;
+  country: string | null;
+  visitorPrefix: string;
+  playedAt: string;
+}
+
+export interface AdminChessGame {
+  number: number;
+  status: string;
+  result: string | null;
+  startFen: string;
+  fen: string;
+  version: number;
+  visitorCount: number;
+  startedAt: string;
+  endedAt: string | null;
+  moves: AdminChessMove[];
+}
+
+export interface AdminChessGameSummary {
+  number: number;
+  status: string;
+  result: string | null;
+  moveCount: number;
+  visitorCount: number;
+  startedAt: string;
+  endedAt: string | null;
+}
+
+function serializeChessGame(doc: ChessGameDoc): AdminChessGame {
+  return {
+    number: doc.number,
+    status: doc.status,
+    result: doc.result,
+    startFen: doc.startFen,
+    fen: doc.fen,
+    version: doc.version,
+    visitorCount: doc.visitorCount,
+    startedAt: doc.startedAt.toISOString(),
+    endedAt: doc.endedAt ? doc.endedAt.toISOString() : null,
+    moves: doc.moves.map((m) => ({
+      ply: m.ply,
+      san: m.san,
+      from: m.from,
+      to: m.to,
+      promotion: m.promotion,
+      city: m.city,
+      country: m.country,
+      visitorPrefix: m.visitorHash.slice(0, 8),
+      playedAt: m.playedAt.toISOString(),
+    })),
+  };
+}
+
+export async function queryAdminChessData(
+  db: Db,
+  requestedGameNumber?: number,
+): Promise<{
+  game: AdminChessGame | null;
+  activeGameNumber: number | null;
+  games: AdminChessGameSummary[];
+}> {
+  const col = db.collection<ChessGameDoc>(GAMES_COLLECTION);
+  const allDocs = await col.find({}).sort({ number: -1 }).limit(100).toArray();
+
+  const activeDoc = allDocs.find((g) => g.status === "active") ?? null;
+  const selectedDoc =
+    requestedGameNumber !== undefined
+      ? (allDocs.find((g) => g.number === requestedGameNumber) ?? activeDoc ?? allDocs[0] ?? null)
+      : (activeDoc ?? allDocs[0] ?? null);
+
+  return {
+    game: selectedDoc ? serializeChessGame(selectedDoc) : null,
+    activeGameNumber: activeDoc?.number ?? null,
+    games: allDocs.map((g) => ({
+      number: g.number,
+      status: g.status,
+      result: g.result,
+      moveCount: g.moves.length,
+      visitorCount: g.visitorCount,
+      startedAt: g.startedAt.toISOString(),
+      endedAt: g.endedAt ? g.endedAt.toISOString() : null,
+    })),
+  };
 }
