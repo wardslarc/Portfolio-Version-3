@@ -88,7 +88,8 @@ a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; 
   text-decoration: none; color: var(--muted); font-size: 0.9375rem;
 }
 .nav a:hover { color: var(--ink); background: var(--surface); }
-.nav a[aria-current="true"] { color: var(--ink); }
+.nav a[aria-current="true"],
+.nav a[aria-current="page"] { color: var(--ink); font-weight: 500; }
 .header-right { display: flex; align-items: center; gap: 4px; }
 .icon-btn {
   width: 36px; height: 36px; display: inline-grid; place-items: center; border-radius: 8px;
@@ -332,7 +333,7 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
 .site-footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); font-size: 0.875rem; }
 
 @media (max-width: 640px) {
-  .nav { display: none; }
+  .nav .nav-section { display: none; }
   main { gap: 72px; padding-top: 36px; }
   .intro { --top-pad: 36px; }
   .about-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
