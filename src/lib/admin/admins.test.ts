@@ -10,6 +10,7 @@ const {
   ADMIN_INVITES_COLLECTION,
   ADMIN_SESSIONS_COLLECTION,
   ADMIN_TRUSTED_DEVICES_COLLECTION,
+  acceptInvite,
   createSession,
   createTrustedDevice,
   ensureAdminIndexes,
@@ -190,5 +191,31 @@ describe("admin management guards", () => {
     expect(failures).toHaveLength(1);
     expect(failures[0]).toMatchObject({ ok: false });
     expect(await db.collection(ADMINS_COLLECTION).countDocuments({ role: "owner", disabledAt: null })).toBe(1);
+  });
+
+  it("allows parallel acceptInvite calls with the same token to create only one admin", async () => {
+    const owner = await seedAdmin("owner@example.com", "owner");
+    const inv = await createAdminInvite(db, owner, { email: "invited@example.com", role: "admin" });
+    expect(inv.ok).toBe(true);
+    if (!inv.ok) return;
+
+    const results = await Promise.all([
+      acceptInvite(db, {
+        token: inv.token,
+        name: "Invited Admin",
+        password: "strong-password-123",
+      }),
+      acceptInvite(db, {
+        token: inv.token,
+        name: "Invited Admin",
+        password: "strong-password-123",
+      }),
+    ]);
+
+    const successes = results.filter((r) => r.ok);
+    const failures = results.filter((r) => !r.ok);
+    expect(successes).toHaveLength(1);
+    expect(failures).toEqual([{ ok: false, error: "This invite link is invalid or has expired." }]);
+    expect(await db.collection(ADMINS_COLLECTION).countDocuments({ email: "invited@example.com" })).toBe(1);
   });
 });

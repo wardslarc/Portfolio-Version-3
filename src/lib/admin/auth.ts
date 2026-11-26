@@ -1,7 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { Db, ObjectId } from "mongodb";
+import { ObjectId, type Db } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import { ADMIN_AUDIT_COLLECTION } from "./audit";
 import {
@@ -10,6 +10,7 @@ import {
   generateRandomToken,
   generateSixDigitCode,
   hashBackupCode,
+  hashPassword,
   hmacHash,
   safeEqualHex,
   verifyPassword,
@@ -447,4 +448,63 @@ export async function requireAdminAction(action: AdminAction): Promise<{ admin: 
     throw new Error("Forbidden");
   }
   return current;
+}
+
+function isDuplicateKeyError(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    "code" in err &&
+    (err as { code?: unknown }).code === 11000
+  );
+}
+
+export async function acceptInvite(
+  db: Db,
+  input: { token: string; name: string; password: string; now?: Date },
+): Promise<{ ok: true; admin: AdminDoc } | { ok: false; error: string }> {
+  const now = input.now ?? new Date();
+  const passwordHash = await hashPassword(input.password);
+  const tokenHash = hmacHash("invite", input.token);
+
+  const invites = db.collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION);
+  const invite = await invites.findOneAndUpdate(
+    { _id: tokenHash, acceptedAt: null, expiresAt: { $gt: now } },
+    { $set: { acceptedAt: now } },
+    { returnDocument: "after" },
+  );
+  if (!invite) {
+    return { ok: false, error: "This invite link is invalid or has expired." };
+  }
+
+  const admins = db.collection<AdminDoc>(ADMINS_COLLECTION);
+  const existing = await admins.findOne({ email: invite.email });
+  if (existing) {
+    return { ok: false, error: "An admin account with this email already exists." };
+  }
+
+  const newAdmin: AdminDoc = {
+    _id: new ObjectId(),
+    email: invite.email,
+    name: input.name,
+    role: invite.role,
+    passwordHash,
+    backupCodeHashes: [],
+    createdAt: now,
+    passwordChangedAt: now,
+    lastSignInAt: null,
+    disabledAt: null,
+  };
+
+  try {
+    await admins.insertOne(newAdmin);
+  } catch (err) {
+    if (isDuplicateKeyError(err)) {
+      return { ok: false, error: "An admin account with this email already exists." };
+    }
+    await invites.updateOne({ _id: tokenHash }, { $set: { acceptedAt: null } });
+    throw err;
+  }
+
+  return { ok: true, admin: newAdmin };
 }

@@ -2,20 +2,19 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { ObjectId } from "mongodb";
 import { z } from "zod";
 import { clientIp, hashIp } from "@/lib/contact";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
 import { logAudit } from "./audit";
 import {
   ADMINS_COLLECTION,
-  ADMIN_INVITES_COLLECTION,
   CHALLENGE_COOKIE_NAME,
   CHALLENGE_TTL_MS,
   DEVICE_COOKIE_NAME,
   DEVICE_TTL_MS,
   SESSION_COOKIE_NAME,
   SESSION_TTL_MS,
+  acceptInvite,
   adminCookieOptions,
   createLoginChallenge,
   createSession,
@@ -28,9 +27,8 @@ import {
   verifyAdminCredentials,
   verifyLoginChallengeCode,
   type AdminDoc,
-  type AdminInviteDoc,
 } from "./auth";
-import { hashPassword, hmacHash, maskEmail } from "./crypto";
+import { hmacHash, maskEmail } from "./crypto";
 import { sendLoginCodeEmail, sendNewDeviceEmail } from "./email";
 import { consumeRateLimit } from "./rate-limit";
 
@@ -370,41 +368,16 @@ export async function acceptInviteAction(
     return { error: "Too many attempts. Wait 15 minutes and try again." };
   }
 
-  const tokenHash = hmacHash("invite", parsed.data.token);
-  const invites = db.collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION);
-  const now = new Date();
-  const invite = await invites.findOne({
-    _id: tokenHash,
-    acceptedAt: null,
-    expiresAt: { $gt: now },
-  });
-  if (!invite) {
-    return { error: "This invite link is invalid or has expired." };
-  }
-
-  const admins = db.collection<AdminDoc>(ADMINS_COLLECTION);
-  const existing = await admins.findOne({ email: invite.email });
-  if (existing) {
-    return { error: "An admin account with this email already exists." };
-  }
-
-  const passwordHash = await hashPassword(parsed.data.password);
-  const newAdmin: AdminDoc = {
-    _id: new ObjectId(),
-    email: invite.email,
+  const res = await acceptInvite(db, {
+    token: parsed.data.token,
     name: parsed.data.name,
-    role: invite.role,
-    passwordHash,
-    backupCodeHashes: [],
-    createdAt: now,
-    passwordChangedAt: now,
-    lastSignInAt: null,
-    disabledAt: null,
-  };
+    password: parsed.data.password,
+  });
+  if (!res.ok) {
+    return { error: res.error };
+  }
 
-  await admins.insertOne(newAdmin);
-  await invites.updateOne({ _id: tokenHash }, { $set: { acceptedAt: now } });
-  await logAudit(db, newAdmin, "admin.invite_accepted", newAdmin.email, `Role: ${newAdmin.role}`);
+  await logAudit(db, res.admin, "admin.invite_accepted", res.admin.email, `Role: ${res.admin.role}`);
 
   redirect("/admin/login?invited=1");
 }
