@@ -587,4 +587,45 @@ dialog.admin-dialog::backdrop {
   .admin-chess-grid {
     grid-template-columns: 1fr;
   }
+
+  .admin-table.stack-mobile thead {
+    display: none;
+  }
+
+  .admin-table.stack-mobile,
+  .admin-table.stack-mobile tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table.stack-mobile tr {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .admin-table.stack-mobile tr:last-child {
+    border-bottom: 0;
+  }
+
+  .admin-table.stack-mobile td {
+    display: grid;
+    gap: 4px;
+    padding: 0;
+    border-bottom: 0;
+    min-width: 0;
+    max-width: none !important;
+    white-space: normal !important;
+    word-break: break-word;
+  }
+
+  .admin-table.stack-mobile td::before {
+    content: attr(data-label);
+    font-family: var(--f-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--faint);
+  }
 }

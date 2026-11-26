@@ -255,7 +255,7 @@ export default function ChessAdminClient({
             <p className="admin-auth-sub">No moves played yet.</p>
           ) : (
             <div className="admin-table-wrap" style={{ maxHeight: "420px", overflowY: "auto" }}>
-              <table className="admin-table">
+              <table className="admin-table stack-mobile">
                 <thead>
                   <tr>
                     <th>Ply</th>
@@ -276,42 +276,46 @@ export default function ChessAdminClient({
                         key={m.ply}
                         style={isCurrent ? { background: "var(--surface)" } : undefined}
                       >
-                        <td className="mono">
-                          <button
-                            type="button"
-                            className="admin-btn sm"
-                            style={{ minWidth: "44px", padding: "0 10px" }}
-                            onClick={() => setViewPly(m.ply)}
-                          >
-                            {m.ply}
-                          </button>
-                        </td>
-                        <td className="mono" style={{ fontWeight: 600 }}>
-                          {m.san}
-                        </td>
-                        <td className="mono">
-                          {m.from} → {m.to}
-                        </td>
-                        <td>{loc}</td>
-                        <td className="mono">{m.visitorPrefix}</td>
-                        <td className="mono" style={{ color: "var(--muted)" }}>
-                          {formatDate(m.playedAt)}
-                        </td>
-                        {canMutate ? (
-                          <td>
+                        <td data-label="Ply" className="mono">
+                          <div>
                             <button
                               type="button"
                               className="admin-btn sm"
-                              disabled={pending}
-                              onClick={() => {
-                                startTransition(async () => {
-                                  const res = await clearChessCooldownAction(m.visitorPrefix);
-                                  setNotice(`Cleared ${res.deletedCount} lock(s) for ${m.visitorPrefix}.`);
-                                });
-                              }}
+                              style={{ minWidth: "44px", padding: "0 10px" }}
+                              onClick={() => setViewPly(m.ply)}
                             >
-                              Clear
+                              {m.ply}
                             </button>
+                          </div>
+                        </td>
+                        <td data-label="SAN" className="mono" style={{ fontWeight: 600 }}>
+                          {m.san}
+                        </td>
+                        <td data-label="From → To" className="mono">
+                          {m.from} → {m.to}
+                        </td>
+                        <td data-label="Location">{loc}</td>
+                        <td data-label="Visitor" className="mono">{m.visitorPrefix}</td>
+                        <td data-label="Time" className="mono" style={{ color: "var(--muted)" }}>
+                          {formatDate(m.playedAt)}
+                        </td>
+                        {canMutate ? (
+                          <td data-label="Cooldown">
+                            <div className="admin-row-actions">
+                              <button
+                                type="button"
+                                className="admin-btn sm"
+                                disabled={pending}
+                                onClick={() => {
+                                  startTransition(async () => {
+                                    const res = await clearChessCooldownAction(m.visitorPrefix);
+                                    setNotice(`Cleared ${res.deletedCount} lock(s) for ${m.visitorPrefix}.`);
+                                  });
+                                }}
+                              >
+                                Clear
+                              </button>
+                            </div>
                           </td>
                         ) : null}
                       </tr>

@@ -134,7 +134,7 @@ export default function AdminsClient({
         <div className="admin-card">
           <h2>Team</h2>
           <div className="admin-table-wrap">
-            <table className="admin-table">
+            <table className="admin-table stack-mobile">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -147,16 +147,18 @@ export default function AdminsClient({
               <tbody>
                 {admins.map((a) => (
                   <tr key={a.id}>
-                    <td style={{ fontWeight: 500 }}>
-                      {a.name}
-                      {a.id === currentAdminId ? (
-                        <span className="admin-badge" style={{ marginLeft: "8px" }}>
-                          You
-                        </span>
-                      ) : null}
+                    <td data-label="Name" style={{ fontWeight: 500 }}>
+                      <span>
+                        {a.name}
+                        {a.id === currentAdminId ? (
+                          <span className="admin-badge" style={{ marginLeft: "8px" }}>
+                            You
+                          </span>
+                        ) : null}
+                      </span>
                     </td>
-                    <td className="mono">{a.email}</td>
-                    <td>
+                    <td data-label="Email" className="mono">{a.email}</td>
+                    <td data-label="Role">
                       <label htmlFor={`role-${a.id}`} className="skip">
                         Role for {a.name}
                       </label>
@@ -184,21 +186,23 @@ export default function AdminsClient({
                         <option value="viewer">{ROLE_LABELS.viewer}</option>
                       </select>
                     </td>
-                    <td className="mono" style={{ color: "var(--muted)" }}>
+                    <td data-label="Last sign-in" className="mono" style={{ color: "var(--muted)" }}>
                       {formatDate(a.lastSignInAt)}
                     </td>
-                    <td>
-                      <button
-                        type="button"
-                        className="admin-btn sm danger"
-                        disabled={pending}
-                        onClick={() => {
-                          setRemoveTarget(a);
-                          removeDialogRef.current?.showModal();
-                        }}
-                      >
-                        Remove
-                      </button>
+                    <td data-label="Actions">
+                      <div className="admin-row-actions">
+                        <button
+                          type="button"
+                          className="admin-btn sm danger"
+                          disabled={pending}
+                          onClick={() => {
+                            setRemoveTarget(a);
+                            removeDialogRef.current?.showModal();
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -210,7 +214,7 @@ export default function AdminsClient({
             <>
               <h3 style={{ margin: "8px 0 0", fontSize: "0.9375rem" }}>Pending invites</h3>
               <div className="admin-table-wrap">
-                <table className="admin-table">
+                <table className="admin-table stack-mobile">
                   <thead>
                     <tr>
                       <th>Email</th>
@@ -222,12 +226,12 @@ export default function AdminsClient({
                   <tbody>
                     {invites.map((inv) => (
                       <tr key={inv.email}>
-                        <td className="mono">{inv.email}</td>
-                        <td className="mono">{ROLE_LABELS[inv.role]}</td>
-                        <td className="mono" style={{ color: "var(--muted)" }}>
+                        <td data-label="Email" className="mono">{inv.email}</td>
+                        <td data-label="Role" className="mono">{ROLE_LABELS[inv.role]}</td>
+                        <td data-label="Expires" className="mono" style={{ color: "var(--muted)" }}>
                           {formatDate(inv.expiresAt)}
                         </td>
-                        <td>
+                        <td data-label="Actions">
                           <div className="admin-row-actions">
                             <button
                               type="button"
@@ -372,7 +376,7 @@ export default function AdminsClient({
       <div className="admin-card">
         <h2>Signed-in sessions</h2>
         <div className="admin-table-wrap">
-          <table className="admin-table">
+          <table className="admin-table stack-mobile">
             <thead>
               <tr>
                 <th>Device</th>
@@ -384,32 +388,39 @@ export default function AdminsClient({
             <tbody>
               {sessions.map((s) => (
                 <tr key={s.id}>
-                  <td style={{ maxWidth: "340px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {s.userAgent}
-                    {s.isCurrent ? (
-                      <span className="admin-badge ok" style={{ marginLeft: "8px" }}>
-                        Current
-                      </span>
-                    ) : null}
+                  <td
+                    data-label="Device"
+                    style={{ maxWidth: "340px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                  >
+                    <span>
+                      {s.userAgent}
+                      {s.isCurrent ? (
+                        <span className="admin-badge ok" style={{ marginLeft: "8px" }}>
+                          Current
+                        </span>
+                      ) : null}
+                    </span>
                   </td>
-                  <td>{[s.city, s.country].filter(Boolean).join(", ") || "—"}</td>
-                  <td className="mono" style={{ color: "var(--muted)" }}>
+                  <td data-label="Location">{[s.city, s.country].filter(Boolean).join(", ") || "—"}</td>
+                  <td data-label="Last seen" className="mono" style={{ color: "var(--muted)" }}>
                     {formatDate(s.lastSeenAt)}
                   </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="admin-btn sm"
-                      disabled={pending || s.isCurrent}
-                      onClick={() => {
-                        startTransition(async () => {
-                          await revokeOwnSessionAction(s.id);
-                          router.refresh();
-                        });
-                      }}
-                    >
-                      Sign out
-                    </button>
+                  <td data-label="Action">
+                    <div className="admin-row-actions">
+                      <button
+                        type="button"
+                        className="admin-btn sm"
+                        disabled={pending || s.isCurrent}
+                        onClick={() => {
+                          startTransition(async () => {
+                            await revokeOwnSessionAction(s.id);
+                            router.refresh();
+                          });
+                        }}
+                      >
+                        Sign out
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
