@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import { Chess, type Move, type Square } from "chess.js";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -442,6 +443,7 @@ export default function ChessSection() {
       if (res.ok && body.game && body.you && body.serverNow) {
         lastFailedMoveRef.current = null;
         applyServerPayload(body as ChessPayload, null);
+        track("chess_move", { ply: body.game.moves.at(-1)?.ply ?? body.game.moves.length });
         if (body.game.status === "checkmate") {
           showToast(`Checkmate! ${applied.san} ends Game ${body.game.number}.`);
         } else if (body.game.status !== "active") {

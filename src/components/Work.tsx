@@ -1,5 +1,7 @@
 import { featuredProjects, moreProjects, type FeaturedProject } from "@/content/projects";
+import { slugifyProject } from "@/lib/analytics";
 import { ChevronIcon } from "./Icons";
+import TrackedLink from "./TrackedLink";
 
 function CardBody({ project }: { project: FeaturedProject }) {
   return (
@@ -36,9 +38,17 @@ export default function Work() {
       <div className="featured">
         {featuredProjects.map((project) =>
           project.href ? (
-            <a key={project.title} className="card" href={project.href} target="_blank" rel="noopener noreferrer">
+            <TrackedLink
+              key={project.title}
+              className="card"
+              href={project.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              event="project_link"
+              eventData={{ project: slugifyProject(project.title) }}
+            >
               <CardBody project={project} />
-            </a>
+            </TrackedLink>
           ) : (
             <article key={project.title} className="card">
               <CardBody project={project} />
@@ -58,9 +68,15 @@ export default function Work() {
             <li key={project.title}>
               <span className="t">
                 {project.href ? (
-                  <a href={project.href} target="_blank" rel="noopener noreferrer">
+                  <TrackedLink
+                    href={project.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    event="project_link"
+                    eventData={{ project: slugifyProject(project.title) }}
+                  >
                     {project.title} ↗
-                  </a>
+                  </TrackedLink>
                 ) : (
                   project.title
                 )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import { useRef, useState, type FormEvent } from "react";
 import { site } from "@/content/site";
 
@@ -70,6 +71,7 @@ export default function Contact() {
         return;
       }
       form.reset();
+      track("contact_submitted");
       setStatus({ kind: "ok", text: "Message sent. I'll reply to you by email." });
     } catch {
       setStatus({ kind: "error", text: "You seem to be offline. Check your connection and try again." });

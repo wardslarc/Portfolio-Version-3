@@ -1,6 +1,7 @@
 import { site } from "@/content/site";
 import Greeting from "./Greeting";
 import { FileIcon, GitHubIcon, LinkedInIcon, XIcon } from "./Icons";
+import TrackedLink from "./TrackedLink";
 
 // Text-only hero that fills the first screen; the photo and bio live in About, just below the fold.
 export default function Intro() {
@@ -17,10 +18,10 @@ export default function Intro() {
         <a className="btn solid" href="#contact">
           Get in touch
         </a>
-        <a className="btn" href={site.resume} target="_blank" rel="noopener noreferrer">
+        <TrackedLink className="btn" href={site.resume} target="_blank" rel="noopener noreferrer" event="resume_opened">
           <FileIcon />
           Résumé (PDF)
-        </a>
+        </TrackedLink>
         <div className="socials">
           <a href={site.socials.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
             <GitHubIcon />

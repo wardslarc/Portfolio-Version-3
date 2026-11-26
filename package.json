@@ -10,6 +10,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0",
     "chess.js": "^1.4.0",
     "mongodb": "^7.9.1",
     "next": "16.4.6",
