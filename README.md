@@ -44,7 +44,7 @@ Open http://localhost:3000. The contact form returns a "not available" message u
 ## How the contact API works
 
 1. The request is validated with zod (name, email, message, plus a hidden honeypot field).
-2. It allows 3 messages per visitor every 10 minutes. Visitors are identified by a salted hash of their IP, stored in MongoDB, so the limit holds across serverless instances. Raw IPs are never stored.
+2. It allows 3 messages per visitor every 10 minutes. Visitors are identified by a salted hash of their IP, and raw IPs are never stored. Each attempt increments a counter in the `rate_limits` collection in one atomic step, so the limit holds across serverless instances and against bursts of parallel requests. A TTL index deletes old counters automatically.
 3. Each message is saved to the `messages` collection.
 4. If the `RESEND_*` variables are set, you get an email with reply-to set to the sender. If the email fails, the message is still saved.
 
@@ -80,3 +80,4 @@ Open http://localhost:3000. The contact form returns a "not available" message u
 | `npm run build` | Production build         |
 | `npm run start` | Serve the production build |
 | `npm run lint`  | ESLint                   |
+| `npm test`      | Run unit tests (Vitest)  |

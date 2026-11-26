@@ -1,9 +1,78 @@
+import type { Db } from "mongodb";
 import { z } from "zod";
 import { clientIp, contactSchema, hashIp, notifyByEmail, type ContactMessage } from "@/lib/contact";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
 
 const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const MAX_PER_WINDOW = 3;
+
+interface RateLimitDoc {
+  _id: string; // `${ipHash}:${windowStart}`
+  count: number;
+  expiresAt: Date;
+}
+
+const globalForIndex = globalThis as unknown as {
+  _rateLimitIndexes?: WeakMap<object, Map<string, Promise<string>>>;
+};
+
+function ensureRateLimitIndex(db: Db): Promise<string> {
+  const cache = (globalForIndex._rateLimitIndexes ??= new WeakMap());
+  const clientKey: object = db.client ?? db;
+  const dbName = db.databaseName ?? "";
+  let byDb = cache.get(clientKey);
+  if (!byDb) {
+    byDb = new Map();
+    cache.set(clientKey, byDb);
+  }
+  let pending = byDb.get(dbName);
+  if (!pending) {
+    pending = db
+      .collection<RateLimitDoc>("rate_limits")
+      .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+      .catch((err) => {
+        byDb.delete(dbName);
+        throw err;
+      });
+    byDb.set(dbName, pending);
+  }
+  return pending;
+}
+
+function isDuplicateKeyError(err: unknown): boolean {
+  return typeof err === "object" && err !== null && "code" in err && (err as { code?: unknown }).code === 11000;
+}
+
+/**
+ * Atomically increments this visitor's counter for the current fixed window and returns
+ * the new count. A TTL index on `expiresAt` lets MongoDB delete old counters on its own.
+ */
+async function countAttempt(db: Db, ipHash: string): Promise<number> {
+  await ensureRateLimitIndex(db);
+  const limits = db.collection<RateLimitDoc>("rate_limits");
+
+  const windowStart = Math.floor(Date.now() / WINDOW_MS) * WINDOW_MS;
+  const filter = { _id: `${ipHash}:${windowStart}` };
+  const update = {
+    $inc: { count: 1 },
+    $setOnInsert: { expiresAt: new Date(windowStart + 2 * WINDOW_MS) },
+  };
+
+  // Two concurrent upserts for a brand-new _id can race and throw E11000; retry so
+  // the second caller increments the winning document instead of failing with 500.
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const doc = await limits.findOneAndUpdate(filter, update, {
+        upsert: true,
+        returnDocument: "after",
+      });
+      return doc?.count ?? 1;
+    } catch (err) {
+      if (attempt < 2 && isDuplicateKeyError(err)) continue;
+      throw err;
+    }
+  }
+}
 
 export async function POST(request: Request) {
   let raw: unknown;
@@ -42,11 +111,10 @@ export async function POST(request: Request) {
     const messages = db.collection<ContactMessage>("messages");
     const ipHash = hashIp(clientIp(request.headers));
 
-    const recent = await messages.countDocuments({
-      ipHash,
-      createdAt: { $gt: new Date(Date.now() - WINDOW_MS) },
-    });
-    if (recent >= MAX_PER_WINDOW) {
+    // Count this attempt atomically before doing any work, so a burst of parallel
+    // requests can't all pass a read-then-insert check.
+    const attempts = await countAttempt(db, ipHash);
+    if (attempts > MAX_PER_WINDOW) {
       return Response.json(
         { error: "You've sent a few messages already. Please wait a few minutes, or email me directly." },
         { status: 429 },
