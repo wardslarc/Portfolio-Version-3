@@ -159,7 +159,7 @@ export default function AdminsClient({
                     </td>
                     <td data-label="Email" className="mono">{a.email}</td>
                     <td data-label="Role">
-                      <label htmlFor={`role-${a.id}`} className="skip">
+                      <label htmlFor={`role-${a.id}`} className="sr-only">
                         Role for {a.name}
                       </label>
                       <select
@@ -190,19 +190,25 @@ export default function AdminsClient({
                       {formatDate(a.lastSignInAt)}
                     </td>
                     <td data-label="Actions">
-                      <div className="admin-row-actions">
-                        <button
-                          type="button"
-                          className="admin-btn sm danger"
-                          disabled={pending}
-                          onClick={() => {
-                            setRemoveTarget(a);
-                            removeDialogRef.current?.showModal();
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      {a.id === currentAdminId ? (
+                        <span className="mono" style={{ color: "var(--muted)" }}>
+                          —
+                        </span>
+                      ) : (
+                        <div className="admin-row-actions">
+                          <button
+                            type="button"
+                            className="admin-btn sm danger"
+                            disabled={pending}
+                            onClick={() => {
+                              setRemoveTarget(a);
+                              removeDialogRef.current?.showModal();
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}

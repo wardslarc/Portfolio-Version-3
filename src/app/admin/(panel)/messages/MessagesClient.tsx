@@ -104,7 +104,7 @@ export default function MessagesClient({
         </div>
 
         <form onSubmit={handleSearch} className="admin-row-actions">
-          <label htmlFor="msg-search" className="skip">
+          <label htmlFor="msg-search" className="sr-only">
             Search messages
           </label>
           <input
