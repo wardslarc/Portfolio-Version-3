@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { z } from "zod";
 import { site } from "@/content/site";
 import { getDb } from "@/lib/mongodb";
@@ -89,11 +88,9 @@ export async function endChessGameAction(gameNumber: number): Promise<{ ok: bool
 const roleSchema = z.enum(["owner", "admin", "viewer"]);
 const emailSchema = z.string().trim().toLowerCase().email("Enter a valid email.").max(200);
 
-async function getOriginUrl(): Promise<string> {
-  const hdrs = await headers();
-  const host = hdrs.get("x-forwarded-host") ?? hdrs.get("host");
-  const proto = hdrs.get("x-forwarded-proto") ?? "https";
-  return host ? `${proto}://${host}` : site.url;
+function inviteUrl(token: string): string {
+  const base = (process.env.SITE_URL ?? site.url).replace(/\/+$/, "");
+  return `${base}/admin/invite/${token}`;
 }
 
 export async function inviteAdminAction(
@@ -110,8 +107,7 @@ export async function inviteAdminAction(
   const res = await createAdminInvite(db, admin, { email: parsedEmail.data, role: parsedRole });
   if (!res.ok) return { ok: false, error: res.error };
 
-  const origin = await getOriginUrl();
-  const emailed = await sendInviteEmail(res.email, `${origin}/admin/invite/${res.token}`, res.role, admin.name);
+  const emailed = await sendInviteEmail(res.email, inviteUrl(res.token), res.role, admin.name);
   revalidatePath("/admin/admins");
   return { ok: true, emailed };
 }
@@ -123,8 +119,7 @@ export async function resendInviteAction(email: string): Promise<{ ok: boolean; 
   const res = await resendAdminInvite(db, admin, parsedEmail);
   if (!res.ok) return { ok: false, error: res.error };
 
-  const origin = await getOriginUrl();
-  const emailed = await sendInviteEmail(res.email, `${origin}/admin/invite/${res.token}`, res.role, admin.name);
+  const emailed = await sendInviteEmail(res.email, inviteUrl(res.token), res.role, admin.name);
   revalidatePath("/admin/admins");
   return { ok: true, emailed };
 }
