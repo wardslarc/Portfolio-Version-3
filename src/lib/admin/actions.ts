@@ -1,9 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { site } from "@/content/site";
 import { deleteMediaItem, registerMedia, type SerializedMedia } from "@/lib/blog/media";
+import { deletePost, duplicatePost, unpublishPost } from "@/lib/blog/posts";
 import { getDb } from "@/lib/mongodb";
 import { requireAdminAction } from "./auth";
 import { sendInviteEmail } from "./email";
@@ -220,4 +221,59 @@ export async function deleteMediaAction(
     revalidatePath("/admin/media");
   }
   return res;
+}
+
+export async function unpublishPostAction(
+  postId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) {
+    return { ok: false, error: "Invalid post ID." };
+  }
+  const { admin } = await requireAdminAction("blog:write");
+  const db = await getDb();
+  const res = await unpublishPost(db, admin, parsedId.data);
+  if (!res.ok) return res;
+  updateTag("posts");
+  updateTag(`post:${res.post.slug}`);
+  revalidatePath("/admin/blog");
+  revalidatePath(`/admin/blog/${parsedId.data}`);
+  return { ok: true };
+}
+
+export async function duplicatePostAction(
+  postId: string,
+): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) {
+    return { ok: false, error: "Invalid post ID." };
+  }
+  const { admin } = await requireAdminAction("blog:write");
+  const db = await getDb();
+  const res = await duplicatePost(db, admin, parsedId.data);
+  if (!res.ok) return res;
+  revalidatePath("/admin/blog");
+  return { ok: true, id: res.post._id.toString() };
+}
+
+export async function deletePostAction(
+  postId: string,
+): Promise<{ ok: true; deletedMediaCount: number; failedMediaUrls: string[] } | { ok: false; error: string }> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) {
+    return { ok: false, error: "Invalid post ID." };
+  }
+  const { admin } = await requireAdminAction("blog:write");
+  const db = await getDb();
+  const res = await deletePost(db, admin, parsedId.data);
+  if (!res.ok) return res;
+  updateTag("posts");
+  updateTag(`post:${res.slug}`);
+  revalidatePath("/admin/blog");
+  revalidatePath("/admin/media");
+  return {
+    ok: true,
+    deletedMediaCount: res.deletedMediaCount,
+    failedMediaUrls: res.failedMediaUrls,
+  };
 }

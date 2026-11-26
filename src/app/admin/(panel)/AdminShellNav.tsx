@@ -31,6 +31,8 @@ export default function AdminShellNav({
   const links = [
     { href: "/admin", label: "Overview", exact: true },
     { href: "/admin/messages", label: "Messages", badge: unreadCount > 0 ? unreadCount : undefined },
+    { href: "/admin/blog", label: "Blog" },
+    { href: "/admin/media", label: "Media" },
     { href: "/admin/chess", label: "Chess" },
     { href: "/admin/admins", label: "Admins" },
   ];
