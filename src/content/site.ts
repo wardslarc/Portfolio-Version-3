@@ -18,4 +18,5 @@ export const site = {
     linkedin: "https://www.linkedin.com/in/carls-dale-escalo-797701366/",
     x: "https://x.com/daleonigiri",
   },
+  analyticsUrl: "https://vercel.com/dashboard",
 } as const;

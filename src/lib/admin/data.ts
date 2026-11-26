@@ -337,3 +337,72 @@ export async function queryAdminsPageData(
     backupCodesRemaining: currentAdmin.backupCodeHashes.length,
   };
 }
+
+export async function queryAdminOverview(db: Db) {
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const startOfTodayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+  const messagesCol = db.collection<MessageRecord>("messages");
+  const gamesCol = db.collection<ChessGameDoc>(GAMES_COLLECTION);
+
+  const [unreadCount, messages7d, latestMsgDocs, activeGame, recentGames] = await Promise.all([
+    messagesCol.countDocuments({
+      $and: [
+        { $or: [{ readAt: null }, { readAt: { $exists: false } }] },
+        { $or: [{ archivedAt: null }, { archivedAt: { $exists: false } }] },
+      ],
+    }),
+    messagesCol.countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
+    messagesCol
+      .find({ $or: [{ archivedAt: null }, { archivedAt: { $exists: false } }] })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .toArray(),
+    gamesCol.findOne({ status: "active" }, { sort: { number: -1 } }),
+    gamesCol.find({}).sort({ number: -1 }).limit(20).toArray(),
+  ]);
+
+  // Build 7-day buckets (oldest -> today)
+  const dayBuckets = new Map<string, number>();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(startOfTodayUtc.getTime() - i * 24 * 60 * 60 * 1000);
+    dayBuckets.set(d.toISOString().slice(0, 10), 0);
+  }
+
+  const countryCounts = new Map<string, number>();
+  let movesToday = 0;
+
+  for (const g of recentGames) {
+    for (const m of g.moves) {
+      if (m.playedAt >= startOfTodayUtc) {
+        movesToday++;
+      }
+      const dayKey = m.playedAt.toISOString().slice(0, 10);
+      if (dayBuckets.has(dayKey)) {
+        dayBuckets.set(dayKey, (dayBuckets.get(dayKey) ?? 0) + 1);
+      }
+      if (m.country) {
+        countryCounts.set(m.country, (countryCounts.get(m.country) ?? 0) + 1);
+      }
+    }
+  }
+
+  const movesPerDay = Array.from(dayBuckets.entries()).map(([date, count]) => ({ date, count }));
+  const topCountries = Array.from(countryCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([country, count]) => ({ country, count }));
+
+  return {
+    unreadCount,
+    messages7d,
+    movesToday,
+    activeGame: activeGame
+      ? { number: activeGame.number, moveCount: activeGame.moves.length, visitorCount: activeGame.visitorCount }
+      : null,
+    latestMessages: latestMsgDocs.map(serializeMessage),
+    movesPerDay,
+    topCountries,
+  };
+}
