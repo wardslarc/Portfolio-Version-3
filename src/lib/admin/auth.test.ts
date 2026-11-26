@@ -101,11 +101,17 @@ describe("admin auth core", () => {
 
   it("enforces role permissions matrix", () => {
     expect(can("owner", "admins:manage")).toBe(true);
+    expect(can("owner", "blog:view")).toBe(true);
+    expect(can("owner", "blog:write")).toBe(true);
     expect(can("admin", "admins:manage")).toBe(false);
     expect(can("admin", "messages:mutate")).toBe(true);
+    expect(can("admin", "blog:view")).toBe(true);
+    expect(can("admin", "blog:write")).toBe(true);
     expect(can("admin", "chess:mutate")).toBe(true);
     expect(can("admin", "audit:view")).toBe(true);
     expect(can("viewer", "overview:view")).toBe(true);
+    expect(can("viewer", "blog:view")).toBe(true);
+    expect(can("viewer", "blog:write")).toBe(false);
     expect(can("viewer", "messages:mutate")).toBe(false);
     expect(can("viewer", "chess:mutate")).toBe(false);
     expect(can("viewer", "audit:view")).toBe(false);

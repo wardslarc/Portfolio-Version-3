@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blog Layout Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: quiet back-office + calm reading page; same voice as the portfolio and the admin.
+   IDEA: a writer's desk: a draft on the left, the printed page on the right.
+   PICTURE: the working editor (write + live preview + image upload), and the finished article.
+   COLOUR and TYPE: portfolio tokens (light #fafaf9 / dark #111113), one blue accent, Geist + Geist Mono.
+   LAYOUT: admin keeps its left rail; editor is 3 panes on wide screens, tabs on phones; blog is the 680px reading column. */
+:root{color-scheme:light dark;
+--bg:light-dark(#fafaf9,#111113);--surface:light-dark(#f2f2f0,#19191c);--card:light-dark(#ffffff,#151517);
+--ink:light-dark(#18181b,#ededef);--muted:light-dark(#63636b,#a0a0a8);--faint:light-dark(#8e8e96,#73737b);
+--line:light-dark(#e4e4e1,#26262a);--accent:light-dark(#2f5bd3,#8aa8ff);--accent-soft:light-dark(rgba(47,91,211,.09),rgba(138,168,255,.14));
+--ok:light-dark(#18794e,#4cc38a);--wait:light-dark(#a35b00,#f0b351);--danger:light-dark(#c2410c,#fb923c);
+--f:"Geist","Segoe UI",system-ui,sans-serif;--m:"Geist Mono",ui-monospace,Menlo,monospace}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--f);overflow-x:clip;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+img{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+[hidden]{display:none!important}
+.note{font-size:13px;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.note a{color:var(--accent)}.note b{color:var(--ink);font-weight:500}
+.mono{font-family:var(--m);font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:14px;font-weight:500;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--faint)}
+.btn.solid{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.solid:disabled{opacity:.45;cursor:not-allowed}
+.btn.warn{color:var(--danger)}
+.btn.sm{min-height:34px;padding:0 10px;font-size:13px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:2px 9px;border-radius:999px;background:var(--surface);color:var(--muted);white-space:nowrap}
+.badge.pub{color:var(--ok)}.badge.sch{color:var(--accent);background:var(--accent-soft)}.badge.dra{color:var(--wait)}
+/* admin shell */
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:calc(100vh - 38px)}
+.rail{border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:calc(100vh - 38px)}
+.brand{font-weight:600;padding:4px 10px 18px;letter-spacing:-.01em}
+.brand small{display:block;font-weight:400;color:var(--faint);font-size:13px}
+.tab{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:15px}
+.tab:hover{background:var(--surface);color:var(--ink)}
+.tab[aria-current=page]{background:var(--surface);color:var(--ink);font-weight:500}
+.tab svg{width:18px;height:18px;flex:none}
+.tab .new{margin-left:auto;font-size:11px;color:var(--accent)}
+.rail .spacer{flex:1}.rail .who{font-size:13px;color:var(--faint);padding:0 12px 6px}
+.amain{padding:32px clamp(16px,4vw,48px) 64px;max-width:1240px;width:100%}
+.amain h1{font-size:32px;line-height:1.1;letter-spacing:-.03em;margin:0 0 4px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 24px}
+.head{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px}
+.head .sub{margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.search{flex:1 1 220px;min-height:42px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:var(--card);font-size:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:3px;background:var(--card);flex-wrap:wrap}
+.seg button{border:0;background:transparent;min-height:34px;padding:0 12px;border-radius:7px;cursor:pointer;font-size:14px;color:var(--muted);white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);font-weight:500}
+.seg button span{color:var(--faint);font-size:12px;margin-left:4px}
+.ptable{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.prow{display:grid;grid-template-columns:72px minmax(0,1fr) 110px 130px 70px 40px;gap:16px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);cursor:pointer}
+.prow:first-child{border-top:0}.prow:hover{background:var(--surface)}
+.prow.th{cursor:default;background:transparent;font-size:13px;color:var(--faint);padding-block:10px}
+.prow .thumb{width:72px;aspect-ratio:16/10;border-radius:8px;overflow:hidden;background:var(--surface)}
+.prow .thumb img{width:100%;height:100%;object-fit:cover}
+.prow .tt{font-weight:500;line-height:1.35}.prow .ex{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .d{font-size:13px;color:var(--muted);white-space:nowrap}.prow .r{text-align:right;font-size:13px;color:var(--muted);font-family:var(--m)}
+.more{border:0;background:transparent;width:36px;height:36px;border-radius:8px;cursor:pointer;color:var(--muted)}.more:hover{background:var(--card)}
+.empty{color:var(--faint);padding:40px 16px;text-align:center}
+/* editor */
+.ebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.ebar .saved{font-size:13px;color:var(--faint);margin-right:auto;display:flex;align-items:center;gap:8px}
+.ebar .saved i{width:7px;height:7px;border-radius:50%;background:var(--ok);display:inline-block}
+.ebar .saved.dirty i{background:var(--wait)}
+.egrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.titlein{width:100%;border:0;background:transparent;font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1.15;padding:0;margin:0 0 12px;resize:none;overflow:hidden;field-sizing:content}
+.titlein:focus{outline:none}.titlein::placeholder{color:var(--faint)}
+.pane{border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden}
+.mdbar{display:flex;gap:2px;align-items:center;padding:6px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.mdbar button{border:0;background:transparent;min-width:36px;height:36px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:14px;font-weight:600}
+.mdbar button:hover{background:var(--surface);color:var(--ink)}
+.mdbar .sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.mdbar .seg{margin-left:auto;border:0;padding:0}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:560px}
+.split.w .pv,.split.p .src{display:none}.split.w,.split.p{grid-template-columns:minmax(0,1fr)}
+.src{position:relative;border-right:1px solid var(--line)}
+.src textarea{width:100%;height:100%;min-height:560px;border:0;background:transparent;resize:vertical;padding:18px;font:14px/1.7 var(--m);color:var(--ink)}
+.src textarea:focus{outline:none}
+.drop{position:absolute;inset:8px;border:2px dashed var(--accent);border-radius:12px;background:color-mix(in srgb,var(--card) 88%,transparent);display:grid;place-items:center;color:var(--accent);font-weight:500;pointer-events:none}
+.pv{padding:22px 26px;max-height:720px;overflow:auto}
+.uploads{display:grid;gap:8px;padding:10px;border-top:1px solid var(--line);background:var(--surface)}
+.up{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px}
+.up img{width:40px;height:40px;object-fit:cover;border-radius:6px}
+.up .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up .pg{height:4px;border-radius:2px;background:var(--line);margin-top:5px;overflow:hidden}.up .pg i{display:block;height:100%;background:var(--accent);transition:width .15s}
+.up .st{color:var(--faint);white-space:nowrap}.up .st.ok{color:var(--ok)}
+.hint{font-size:13px;color:var(--faint);padding:8px 14px;border-top:1px solid var(--line)}
+.side{display:grid;gap:14px;position:sticky;top:16px}
+.side .card{padding:16px}
+.side h2{font-size:14px;font-weight:600;margin:0 0 12px}
+.field{margin-bottom:12px}.field:last-child{margin-bottom:0}
+.field label{display:flex;justify-content:space-between;font-size:13px;font-weight:500;margin-bottom:6px}
+.field label span{font-weight:400;color:var(--faint)}
+.field input,.field select,.field textarea{width:100%;min-height:42px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--bg);font-size:16px}
+.field textarea{min-height:84px;resize:vertical;line-height:1.45}
+.slug{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--bg);overflow:hidden}
+.slug span{padding:0 0 0 12px;color:var(--faint);font-size:14px;white-space:nowrap}.slug input{border:0!important;padding-left:2px!important;background:transparent!important}
+.cover{border:1.5px dashed var(--line);border-radius:12px;aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden;cursor:pointer;color:var(--muted);font-size:13px;text-align:center;background:var(--bg);position:relative}
+.cover img{width:100%;height:100%;object-fit:cover}
+.cover .x{position:absolute;top:8px;right:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;border:1px solid var(--line);border-radius:10px;padding:6px;background:var(--bg)}
+.tags .chip{display:inline-flex;gap:4px;align-items:center;font-size:13px;background:var(--surface);border-radius:999px;padding:3px 4px 3px 10px}
+.tags .chip button{border:0;background:transparent;width:22px;height:22px;border-radius:50%;cursor:pointer;color:var(--faint)}
+.tags input{flex:1 1 80px;border:0!important;min-height:30px!important;padding:0 6px!important;background:transparent!important}
+.check{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.check li{display:flex;gap:8px;align-items:center;color:var(--muted)}
+.check li::before{content:"";width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);flex:none}
+.check li.ok{color:var(--ink)}.check li.ok::before{background:var(--ok);border-color:var(--ok);box-shadow:inset 0 0 0 3px var(--card)}
+.serp{font-size:13px;line-height:1.45}.serp .u{color:var(--muted)}.serp .t{color:var(--accent);font-size:17px;margin:2px 0}.serp .d{color:var(--muted)}
+.radio{display:grid;gap:6px}.radio label{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:400;margin:0;justify-content:flex-start}
+.radio input{width:18px;min-height:18px;height:18px;accent-color:var(--accent)}
+.etabs{display:none}
+/* media */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.mitem{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.mitem .im{aspect-ratio:4/3;background:var(--surface)}.mitem .im img{width:100%;height:100%;object-fit:cover}
+.mitem .mi{padding:10px 12px;font-size:13px}.mitem .mi b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mitem .mi span{color:var(--faint)}.mitem .ma{display:flex;gap:6px;padding:0 12px 12px}
+.usage{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-bottom:16px}
+.usage .bar{flex:1 1 200px;height:8px;border-radius:4px;background:var(--surface);overflow:hidden}.usage .bar i{display:block;height:100%;width:4%;background:var(--accent)}
+/* public blog */
+.site{max-width:728px;margin:0 auto;padding:0 max(24px,env(safe-area-inset-left,0px))}
+.shead{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.sbar{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+.sbar .b{font-weight:600;text-decoration:none;white-space:nowrap}
+.snav{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-end}
+.snav a{display:inline-flex;align-items:center;min-height:36px;padding:0 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:15px}
+.snav a:hover{background:var(--surface);color:var(--ink)}.snav a[aria-current=page]{color:var(--ink)}
+.label{font-size:13px;font-weight:500;font-family:var(--m);text-transform:uppercase;letter-spacing:.08em;color:var(--faint);margin:0 0 16px}
+.bhero{padding:56px 0 28px}
+.bhero h1{font-size:clamp(36px,7vw,52px);line-height:1.05;letter-spacing:-.04em;margin:0 0 12px;font-weight:600}
+.bhero p{color:var(--muted);font-size:18px;margin:0;max-width:52ch}
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 24px;border-bottom:1px solid var(--line)}
+.fchip{border:1px solid var(--line);background:transparent;border-radius:999px;min-height:36px;padding:0 14px;font-size:14px;color:var(--muted);cursor:pointer}
+.fchip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.feat{display:grid;gap:18px;padding:32px 0;border-bottom:1px solid var(--line);text-decoration:none;cursor:pointer}
+.feat .im{aspect-ratio:2/1;border-radius:14px;overflow:hidden;background:var(--surface)}.feat .im img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.feat:hover .im img{transform:scale(1.02)}
+.feat h2{font-size:28px;line-height:1.15;letter-spacing:-.025em;margin:0 0 8px}
+.meta{font-size:14px;color:var(--faint);display:flex;gap:6px 14px;flex-wrap:wrap}
+.excerpt{color:var(--muted);margin:0 0 10px}
+.plist{list-style:none;margin:0;padding:0}
+.pitem{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:20px;padding:24px 0;border-bottom:1px solid var(--line);cursor:pointer;align-items:start}
+.pitem h3{font-size:19px;line-height:1.3;margin:0 0 6px;letter-spacing:-.01em}
+.pitem:hover h3{color:var(--accent)}
+.pitem .im{aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--surface)}.pitem .im img{width:100%;height:100%;object-fit:cover}
+.tagl{font-size:13px;color:var(--accent)}
+.pager{display:flex;justify-content:space-between;align-items:center;padding:28px 0 72px;font-size:14px;color:var(--muted)}
+.sfoot{border-top:1px solid var(--line);padding:24px 0 40px;font-size:14px;color:var(--faint)}
+.sfoot .site{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+/* article */
+.art{padding:48px 0 32px}
+.crumb{font-size:14px;color:var(--muted);text-decoration:none;display:inline-flex;gap:6px;margin-bottom:28px}
+.crumb:hover{color:var(--ink)}
+.art h1{font-size:clamp(34px,6vw,48px);line-height:1.08;letter-spacing:-.035em;margin:0 0 16px;font-weight:600;text-wrap:balance}
+.art .lede{font-size:19px;color:var(--muted);margin:0 0 20px}
+.art .cov{margin:28px 0 0;border-radius:14px;overflow:hidden;aspect-ratio:2/1}.art .cov img{width:100%;height:100%;object-fit:cover}
+.awrap{position:relative}
+.toc{position:absolute;left:calc(100% + 40px);top:0;width:200px;height:100%}
+.toc div{position:sticky;top:84px;font-size:13px}
+.toc b{display:block;color:var(--faint);font-weight:500;margin-bottom:8px}
+.toc a{display:block;color:var(--muted);text-decoration:none;padding:4px 0 4px 12px;border-left:1px solid var(--line)}
+.toc a.on{color:var(--ink);border-left-color:var(--accent)}
+@media(max-width:1240px){.toc{display:none}}
+.prose{font-size:17px;line-height:1.75}
+.prose h2{font-size:24px;letter-spacing:-.02em;line-height:1.25;margin:2em 0 .6em;scroll-margin-top:80px}
+.prose h3{font-size:19px;margin:1.6em 0 .5em}
+.prose p{margin:0 0 1.15em}
+.prose a{color:var(--accent)}
+.prose code{font-family:var(--m);font-size:.86em;background:var(--surface);padding:.1em .35em;border-radius:5px}
+.prose pre{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow-x:auto;font:13.5px/1.65 var(--m);margin:0 0 1.4em}
+.prose pre code{background:none;padding:0;font-size:inherit}
+.prose pre .cp{position:absolute;top:8px;right:8px}
+.prose blockquote{margin:0 0 1.2em;padding:2px 0 2px 18px;border-left:3px solid var(--accent);color:var(--muted)}
+.prose figure{margin:1.6em 0}.prose figure img{border-radius:12px;width:100%}
+.prose figcaption{font-size:14px;color:var(--faint);margin-top:8px;text-align:center}
+.prose ul{padding-left:1.2em;margin:0 0 1.2em}.prose li{margin-bottom:.35em}
+.pv.prose{font-size:16px}.pv.prose h1{font-size:28px;line-height:1.15;letter-spacing:-.03em;margin:0 0 16px}
+.aend{border-top:1px solid var(--line);margin-top:40px;padding-top:24px;display:grid;gap:24px}
+.share{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--muted)}
+.nextprev{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.np{border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-decoration:none;cursor:pointer;display:block}
+.np:hover{border-color:var(--faint)}.np small{display:block;color:var(--faint);font-size:13px}.np b{font-weight:500;line-height:1.35;display:block;margin-top:2px}
+.np.n{text-align:right}
+.author{display:flex;gap:14px;align-items:center;font-size:14px;color:var(--muted)}
+.author .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 40%,var(--bg)));flex:none}
+.author b{color:var(--ink);display:block;font-weight:500}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:22px;max-width:min(420px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.35)}dialog h3{margin:0 0 8px;font-size:18px}dialog p{margin:0 0 18px;color:var(--muted)}
+dialog .row{display:flex;gap:8px;justify-content:flex-end}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;transition:.2s;pointer-events:none;z-index:20}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){.toast,.feat .im img,.up .pg i{transition:none}}
+@media(max-width:1100px){.egrid{grid-template-columns:minmax(0,1fr)}.side{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.split{grid-template-columns:minmax(0,1fr)}.split .pv{display:none}.split.p .pv{display:block}.split.p .src{display:none}.mdbar .seg .sp{display:none}.src{border-right:0}
+.prow{grid-template-columns:56px minmax(0,1fr) auto 40px}.prow .thumb{width:56px}.prow .c-date,.prow .c-views{display:none}.prow.th{display:none}}
+@media(max-width:760px){
+.shell{grid-template-columns:minmax(0,1fr)}
+.rail{position:sticky;top:0;z-index:4;height:auto;flex-direction:row;align-items:center;padding:8px 12px;border-right:0;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);overflow-x:auto}
+.brand,.rail .who,.rail .spacer,.tab .new{display:none}.tab{flex:none;padding:0 10px}
+.amain{padding-top:22px}.amain h1{font-size:28px}.titlein{font-size:26px}
+.side{grid-template-columns:minmax(0,1fr)}
+.ebar .btn.hide-s{display:none}
+.pitem{grid-template-columns:minmax(0,1fr) 96px;gap:14px}.pitem h3{font-size:17px}.pitem .excerpt{display:none}
+.snav a.hide-s{display:none}.nextprev{grid-template-columns:minmax(0,1fr)}.np.n{text-align:left}}
+</style>
+</head>
+<body>
+<div class="note"><span>Layout preview for <b>/admin/blog</b> and <b>/blog</b> · sample posts, uploads stay in your browser</span><span>Admin: <a href="#posts">Posts</a> · <a href="#editor">Editor</a> · <a href="#media">Media</a> &nbsp;|&nbsp; Site: <a href="#blog">Blog</a> · <a href="#article">Article</a></span></div>
+
+<div class="shell" id="v-admin">
+  <nav class="rail" aria-label="Admin">
+    <div class="brand">Carls Dale Escalo<small>Admin</small></div>
+    <a class="tab" href="#overview-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Overview</a>
+    <a class="tab" href="#messages-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>Messages</a>
+    <a class="tab" href="#posts" data-v="posts editor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h10l4 4v12H5z"/><path d="M14 4v5h5M8 13h8M8 17h5"/></svg>Blog<span class="new">New</span></a>
+    <a class="tab" href="#media" data-v="media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>Media<span class="new">New</span></a>
+    <a class="tab" href="#chess-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8M9 17h6l-1-6h2l-1-3a3 3 0 1 0-6 0l-1 3h2z"/></svg>Chess</a>
+    <a class="tab" href="#admins-x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7"/></svg>Admins</a>
+    <div class="spacer"></div><div class="who">Carls · Owner</div>
+  </nav>
+
+  <main class="amain" id="v-posts">
+    <div class="head"><div><h1>Blog</h1><p class="sub">Write, schedule and publish posts on carlsdaleescalo.com/blog.</p></div><a class="btn solid" href="#editor" id="newPost">New post</a></div>
+    <div class="toolbar">
+      <input class="search" id="psearch" type="search" placeholder="Search titles and tags" aria-label="Search posts">
+      <div class="seg" id="pfilter" role="group" aria-label="Status"></div>
+    </div>
+    <div class="ptable" id="ptable"></div>
+  </main>
+
+  <main class="amain" id="v-editor" hidden>
+    <div class="ebar">
+      <a class="btn sm" href="#posts">← Posts</a>
+      <span class="saved" id="saved"><i></i><span>Draft · saved just now</span></span>
+      <a class="btn hide-s" href="#article">Preview ↗</a>
+      <button class="btn" type="button" id="saveDraft">Save draft</button>
+      <button class="btn solid" type="button" id="publish">Publish</button>
+    </div>
+    <div class="egrid">
+      <div>
+        <textarea class="titlein" id="etitle" rows="1" placeholder="Post title" aria-label="Title">Building a chess board that strangers play together</textarea>
+        <div class="pane">
+          <div class="mdbar" role="toolbar" aria-label="Formatting">
+            <button type="button" data-md="h2" title="Heading">H2</button>
+            <button type="button" data-md="b" title="Bold"><b>B</b></button>
+            <button type="button" data-md="i" title="Italic"><i>I</i></button>
+            <button type="button" data-md="a" title="Link">Link</button>
+            <span class="sep"></span>
+            <button type="button" data-md="q" title="Quote">“ ”</button>
+            <button type="button" data-md="ul" title="List">•</button>
+            <button type="button" data-md="code" title="Code block">{ }</button>
+            <button type="button" id="imgBtn" title="Insert image">Image</button>
+            <input type="file" id="imgFile" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" multiple hidden>
+            <div class="seg" role="group" aria-label="View">
+              <button type="button" data-mode="w">Write</button>
+              <button type="button" data-mode="s" class="sp" aria-pressed="true">Split</button>
+              <button type="button" data-mode="p">Preview</button>
+            </div>
+          </div>
+          <div class="split" id="split">
+            <div class="src"><textarea id="ebody" aria-label="Post body (Markdown)" spellcheck="true"></textarea><div class="drop" id="drop" hidden>Drop images to upload</div></div>
+            <div class="pv prose" id="preview"></div>
+          </div>
+          <div class="uploads" id="uploads" hidden></div>
+          <div class="hint">Markdown. Drop, paste or pick images: they upload to Vercel Blob and the link goes in at the cursor.</div>
+        </div>
+      </div>
+      <aside class="side">
+        <section class="card"><h2>Publishing</h2>
+          <div class="radio" id="status">
+            <label><input type="radio" name="st" value="draft" checked> Draft, only admins see it</label>
+            <label><input type="radio" name="st" value="scheduled"> Schedule for later</label>
+            <label><input type="radio" name="st" value="published"> Publish now</label>
+          </div>
+          <div class="field" id="whenF" hidden style="margin-top:12px"><label for="when">Goes live</label><input id="when" type="datetime-local" value="2026-12-01T09:00"></div>
+          <div style="margin-top:14px"><ul class="check" id="checklist"></ul></div>
+        </section>
+        <section class="card"><h2>Post details</h2>
+          <div class="field"><label for="slug">URL</label><div class="slug"><span>/blog/</span><input id="slug" value="chess-board-strangers-play-together"></div></div>
+          <div class="field"><label for="excerpt">Excerpt <span id="exc">0/160</span></label><textarea id="excerpt" maxlength="200">How a single shared game on my portfolio handles turns, cooldowns and two people moving at once, with MongoDB and chess.js.</textarea></div>
+          <div class="field"><label>Tags</label><div class="tags" id="tags"><input id="tagIn" placeholder="Add tag" aria-label="Add tag" list="tagList"></div>
+            <datalist id="tagList"><option value="Next.js"><option value="MongoDB"><option value="Security"><option value="Design"><option value="Career"></datalist></div>
+        </section>
+        <section class="card"><h2>Cover image</h2>
+          <div class="cover" id="cover" tabindex="0" role="button" aria-label="Choose cover image"></div>
+          <input type="file" id="coverFile" accept="image/*" hidden>
+          <div class="field" style="margin-top:12px"><label for="coverAlt">Alt text <span>required</span></label><input id="coverAlt" value="A chess board mid-game in the portfolio's blue and grey squares"></div>
+        </section>
+        <section class="card"><h2>Search preview</h2>
+          <div class="serp" id="serp"></div>
+        </section>
+        <section class="card"><h2>Danger zone</h2><p style="margin:0 0 12px;font-size:14px;color:var(--muted)">Deleting removes the post and any images only it uses.</p><button class="btn warn sm" type="button" id="delPost">Delete post</button></section>
+      </aside>
+    </div>
+  </main>
+
+  <main class="amain" id="v-media" hidden>
+    <div class="head"><div><h1>Media</h1><p class="sub">Images stored in Vercel Blob. Converted to WebP and resized to 2400px wide before upload.</p></div><button class="btn solid" type="button" id="mUpload">Upload images</button></div>
+    <div class="usage"><span><b style="color:var(--ink)" id="mcount">6 images</b> · 3.8 MB in the blob store</span><div class="bar"><i></i></div><span>Unused images can be deleted</span></div>
+    <div class="toolbar"><input class="search" id="msearch" type="search" placeholder="Search file names" aria-label="Search media"><div class="seg" id="mfilter" role="group" aria-label="Filter"><button type="button" aria-pressed="true" data-f="all">All</button><button type="button" data-f="unused">Unused</button></div></div>
+    <div class="mgrid" id="mgrid"></div>
+  </main>
+</div>
+
+<div id="v-site" hidden>
+  <header class="shead"><div class="site sbar"><a class="b" href="#blog">Carls Dale Escalo</a>
+    <nav class="snav" aria-label="Site"><a class="hide-s" href="#blog">About</a><a class="hide-s" href="#blog">Work</a><a class="hide-s" href="#blog">Chess</a><a href="#blog" aria-current="page">Blog</a><a href="#blog">Contact</a></nav></div></header>
+
+  <main id="v-blog" class="site">
+    <section class="bhero"><p class="label">Blog</p><h1>Notes from building things</h1><p>Write-ups on the systems behind this site and the tools I build at work: what I tried, what broke, what I'd do again.</p></section>
+    <div class="filters" id="bfilter" role="group" aria-label="Filter by tag"></div>
+    <div id="feat"></div>
+    <ul class="plist" id="plist"></ul>
+    <div class="pager"><span id="pcount"></span><button class="btn sm" type="button" disabled>Older posts →</button></div>
+  </main>
+
+  <main id="v-article" class="site" hidden>
+    <article class="art">
+      <a class="crumb" href="#blog">← All posts</a>
+      <p class="meta"><span>Nov 18, 2026</span><span>7 min read</span><span class="tagl">Next.js · MongoDB</span></p>
+      <h1>Building a chess board that strangers play together</h1>
+      <p class="lede">How a single shared game on my portfolio handles turns, cooldowns and two people moving at once, with MongoDB and chess.js.</p>
+      <div class="author"><span class="av"></span><span><b>Carls Dale Escalo</b>Systems developer, Makati</span></div>
+      <figure class="cov" id="acov"></figure>
+    </article>
+    <div class="awrap">
+      <nav class="toc" aria-label="On this page"><div id="toc"><b>On this page</b></div></nav>
+      <div class="prose" id="abody"></div>
+    </div>
+    <div class="aend">
+      <div class="share"><span>Share</span><button class="btn sm" type="button" id="copyLink">Copy link</button><a class="btn sm" href="#article">Post on X</a><a class="btn sm" href="#article">LinkedIn</a></div>
+      <div class="nextprev"><a class="np" href="#article"><small>← Previous</small><b>Email codes as a second factor, without an auth library</b></a><a class="np n" href="#article"><small>Next →</small><b>Uploading straight to Vercel Blob from the browser</b></a></div>
+    </div>
+    <div style="height:72px"></div>
+  </main>
+  <footer class="sfoot"><div class="site"><span>© 2026 Carls Dale Escalo</span><span>RSS · Built with Next.js and MongoDB · Hosted on Vercel</span></div></footer>
+</div>
+
+<dialog id="dlg"><h3 id="dlgT"></h3><p id="dlgP"></p><div class="row"><button class="btn" type="button" value="cancel" id="dlgNo">Cancel</button><button class="btn solid" type="button" id="dlgYes">Confirm</button></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1800)};
+const art=(seed,a,b)=>{let s=seed;const r=()=>(s=s*16807%2147483647)/2147483647;let shapes="";for(let i=0;i<7;i++){const x=r()*800,y=r()*400,rad=60+r()*200;shapes+=`<circle cx='${x|0}' cy='${y|0}' r='${rad|0}' fill='${i%2?a:b}' opacity='${(.25+r()*.5).toFixed(2)}'/>`}
+  return "data:image/svg+xml,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400' preserveAspectRatio='xMidYMid slice'><rect width='800' height='400' fill='${a}'/>${shapes}<rect y='300' width='800' height='100' fill='#000' opacity='.06'/></svg>`)};
+const C=[["#2f5bd3","#8aa8ff"],["#18181b","#63636b"],["#97a3bc","#eceef2"],["#1d3c8f","#2f5bd3"],["#63636b","#a0a0a8"],["#2f5bd3","#eceef2"]];
+const posts=[
+ {t:"Building a chess board that strangers play together",s:"published",d:"Nov 18, 2026",v:412,tags:["Next.js","MongoDB"],ex:"How a single shared game handles turns, cooldowns and two people moving at once.",c:0,m:7},
+ {t:"Email codes as a second factor, without an auth library",s:"published",d:"Nov 27, 2026",v:268,tags:["Security","Next.js"],ex:"scrypt, HMAC'd codes, trusted devices and backup codes using only node:crypto.",c:3,m:9},
+ {t:"Uploading straight to Vercel Blob from the browser",s:"scheduled",d:"Dec 1, 2026",v:0,tags:["Next.js"],ex:"Client uploads, signed tokens and keeping the 4.5 MB function limit out of the way.",c:5,m:6},
+ {t:"Why my portfolio has exactly one accent colour",s:"published",d:"Oct 30, 2026",v:193,tags:["Design"],ex:"A short case for restraint: one blue, two greys, and what it does for scanning.",c:2,m:4},
+ {t:"Caching in Next.js 16 after cacheComponents",s:"draft",d:"Edited 2h ago",v:0,tags:["Next.js"],ex:"Notes on use cache, cacheTag and when a page should stay dynamic.",c:1,m:11},
+ {t:"What a week of internal tool requests taught me",s:"draft",d:"Edited Nov 20",v:0,tags:["Career"],ex:"",c:4,m:3}];
+posts.forEach((p,i)=>p.img=art(i*977+13,...C[p.c]));
+const SL={draft:["Draft","dra"],scheduled:["Scheduled","sch"],published:["Published","pub"]};
+/* routing */
+const views={posts:"admin",editor:"admin",media:"admin",blog:"site",article:"site"};
+function route(){let h=location.hash.slice(1);if(!views[h])h="editor";
+  $("#v-admin").hidden=views[h]!=="admin";$("#v-site").hidden=views[h]!=="site";
+  ["posts","editor","media","blog","article"].forEach(v=>$("#v-"+v).hidden=v!==h);
+  $$(".tab[data-v]").forEach(a=>a.dataset.v.split(" ").includes(h)?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  scrollTo(0,0)}
+addEventListener("hashchange",route);
+$$('.tab[href$="-x"]').forEach(a=>a.addEventListener("click",e=>{e.preventDefault();toast("That section is unchanged — see the admin mockup")}));
+/* posts list */
+let pf="all";
+function renderPosts(){const q=$("#psearch").value.toLowerCase();
+  const n=s=>posts.filter(p=>s==="all"||p.s===s).length;
+  $("#pfilter").innerHTML=["all","published","scheduled","draft"].map(s=>`<button type="button" data-s="${s}" aria-pressed="${pf===s}">${s==="all"?"All":SL[s][0]}<span>${n(s)}</span></button>`).join("");
+  const rows=posts.filter(p=>(pf==="all"||p.s===pf)&&(p.t+p.tags.join(" ")).toLowerCase().includes(q));
+  $("#ptable").innerHTML=`<div class="prow th"><span></span><span>Title</span><span>Status</span><span class="c-date">Date</span><span class="r c-views">Views</span><span></span></div>`+
+   (rows.length?rows.map(p=>`<div class="prow" tabindex="0" data-go="editor"><span class="thumb"><img alt="" src="${p.img}"></span><span><div class="tt">${esc(p.t)}</div><div class="ex">${esc(p.tags.join(" · "))}${p.ex?"":" · no excerpt yet"}</div></span><span><span class="badge ${SL[p.s][1]}">${SL[p.s][0]}</span></span><span class="d c-date">${esc(p.d)}</span><span class="r c-views">${p.v||"–"}</span><button class="more" type="button" aria-label="More actions">⋯</button></div>`).join(""):`<div class="empty">No posts match. <a href="#editor" style="color:var(--accent)">Start a new one</a>.</div>`)}
+$("#pfilter").addEventListener("click",e=>{const b=e.target.closest("button");if(b){pf=b.dataset.s;renderPosts()}});
+$("#psearch").addEventListener("input",renderPosts);
+$("#ptable").addEventListener("click",e=>{if(e.target.closest(".more")){toast("Menu: Edit · View on site · Duplicate · Unpublish · Delete");return}if(e.target.closest(".prow[data-go]"))location.hash="editor"});
+$("#ptable").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".prow[data-go]"))location.hash="editor"});
+/* markdown (preview only; the real site renders server-side and sanitises) */
+const imgMap={};
+function inline(s){return esc(s).replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,(m,a,u)=>`<img alt="${a}" src="${imgMap[u]||u}">`).replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'<a href="$2">$1</a>').replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>").replace(/\*([^*]+)\*/g,"<em>$1</em>")}
+function md(src,ids){const L=src.split("\n");let h="",i=0,toc=[];
+  while(i<L.length){const l=L[i];
+   if(l.startsWith("```")){let c=[];i++;while(i<L.length&&!L[i].startsWith("```"))c.push(L[i++]);i++;h+=`<pre><button class="btn sm cp" type="button">Copy</button><code>${esc(c.join("\n"))}</code></pre>`;continue}
+   let m;if(m=l.match(/^(#{2,3}) (.*)/)){const id=m[2].toLowerCase().replace(/[^a-z0-9]+/g,"-");if(m[1].length===2)toc.push([id,m[2]]);h+=`<h${m[1].length}${ids?` id="${id}"`:""}>${inline(m[2])}</h${m[1].length}>`;i++;continue}
+   if(m=l.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/)){h+=`<figure>${inline(l)}${m[1]?`<figcaption>${esc(m[1])}</figcaption>`:""}</figure>`;i++;continue}
+   if(l.startsWith("> ")){let q=[];while(i<L.length&&L[i].startsWith("> "))q.push(L[i++].slice(2));h+=`<blockquote><p>${inline(q.join(" "))}</p></blockquote>`;continue}
+   if(l.startsWith("- ")){let q=[];while(i<L.length&&L[i].startsWith("- "))q.push(`<li>${inline(L[i++].slice(2))}</li>`);h+=`<ul>${q.join("")}</ul>`;continue}
+   if(!l.trim()){i++;continue}
+   let p=[];while(i<L.length&&L[i].trim()&&!/^(#|```|> |- |!\[)/.test(L[i]))p.push(L[i++]);h+=`<p>${inline(p.join(" "))}</p>`}
+  return {h,toc}}
+const blobBase="https://k3x9.public.blob.vercel-storage.com/blog/";
+imgMap[blobBase+"board-race-Qm81.webp"]=art(4242,"#97a3bc","#eceef2");
+const body=`The chess board on my homepage is one game shared by everyone who visits. Anyone can make the next move, then waits out a short cooldown. That sounds simple until two people press a piece in the same second.
+
+## One game, many players
+
+Every move is a write to a single \`chess_games\` document. The board you see is whatever the server last accepted, and **the server is the only judge** of whether a move is legal.
+
+- chess.js validates the move against the stored FEN
+- the cooldown is per visitor, keyed on a hashed IP
+- a lock document stops two writes landing on the same ply
+
+## When two moves collide
+
+![Two requests racing for the same ply](${blobBase}board-race-Qm81.webp)
+
+The lock is a unique index on game id plus ply number. Whoever inserts first wins; the second gets a duplicate-key error and is told the board moved.
+
+\`\`\`ts
+await locks.insertOne({ _id: \`\${gameId}:\${ply}\` });
+// E11000 here means someone else moved first
+\`\`\`
+
+> A visitor never sees a half-applied move. They see the new position and a short note that someone beat them to it.
+
+## What I'd change
+
+I'd add a small live indicator so people know others are playing. For now, a refresh after the cooldown does the job.`;
+const eb=$("#ebody");eb.value=body;
+function renderPreview(){$("#preview").innerHTML=`<h1>${esc($("#etitle").value||"Untitled post")}</h1>`+md(eb.value).h;dirty()}
+let saveT;function dirty(){const s=$("#saved");s.classList.add("dirty");s.lastChild.textContent="Unsaved changes";clearTimeout(saveT);saveT=setTimeout(()=>{s.classList.remove("dirty");s.lastChild.textContent="Draft · saved just now"},1400);checklist()}
+eb.addEventListener("input",renderPreview);$("#etitle").addEventListener("input",()=>{renderPreview();serp()});
+$$("[data-mode]").forEach(b=>b.addEventListener("click",()=>{$$("[data-mode]").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#split").className="split "+b.dataset.mode}));
+const wrap={b:["**","**","bold text"],i:["*","*","italic text"],a:["[","](https://)","link text"],h2:["\n## ","","Heading"],q:["\n> ","","Quote"],ul:["\n- ","","List item"],code:["\n```ts\n","\n```\n","code"]};
+$$("[data-md]").forEach(b=>b.addEventListener("click",()=>{const [a,z,ph]=wrap[b.dataset.md],s=eb.selectionStart,e=eb.selectionEnd,sel=eb.value.slice(s,e)||ph;eb.setRangeText(a+sel+z,s,e,"end");eb.focus();renderPreview()}));
+/* uploads: simulated client upload to Blob */
+let uid=0;
+function uploadFiles(files,atCursor){const box=$("#uploads");box.hidden=false;
+  [...files].filter(f=>f.type.startsWith("image/")).forEach(f=>{
+   if(f.size>8*1024*1024){toast(f.name+" is over 8 MB");return}
+   const id="u"+(++uid),url=URL.createObjectURL(f),name=f.name.replace(/\.[^.]+$/,"").toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-"+Math.random().toString(36).slice(2,6)+".webp";
+   const row=document.createElement("div");row.className="up";row.innerHTML=`<img alt="" src="${url}"><div><div class="nm"></div><div class="pg"><i style="width:0"></i></div></div><span class="st">Optimising…</span>`;
+   row.querySelector(".nm").textContent=name;box.appendChild(row);
+   let p=0;const tick=setInterval(()=>{p+=12+Math.random()*18;row.querySelector("i").style.width=Math.min(p,100)+"%";row.querySelector(".st").textContent=p<20?"Optimising…":"Uploading "+Math.min(p|0,100)+"%";
+    if(p>=100){clearInterval(tick);row.querySelector(".st").textContent="Uploaded";row.querySelector(".st").classList.add("ok");
+     const full=blobBase+name;imgMap[full]=url;media.unshift({n:name,img:url,size:(f.size/1024/1.8|0)+" KB",used:atCursor?1:0});renderMedia();
+     if(atCursor){const s=eb.selectionStart;eb.setRangeText(`\n![Describe this image](${full})\n`,s,s,"end");renderPreview()}
+     setTimeout(()=>{row.remove();if(!box.children.length)box.hidden=true},2500)}},220)})}
+$("#imgBtn").addEventListener("click",()=>$("#imgFile").click());
+$("#imgFile").addEventListener("change",e=>{uploadFiles(e.target.files,true);e.target.value=""});
+const src=$(".src");
+src.addEventListener("dragover",e=>{e.preventDefault();$("#drop").hidden=false});
+src.addEventListener("dragleave",e=>{if(!src.contains(e.relatedTarget))$("#drop").hidden=true});
+src.addEventListener("drop",e=>{e.preventDefault();$("#drop").hidden=true;uploadFiles(e.dataTransfer.files,true)});
+eb.addEventListener("paste",e=>{const f=[...e.clipboardData.files];if(f.length){e.preventDefault();uploadFiles(f,true)}});
+/* sidebar */
+let coverImg=posts[0].img;
+function renderCover(){$("#cover").innerHTML=coverImg?`<img alt="" src="${coverImg}"><button class="btn sm x" type="button" id="rmCover">Remove</button>`:`<span>Drop a cover image or click to choose<br>16:9, at least 1600px wide</span>`;checklist()}
+$("#cover").addEventListener("click",e=>{if(e.target.id==="rmCover"){coverImg="";renderCover();return}$("#coverFile").click()});
+$("#cover").addEventListener("keydown",e=>{if(e.key==="Enter")$("#coverFile").click()});
+$("#coverFile").addEventListener("change",e=>{const f=e.target.files[0];if(f){coverImg=URL.createObjectURL(f);renderCover();toast("Cover uploaded to Blob")}});
+let tags=["Next.js","MongoDB"];
+function renderTags(){$$("#tags .chip").forEach(c=>c.remove());$("#tagIn").insertAdjacentHTML("beforebegin",tags.map((t,i)=>`<span class="chip">${esc(t)}<button type="button" data-i="${i}" aria-label="Remove ${esc(t)}">×</button></span>`).join(""));checklist()}
+$("#tags").addEventListener("click",e=>{const b=e.target.closest("button[data-i]");if(b){tags.splice(+b.dataset.i,1);renderTags()}});
+$("#tagIn").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===",")&&e.target.value.trim()){e.preventDefault();if(tags.length<5&&!tags.includes(e.target.value.trim()))tags.push(e.target.value.trim());e.target.value="";renderTags()}});
+function exc(){$("#exc").textContent=$("#excerpt").value.length+"/160";$("#exc").style.color=$("#excerpt").value.length>160?"var(--danger)":""}
+$("#excerpt").addEventListener("input",()=>{exc();serp();checklist()});
+$("#slug").addEventListener("input",e=>{e.target.value=e.target.value.toLowerCase().replace(/[^a-z0-9-]+/g,"-");serp()});
+function serp(){$("#serp").innerHTML=`<div class="u">carlsdaleescalo.com › blog › ${esc($("#slug").value)}</div><div class="t">${esc(($("#etitle").value||"Untitled").slice(0,60))}</div><div class="d">${esc($("#excerpt").value.slice(0,160)||"Add an excerpt so search results don't pick a random sentence.")}</div>`}
+function status(){return $('#status input:checked').value}
+$("#status").addEventListener("change",()=>{$("#whenF").hidden=status()!=="scheduled";$("#publish").textContent={draft:"Publish",scheduled:"Schedule",published:"Publish now"}[status()];checklist()});
+function checklist(){const noAlt=/!\[(Describe this image)?\]\(/.test(eb.value);
+  const c=[["Title",$("#etitle").value.trim().length>3],["Excerpt under 160 characters",$("#excerpt").value.trim()&&$("#excerpt").value.length<=160],["Cover image with alt text",coverImg&&$("#coverAlt").value.trim()],["Every image has alt text",!noAlt],["At least one tag",tags.length>0]];
+  $("#checklist").innerHTML=c.map(([l,ok])=>`<li class="${ok?"ok":""}">${l}</li>`).join("");$("#publish").disabled=!c.every(x=>x[1])}
+$("#coverAlt").addEventListener("input",checklist);
+const dlg=$("#dlg");let onYes=null;
+function ask(t,p,yes,fn){$("#dlgT").textContent=t;$("#dlgP").textContent=p;$("#dlgYes").textContent=yes;onYes=fn;dlg.showModal()}
+$("#dlgNo").addEventListener("click",()=>dlg.close());$("#dlgYes").addEventListener("click",()=>{dlg.close();onYes&&onYes()});
+$("#publish").addEventListener("click",()=>{const s=status();
+  if(s==="scheduled")ask("Schedule this post?",`It goes live at /blog/${$("#slug").value} on ${$("#when").value.replace("T"," at ")}.`,"Schedule",()=>toast("Scheduled"));
+  else ask("Publish this post?",`It goes live now at /blog/${$("#slug").value}, appears on /blog and in the RSS feed.`,"Publish",()=>{toast("Published · cache refreshed");setTimeout(()=>location.hash="article",700)})});
+$("#saveDraft").addEventListener("click",()=>{clearTimeout(saveT);$("#saved").classList.remove("dirty");$("#saved").lastChild.textContent="Draft · saved just now";toast("Draft saved")});
+$("#delPost").addEventListener("click",()=>ask("Delete this post?","This can't be undone. 1 image used only by this post will be deleted from Blob.","Delete",()=>{toast("Post deleted");location.hash="posts"}));
+/* media */
+const media=[{n:"board-race-Qm81.webp",img:imgMap[blobBase+"board-race-Qm81.webp"],size:"412 KB",used:1},...posts.slice(0,5).map((p,i)=>({n:["chess-cover-a1x2.webp","email-code-flow-7kd0.webp","accent-swatches-pp31.webp","cache-diagram-02hz.webp","blob-upload-flow-mm4q.webp"][i],img:p.img,size:[640,522,318,880,701][i]+" KB",used:i===3?0:1+(i===0?1:0)}))];
+let mf="all";
+function renderMedia(){const q=$("#msearch").value.toLowerCase(),rows=media.filter(m=>(mf==="all"||!m.used)&&m.n.includes(q));$("#mcount").textContent=media.length+" images";
+  $("#mgrid").innerHTML=rows.length?rows.map((m,i)=>`<div class="mitem"><div class="im"><img alt="" src="${m.img}"></div><div class="mi"><b>${esc(m.n)}</b><span>${esc(m.size)} · ${m.used?`used in ${m.used} post${m.used>1?"s":""}`:"unused"}</span></div><div class="ma"><button class="btn sm" type="button" data-copy="${i}">Copy URL</button><button class="btn sm warn" type="button" data-del="${esc(m.n)}" ${m.used?'disabled title="Remove it from posts first"':""}>Delete</button></div></div>`).join(""):`<div class="empty">No images here.</div>`}
+$("#mgrid").addEventListener("click",e=>{const c=e.target.closest("[data-copy]"),d=e.target.closest("[data-del]");
+  if(c){navigator.clipboard?.writeText(blobBase+media.filter(m=>(mf==="all"||!m.used))[+c.dataset.copy].n).catch(()=>{});toast("URL copied")}
+  if(d&&!d.disabled)ask("Delete this image?","It's removed from Vercel Blob. No post uses it.","Delete",()=>{media.splice(media.findIndex(m=>m.n===d.dataset.del),1);renderMedia();toast("Image deleted")})});
+$("#mfilter").addEventListener("click",e=>{const b=e.target.closest("button");if(b){mf=b.dataset.f;$$("#mfilter button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderMedia()}});
+$("#msearch").addEventListener("input",renderMedia);
+$("#mUpload").addEventListener("click",()=>$("#imgFile").click());
+/* public blog */
+let bt="All";const pub=posts.filter(p=>p.s==="published");
+function renderBlog(){const all=["All",...new Set(pub.flatMap(p=>p.tags))];
+  $("#bfilter").innerHTML=all.map(t=>`<button class="fchip" type="button" aria-pressed="${t===bt}">${esc(t)}</button>`).join("");
+  const list=pub.filter(p=>bt==="All"||p.tags.includes(bt)).sort((a,b)=>new Date(b.d)-new Date(a.d)),[f,...rest]=list;
+  $("#feat").innerHTML=f?`<a class="feat" href="#article"><div class="im"><img alt="" src="${f.img}"></div><div><p class="meta"><span>${esc(f.d)}</span><span>${f.m} min read</span><span class="tagl">${esc(f.tags.join(" · "))}</span></p><h2>${esc(f.t)}</h2><p class="excerpt">${esc(f.ex)}</p></div></a>`:"";
+  $("#plist").innerHTML=rest.map(p=>`<li><a class="pitem" href="#article" style="text-decoration:none"><div><p class="meta"><span>${esc(p.d)}</span><span>${p.m} min read</span></p><h3>${esc(p.t)}</h3><p class="excerpt">${esc(p.ex)}</p><span class="tagl">${esc(p.tags.join(" · "))}</span></div><div class="im"><img alt="" src="${p.img}"></div></a></li>`).join("");
+  $("#pcount").textContent=`${list.length} post${list.length===1?"":"s"}`}
+$("#bfilter").addEventListener("click",e=>{const b=e.target.closest("button");if(b){bt=b.textContent;renderBlog()}});
+function renderArticle(){const r=md(eb.value,true);$("#abody").innerHTML=r.h;$("#acov").innerHTML=`<img alt="${esc($("#coverAlt").value)}" src="${coverImg||posts[0].img}">`;
+  $("#toc").innerHTML="<b>On this page</b>"+r.toc.map(([id,t])=>`<a href="#article" data-to="${id}">${esc(t)}</a>`).join("")}
+$("#toc").addEventListener("click",e=>{const a=e.target.closest("[data-to]");if(a){e.preventDefault();document.getElementById(a.dataset.to)?.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth"})}});
+const tocObs=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)$$("#toc a").forEach(a=>a.classList.toggle("on",a.dataset.to===x.target.id))}),{rootMargin:"-20% 0px -70% 0px"});
+document.addEventListener("click",e=>{const b=e.target.closest(".cp");if(b){navigator.clipboard?.writeText(b.nextElementSibling.textContent).catch(()=>{});b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1200)}});
+$("#copyLink").addEventListener("click",()=>{navigator.clipboard?.writeText("https://www.carlsdaleescalo.com/blog/"+$("#slug").value).catch(()=>{});toast("Link copied")});
+addEventListener("hashchange",()=>{if(location.hash==="#article"){renderArticle();$$("#abody h2").forEach(h=>tocObs.observe(h))}if(location.hash==="#blog")renderBlog()});
+renderPosts();renderPreview();renderCover();renderTags();exc();serp();renderMedia();renderBlog();renderArticle();$$("#abody h2").forEach(h=>tocObs.observe(h));route();
+$("#saved").classList.remove("dirty");$("#saved").lastChild.textContent="Draft · saved just now";
+}
+</script>
+</body>
+</html>
