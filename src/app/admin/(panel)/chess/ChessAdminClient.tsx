@@ -3,7 +3,13 @@
 import { Chess } from "chess.js";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  clearChessCooldownAction,
+  endChessGameAction,
+  undoLastChessMoveAction,
+} from "@/lib/admin/actions";
 import type { AdminChessGame, AdminChessGameSummary } from "@/lib/admin/data";
 
 const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
@@ -33,6 +39,11 @@ export default function ChessAdminClient({
   games: AdminChessGameSummary[];
   canMutate: boolean;
 }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [notice, setNotice] = useState<string | null>(null);
+  const endDialogRef = useRef<HTMLDialogElement>(null);
+
   const totalPlies = game?.moves.length ?? 0;
   const gameKey = `${game?.number ?? 0}-${game?.version ?? 0}`;
   const [viewState, setViewState] = useState<{ key: string; ply: number }>({
@@ -128,8 +139,41 @@ export default function ChessAdminClient({
             {formatDate(game.startedAt)}
           </p>
         </div>
-        {canMutate ? null : <span className="admin-badge">Read-only</span>}
+        {canMutate && game.status === "active" ? (
+          <div className="admin-row-actions">
+            <button
+              type="button"
+              className="admin-btn sm"
+              disabled={pending || game.moves.length === 0}
+              onClick={() => {
+                startTransition(async () => {
+                  const res = await undoLastChessMoveAction(game.number);
+                  setNotice(res.message ?? null);
+                  router.refresh();
+                });
+              }}
+            >
+              Undo last move
+            </button>
+            <button
+              type="button"
+              className="admin-btn sm danger"
+              disabled={pending}
+              onClick={() => endDialogRef.current?.showModal()}
+            >
+              End game
+            </button>
+          </div>
+        ) : canMutate ? null : (
+          <span className="admin-badge">Read-only</span>
+        )}
       </div>
+
+      {notice ? (
+        <div className="admin-alert ok" role="status">
+          {notice}
+        </div>
+      ) : null}
 
       <div className="admin-chess-grid">
         <div className="admin-card">
@@ -220,6 +264,7 @@ export default function ChessAdminClient({
                     <th>Location</th>
                     <th>Visitor</th>
                     <th>Time</th>
+                    {canMutate ? <th>Cooldown</th> : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -252,6 +297,23 @@ export default function ChessAdminClient({
                         <td className="mono" style={{ color: "var(--muted)" }}>
                           {formatDate(m.playedAt)}
                         </td>
+                        {canMutate ? (
+                          <td>
+                            <button
+                              type="button"
+                              className="admin-btn sm"
+                              disabled={pending}
+                              onClick={() => {
+                                startTransition(async () => {
+                                  const res = await clearChessCooldownAction(m.visitorPrefix);
+                                  setNotice(`Cleared ${res.deletedCount} lock(s) for ${m.visitorPrefix}.`);
+                                });
+                              }}
+                            >
+                              Clear
+                            </button>
+                          </td>
+                        ) : null}
                       </tr>
                     );
                   })}
@@ -299,6 +361,40 @@ export default function ChessAdminClient({
           </table>
         </div>
       </div>
+
+      <dialog ref={endDialogRef} className="admin-dialog" aria-labelledby="end-game-title">
+        <div className="admin-stack">
+          <h2 id="end-game-title" style={{ margin: 0 }}>
+            End Game {game.number}?
+          </h2>
+          <p className="admin-auth-sub">
+            This marks Game {game.number} as a draw and immediately starts a new game.
+          </p>
+          <div className="admin-row-actions" style={{ justifyContent: "flex-end" }}>
+            <button type="button" className="admin-btn sm" onClick={() => endDialogRef.current?.close()}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="admin-btn sm danger"
+              disabled={pending}
+              onClick={() => {
+                endDialogRef.current?.close();
+                startTransition(async () => {
+                  const res = await endChessGameAction(game.number);
+                  if (res.ok && res.nextGameNumber) {
+                    setNotice(`Game ${game.number} ended. Started Game ${res.nextGameNumber}.`);
+                    router.push(`/admin/chess?game=${res.nextGameNumber}`);
+                    router.refresh();
+                  }
+                });
+              }}
+            >
+              End &amp; start new game
+            </button>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }
