@@ -5,9 +5,10 @@ Personal portfolio for [carlsdaleescalo.com](https://www.carlsdaleescalo.com). I
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) with React 19 and TypeScript
-- **Node.js** route handler for the contact form (`src/app/api/contact/route.ts`)
-- **MongoDB Atlas** to store contact messages
-- **Resend** (optional) to email new messages
+- **Node.js** route handlers for contact, visitor chess, blog views, RSS, and Blob uploads
+- **MongoDB Atlas** to store contact messages, visitor chess games, admin state, and blog posts/media
+- **Vercel Blob** (optional) for public blog image storage via direct browser client uploads
+- **Resend** (optional) to email new messages and admin login codes
 - **Vercel** for hosting, **Cloudflare** for DNS
 
 ## Project layout
@@ -74,10 +75,10 @@ Open http://localhost:3000. The contact form returns a "not available" message u
 
 ## Admin area
 
-The `/admin` area is a guarded control panel for managing contact messages, moderating visitor chess, and managing admin access.
+The `/admin` area is a guarded control panel for managing contact messages, writing and publishing blog posts, managing uploaded media, moderating visitor chess, and managing admin access.
 
 - **Authentication:** Email + password followed by a 6-digit one-time code sent via Resend (or a one-time backup code), with an optional 30-day trusted-device cookie.
-- **Roles:** `owner` (full access including team management), `admin` (messages, chess moderation, activity log), and `viewer` (read-only).
+- **Roles:** `owner` (full access including team management), `admin` (messages, blog writing/publishing, media library, chess moderation, activity log), and `viewer` (read-only).
 - **Bootstrap the first Owner:**
 
 ```bash
@@ -86,6 +87,14 @@ npm run admin:setup
 ```
 
 Open the printed one-time `/admin/invite/<token>` link to set your name and password, then sign in at `/admin/login`.
+
+## Blog & Vercel Blob setup
+
+Public posts live at `/blog` and `/blog/[slug]`, with an RSS 2.0 feed at `/blog/rss.xml`, dynamic per-post Open Graph images, sitemap entries, and a "Writing" section on the homepage when live posts exist.
+
+1. In the Vercel dashboard, open **Storage → Create Database → Blob** with **Public** access and connect it to this project for all environments (sets `BLOB_READ_WRITE_TOKEN`).
+2. Pull the environment variable locally with `vercel env pull .env.local`.
+3. Without `BLOB_READ_WRITE_TOKEN`, the app still builds and runs cleanly; the blog editor shows `"Image uploads aren't configured."` and disables upload controls. Without `MONGODB_URI`, `/blog` renders the empty state.
 
 ## Vercel Analytics
 

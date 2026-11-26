@@ -92,7 +92,7 @@ a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; 
 .nav a[aria-current="page"] { color: var(--ink); font-weight: 500; }
 .header-right { display: flex; align-items: center; gap: 4px; }
 .icon-btn {
-  width: 36px; height: 36px; display: inline-grid; place-items: center; border-radius: 8px;
+  width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: 8px;
   border: 0; background: transparent; color: var(--muted); cursor: pointer;
 }
 .icon-btn:hover { color: var(--ink); background: var(--surface); }
@@ -260,7 +260,7 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
 @keyframes cxdrop { from { transform: scale(1.22); } to { transform: scale(1); } }
 
 .cx-view { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 8px 8px 14px; border-radius: 10px; background: var(--surface); font-size: 0.9375rem; }
-.cx-view .btn { min-height: 36px; padding: 0 12px; font-size: 0.875rem; }
+.cx-view .btn { min-height: 40px; padding: 0 12px; font-size: 0.875rem; }
 .cx-foot { display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; font-size: 0.875rem; color: var(--muted); align-items: center; }
 .cx-foot kbd { font-family: var(--f-mono); font-size: 0.75rem; padding: 0 6px; border-radius: 5px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
 .cx-retry { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; margin-left: 8px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
@@ -354,6 +354,14 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
 .blog-main {
   display: block;
   padding-block: 0 72px;
+  min-width: 0;
+}
+
+.blog-feat > div,
+.blog-pitem > div,
+.blog-awrap,
+.blog-prose {
+  min-width: 0;
 }
 
 .blog-btn {
@@ -715,8 +723,9 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 16px 18px;
+  padding: 16px 76px 16px 18px;
   overflow-x: auto;
+  max-width: 100%;
   font: 0.84375rem/1.65 var(--f-mono);
   margin: 0 0 1.4em;
 }
