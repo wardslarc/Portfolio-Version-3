@@ -2,7 +2,7 @@
 
 You're working in the codebase for my portfolio, **carlsdaleescalo.com** (Next.js, MongoDB, hosted on Vercel). Replace the current homepage design with the redesign described below. The scroll choreography is modeled on landonorris.com (by OFF+BRAND, Awwwards Site of the Year 2025). Don't copy that site. Use it as the reference for *how* sections move and transition.
 
-A working prototype is attached as `portfolio-v3-prototype.dc.html`. It's written in a custom template format (`{{holes}}`, `<sc-for>`, `<sc-if>`, a `DCLogic` class). **Treat it as a visual and behavioral reference only.** Port the markup, styling and motion to idiomatic Next.js/React. Don't copy its template syntax.
+A working prototype is attached as `portfolio-v3-prototype.dc.html.txt`. It's written in a custom template format (`{{holes}}`, `<sc-for>`, `<sc-if>`, a `DCLogic` class). **Treat it as a visual and behavioral reference only.** Port the markup, styling and motion to idiomatic Next.js/React. Don't copy its template syntax.
 
 ## Before you write code
 
