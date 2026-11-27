@@ -483,6 +483,7 @@ export async function acceptInvite(
   const admins = db.collection<AdminDoc>(ADMINS_COLLECTION);
   const existing = await admins.findOne({ email: invite.email });
   if (existing) {
+    await invites.updateOne({ _id: tokenHash }, { $set: { acceptedAt: null } });
     return { ok: false, error: "An admin account with this email already exists." };
   }
 
@@ -502,10 +503,10 @@ export async function acceptInvite(
   try {
     await admins.insertOne(newAdmin);
   } catch (err) {
+    await invites.updateOne({ _id: tokenHash }, { $set: { acceptedAt: null } });
     if (isDuplicateKeyError(err)) {
       return { ok: false, error: "An admin account with this email already exists." };
     }
-    await invites.updateOne({ _id: tokenHash }, { $set: { acceptedAt: null } });
     throw err;
   }
 

@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { MongoClient, ObjectId, type Db } from "mongodb";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AdminLoginChallengeDoc } from "./auth";
+import type { AdminInviteDoc, AdminLoginChallengeDoc } from "./auth";
 
 vi.mock("server-only", () => ({}));
 
@@ -19,6 +19,8 @@ const { can, hasMinRole } = await import("./permissions");
 const {
   ADMINS_COLLECTION,
   ADMIN_CHALLENGES_COLLECTION,
+  ADMIN_INVITES_COLLECTION,
+  acceptInvite,
   createLoginChallenge,
   createSession,
   createTrustedDevice,
@@ -339,5 +341,37 @@ describe("admin auth core", () => {
     ]);
 
     expect([a.ok, b.ok].filter(Boolean)).toHaveLength(1);
+  });
+
+  it("does not burn an invite when an admin with the same email already exists", async () => {
+    const existing = await insertTestAdmin({ email: "existing@example.com" });
+    const token = "invite-token-for-existing-admin";
+    const tokenHash = hmacHash("invite", token);
+    const now = new Date("2026-11-26T12:00:00Z");
+
+    await db.collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION).insertOne({
+      _id: tokenHash,
+      email: existing.email,
+      role: "admin",
+      invitedBy: existing._id,
+      createdAt: now,
+      expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000),
+      acceptedAt: null,
+    });
+
+    const result = await acceptInvite(db, {
+      token,
+      name: "Duplicate",
+      password: "a-very-long-valid-password",
+      now,
+    });
+
+    expect(result).toEqual({
+      ok: false,
+      error: "An admin account with this email already exists.",
+    });
+
+    const invite = await db.collection<AdminInviteDoc>(ADMIN_INVITES_COLLECTION).findOne({ _id: tokenHash });
+    expect(invite?.acceptedAt).toBeNull();
   });
 });
