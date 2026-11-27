@@ -3,6 +3,12 @@
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { site } from "@/content/site";
+import {
+  removeLikesFromSource,
+  resetPostStats,
+  setPostStatsHidden,
+  type EngagementCounter,
+} from "@/lib/blog/engagement";
 import { renderMarkdown } from "@/lib/blog/markdown";
 import { deleteMediaItem, registerMedia, type SerializedMedia } from "@/lib/blog/media";
 import { deletePost, duplicatePost, publishPost, unpublishPost, updatePost } from "@/lib/blog/posts";
@@ -394,4 +400,75 @@ export async function renderPreviewAction(markdown: string): Promise<{ html: str
   await requireAdminAction("blog:view");
   const html = await renderMarkdown(parsed);
   return { html };
+}
+
+const ipHashSchema = z.string().trim().regex(/^[0-9a-fA-F]{16,64}$/, "Invalid source identifier.");
+const counterSchema = z.enum(["views", "likes", "shares"]);
+
+export async function removeLikesFromSourceAction(
+  postId: string,
+  ipHash: string,
+): Promise<{ ok: true; deletedCount: number } | { ok: false; error: string }> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) return { ok: false, error: "Invalid post ID." };
+  const parsedIp = ipHashSchema.safeParse(ipHash);
+  if (!parsedIp.success) return { ok: false, error: "Invalid source identifier." };
+
+  const { admin } = await requireAdminAction("blog:engagement");
+  const db = await getDb();
+  const res = await removeLikesFromSource(db, admin, parsedId.data, parsedIp.data);
+  if (!res.ok) return res;
+
+  updateTag("posts");
+  updateTag(`post:${res.slug}`);
+  revalidatePath(`/admin/blog/${parsedId.data}/stats`);
+  revalidatePath("/admin/blog/engagement");
+  revalidatePath("/admin/blog");
+  return { ok: true, deletedCount: res.deletedCount };
+}
+
+export async function resetPostStatsAction(
+  postId: string,
+  which: EngagementCounter[],
+): Promise<{ ok: true; reset: EngagementCounter[] } | { ok: false; error: string }> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) return { ok: false, error: "Invalid post ID." };
+  const parsedWhich = z.array(counterSchema).min(1, "Select at least one counter.").safeParse(which);
+  if (!parsedWhich.success) {
+    return { ok: false, error: parsedWhich.error.issues[0]?.message ?? "Select at least one counter." };
+  }
+
+  const { admin } = await requireAdminAction("blog:engagement");
+  const db = await getDb();
+  const res = await resetPostStats(db, admin, parsedId.data, parsedWhich.data);
+  if (!res.ok) return res;
+
+  updateTag("posts");
+  updateTag(`post:${res.slug}`);
+  revalidatePath(`/admin/blog/${parsedId.data}/stats`);
+  revalidatePath("/admin/blog/engagement");
+  revalidatePath("/admin/blog");
+  return { ok: true, reset: res.reset };
+}
+
+export async function setPostStatsHiddenAction(
+  postId: string,
+  hidden: boolean,
+): Promise<{ ok: true; hidden: boolean } | { ok: false; error: string }> {
+  const parsedId = idSchema.safeParse(postId);
+  if (!parsedId.success) return { ok: false, error: "Invalid post ID." };
+  const parsedHidden = z.boolean().safeParse(hidden);
+  if (!parsedHidden.success) return { ok: false, error: "Invalid visibility flag." };
+
+  const { admin } = await requireAdminAction("blog:engagement");
+  const db = await getDb();
+  const res = await setPostStatsHidden(db, admin, parsedId.data, parsedHidden.data);
+  if (!res.ok) return res;
+
+  updateTag("posts");
+  updateTag(`post:${res.slug}`);
+  revalidatePath(`/admin/blog/${parsedId.data}/stats`);
+  revalidatePath("/admin/blog/engagement");
+  revalidatePath("/admin/blog");
+  return { ok: true, hidden: res.hidden };
 }
