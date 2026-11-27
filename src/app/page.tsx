@@ -7,6 +7,11 @@ import HomeHeader from "@/components/home/HomeHeader";
 import HomeShell from "@/components/home/HomeShell";
 import shellStyles from "@/components/home/HomeShell.module.css";
 import HomeThemeScope from "@/components/home/HomeThemeScope";
+import Statement from "@/components/home/Statement";
+import ExperienceStrip from "@/components/home/work/ExperienceStrip";
+import MoreWork from "@/components/home/work/MoreWork";
+import moreWorkStyles from "@/components/home/work/MoreWork.module.css";
+import WorkTrack from "@/components/home/work/WorkTrack";
 import { skills } from "@/content/experience";
 import { site } from "@/content/site";
 
@@ -77,6 +82,14 @@ export default function Home() {
         <HomeHeader />
         <main id="main" className={shellStyles.main}>
           <Hero />
+          <Statement />
+          <WorkTrack />
+          <section data-home-theme="sand" className={moreWorkStyles.sandSection}>
+            <div className={moreWorkStyles.sandInner}>
+              <MoreWork />
+              <ExperienceStrip />
+            </div>
+          </section>
         </main>
         <ChessSection />
         <Contact />

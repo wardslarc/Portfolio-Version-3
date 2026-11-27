@@ -1,0 +1,129 @@
+.sandSection {
+  padding: 40px 24px 140px;
+}
+
+.sandInner {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1.5px solid var(--home-ink);
+}
+
+.row {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--home-rule);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 24px;
+}
+
+.rowLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  width: 100%;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  color: inherit;
+}
+
+.rowTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--home-ink);
+}
+
+.rowMeta {
+  font-size: 12px;
+  color: var(--home-muted);
+  white-space: nowrap;
+}
+
+.secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  min-height: 46px;
+  padding: 12px 22px;
+  background: var(--home-card);
+  color: var(--home-ink);
+  font-size: 14px;
+}
+
+.expWrap {
+  margin-top: 0;
+}
+
+.subHeading {
+  margin: 110px 0 28px;
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--home-ink);
+}
+
+.headingAccent {
+  color: var(--home-coral-text);
+}
+
+.expStrip {
+  border: 1.5px solid var(--home-ink);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--home-card);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+}
+
+.expCell {
+  padding: 24px;
+  border-right: 1px solid var(--home-rule);
+}
+
+.expCell:last-child {
+  border-right: 0;
+}
+
+@media (max-width: 759.98px) {
+  .expCell {
+    border-right: 0;
+    border-bottom: 1px solid var(--home-rule);
+  }
+
+  .expCell:last-child {
+    border-bottom: 0;
+  }
+}
+
+.expWhen {
+  margin: 0;
+  font-size: 12px;
+  color: var(--home-muted);
+}
+
+.expRole {
+  margin: 8px 0 0;
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--home-ink);
+}
+
+.expOrg {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--home-muted);
+}
