@@ -2,6 +2,7 @@ import type { Viewport } from "next";
 import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
 import { homeFontVariables } from "@/components/home/fonts";
+import HomeHeader from "@/components/home/HomeHeader";
 import HomeShell from "@/components/home/HomeShell";
 import shellStyles from "@/components/home/HomeShell.module.css";
 import HomeThemeScope from "@/components/home/HomeThemeScope";
@@ -72,6 +73,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
       <HomeShell fontClassName={homeFontVariables}>
+        <HomeHeader />
         <main id="main" className={shellStyles.main} />
         <ChessSection />
         <Contact />
