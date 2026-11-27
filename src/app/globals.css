@@ -39,6 +39,10 @@
   --dot: rgba(17, 17, 19, 0.38);
   color-scheme: dark;
 }
+html:root[data-home] {
+  --bg: #F3F1EC; --surface: #FBFAF7; --ink: #16161A; --muted: #4A463F; --faint: #4A463F; --line: #16161A33;
+  --accent: #E8492A; color-scheme: light; scroll-behavior: auto;
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }

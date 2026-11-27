@@ -1,13 +1,17 @@
+import type { Viewport } from "next";
 import About from "@/components/About";
 import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
 import { Experience, Skills } from "@/components/Experience";
 import Header from "@/components/Header";
+import HomeThemeScope from "@/components/home/HomeThemeScope";
 import Intro from "@/components/Intro";
 import Work from "@/components/Work";
 import Writing from "@/components/Writing";
 import { skills } from "@/content/experience";
 import { site } from "@/content/site";
+
+export const viewport: Viewport = { themeColor: "#F3F1EC" };
 
 const personId = `${site.url}/#person`;
 
@@ -67,6 +71,7 @@ async function CopyrightYear() {
 export default function Home() {
   return (
     <>
+      <HomeThemeScope />
       <a className="skip" href="#main">
         Skip to content
       </a>
