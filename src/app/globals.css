@@ -860,6 +860,50 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   color: var(--muted);
 }
 
+.blog-share-count {
+  color: var(--faint);
+  font-size: 0.8125rem;
+}
+
+.blog-like-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.blog-like {
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-like.liked {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+}
+
+.blog-like.liked .blog-like-heart {
+  color: var(--accent);
+  animation: blog-like-pop 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes blog-like-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.26); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-like.liked .blog-like-heart {
+    animation: none;
+  }
+}
+
+.blog-like-msg {
+  font-size: 0.8125rem;
+  color: var(--danger);
+}
+
 .blog-nextprev {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

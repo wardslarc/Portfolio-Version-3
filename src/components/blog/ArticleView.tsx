@@ -3,7 +3,9 @@ import Link from "next/link";
 import { site } from "@/content/site";
 import type { TocItem } from "@/lib/blog/markdown";
 import type { PostCover } from "@/lib/blog/posts";
+import ArticleMetaViews from "./ArticleMetaViews";
 import CodeCopy from "./CodeCopy";
+import LikeButton from "./LikeButton";
 import ShareRow from "./ShareRow";
 import Toc from "./Toc";
 
@@ -64,6 +66,7 @@ export default function ArticleView({
         <p className="blog-meta">
           <span>{formatArticleDate(post.publishedAt)}</span>
           <span>{post.readingMinutes} min read</span>
+          <ArticleMetaViews />
           {post.tags.length > 0 ? (
             <span className="blog-tagl">{post.tags.join(" · ")}</span>
           ) : null}
@@ -113,7 +116,12 @@ export default function ArticleView({
 
       {showShare || prev || next ? (
         <div className="blog-aend">
-          {showShare ? <ShareRow url={canonicalUrl} title={post.title} /> : null}
+          {showShare ? (
+            <>
+              <LikeButton />
+              <ShareRow url={canonicalUrl} title={post.title} />
+            </>
+          ) : null}
           {prev || next ? (
             <div className="blog-nextprev">
               {prev ? (

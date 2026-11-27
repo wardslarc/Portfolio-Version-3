@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import ArticleView from "@/components/blog/ArticleView";
+import EngagementProvider from "@/components/blog/EngagementProvider";
 import ViewBeacon from "@/components/blog/ViewBeacon";
 import { site } from "@/content/site";
 import { extractToc, renderMarkdown } from "@/lib/blog/markdown";
@@ -101,14 +102,16 @@ async function ArticleContent({ params }: { params: Promise<{ slug: string }> })
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <ArticleView
-        post={post}
-        html={html}
-        toc={toc}
-        prev={adjacent.prev}
-        next={adjacent.next}
-      />
-      <ViewBeacon slug={post.slug} />
+      <EngagementProvider slug={post.slug}>
+        <ArticleView
+          post={post}
+          html={html}
+          toc={toc}
+          prev={adjacent.prev}
+          next={adjacent.next}
+        />
+        <ViewBeacon slug={post.slug} />
+      </EngagementProvider>
     </>
   );
 }
