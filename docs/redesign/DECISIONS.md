@@ -138,6 +138,7 @@ inside it), so this meets the brief's "use gsap.context()/useGSAP so animations 
   distance, and it has a CSS fallback close to the real value (ARCHITECTURE §6).
 - **Lenis works with native sticky**, because Lenis drives the real window scroll.
 - **Reduced motion and mobile** just get a different media query: height `auto` and `position: static`.
+  On screens 760px and wider, reduced motion keeps a real desktop layout (D26).
 
 The scroll distance matches the prototype exactly: `start: "top top"` and
 `end: () => "+=" + (section.offsetHeight - stage.offsetHeight)`. The prototype's progress is
@@ -217,8 +218,7 @@ the 0.9s duration.
 
 **How it works:** while motion is on (`data-motion="on"` on the root), every `[data-home-theme]` section's own
 background is `transparent` and its color `inherit`, so the tweened root color shows through. This is the
-prototype's `.live [data-bg]{background:transparent!important}`. With reduced motion, sections keep their own solid
-backgrounds and nothing tweens. Details in ARCHITECTURE §5.
+prototype's `.live [data-bg]{background:transparent!important}`. With reduced motion the color tween **still runs**; only movement is removed (D25). Details in ARCHITECTURE §5.
 
 ---
 
@@ -261,9 +261,12 @@ mm.add({
 }, (context) => { … })
 ```
 
-The hero has a stricter test inside `full` (D17): `heroPinned = window.matchMedia("(min-width: 1024px) and (min-height: 700px)")`.
+The hero has a stricter test inside `full` (D24): `heroPinned = window.matchMedia("(min-width: 1024px) and (min-height: 560px)")`.
 It's implemented as a fourth `mm.add` key, so it re-evaluates on resize:
-`heroPinned: "(min-width: 1024px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)"`.
+`heroPinned: "(min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)"`.
+
+`reduce` is **not** "no motion": it runs the calm tier (D25). Layout CSS also uses `wideCalm`
+(`(min-width: 760px) and (prefers-reduced-motion: reduce)`) for the reduced-motion desktop layouts (D26).
 
 **Every layout difference is pure CSS using the same query strings** (copied into each `*.module.css`). JavaScript
 never switches layouts; it only adds motion to whichever layout CSS has already chosen. So there's no layout jump
@@ -338,6 +341,11 @@ real feature "in the new styling" and not rebuild its logic.
 - **The chess frame must never be inside an element with a `transform`.** `.cx-toast` is `position: fixed`, and a
   transformed ancestor would trap it. So the chess frame gets an **opacity-only** reveal (no `y`), and it isn't inside a parallax column.
 - The section keeps `id="chess"` (it comes from `ChessSection`), so `/#chess` links keep working.
+- **Compact, not dominant (Carls, 2026-11-27).** The chess frame is a small card in the night section; the art grid
+  stays the star. At ≥ 1024px: text (`.cx-head`) on the left; board column (max **320px**) and move list (**220px**)
+  side by side on the right. 760–1023px: the text sits above, with the board and list side by side. Below 760px:
+  everything stacks, board `min(100%, 320px)` centered, move list `max-height: 220px`. Frame padding is 24px.
+  It's all done with `.chessFrame :global(...)` overrides; the markup doesn't change (DESIGN_TOKENS §4.8).
 
 ---
 
@@ -410,7 +418,9 @@ canvas there is the exact "dark flash" D1 forbids, and it couldn't be told apart
 
 The prototype was built for a 1440×13200 frame. These are deliberate changes, all small:
 
-1. **Hero pin needs room.** At widths under 1024px or heights under 700px, the hero content (headline, paragraph,
+1. **Hero pin needs room.** *Revised by D24:* the threshold is now 1024 × 560, and the content is sized to fit the
+   stage. The fallback below applies only under 1024px wide, under 560px tall, or with reduced motion.
+   (Original:) At widths under 1024px or heights under 700px, the hero content (headline, paragraph,
    CTAs and the 4:5 portrait) is taller than the sticky stage, and the stage's `overflow: hidden` cuts off the portrait.
    So the shrink scene runs only under `heroPinned` (D8). Otherwise the hero card is in normal flow
    (height `auto`), and the dark marquee band sits below it as a plain block (CSS marquee still runs). The onigiri
@@ -533,3 +543,106 @@ The card picked up the 1px clipped styles and never showed. The prototype now us
   in one module. Use the global `.sr-only` for hidden text.
 - T08 and T16 check that both split cards are visible.
 
+---
+
+## D24. The hero pin fits laptop screens (Carls, 2026-11-27)
+
+Most laptop browser viewports are 600–680px tall, so the original `min-height: 700px` threshold meant the hero shrink
+almost never ran.
+
+**Options**
+1. Keep 700px and accept a static hero on most laptops.
+2. Lower the threshold and size the hero content against the stage height, so it fits the pinned frame.
+
+**Choice:** option 2.
+- `heroPinned` = `(min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)`. Static
+  fallback only under 1024px wide, under 560px tall, or with reduced motion.
+- **The pinned hero sits under the header:** the hero section gets `margin-top: calc(-1 * var(--header-h))`, with
+  `--header-h: 74px` (the measured sticky-header height: 14 + 44 + 14 + 1.5 border). Without it, the stage starts 74px
+  down, and at scroll 0 the bottom 74px (the CTA row) sits below the fold. The card's top padding already clears the
+  header.
+- **Fitting rules under `heroPinned`** (DESIGN_TOKENS §3.1):
+  - h1 `font-size: clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)`
+  - portrait width `min(100%, calc((var(--stage-h) - 280px) * .8))`, so its height is about the stage height − 280px
+  - on short screens (`max-height: 759.98px`): card padding `84px 24px 20px`, hero row gap 40px, paragraph margin-top
+    20px, CTA margin-top 24px, caption margin-top 12px
+- **Measured in the prototype on 2026-11-27** (content block inside the card, under the 74px header):
+
+| Viewport | h1 size | Content spans | Fits |
+|---|---|---|---|
+| 1024 × 560 | 74px | 88 → 537 | yes, with 23px to spare |
+| 1280 × 600 | 88.8px | 89 → 576 | yes, with 24px to spare |
+| 1440 × 900 | 121px | 181 → 781 | yes |
+
+**Why:** the shrink-off-the-marquee opening is the signature moment of the design, so it has to run on ordinary
+laptops. Sizing against `--stage-h` keeps one layout that scales, instead of switching the effect off.
+
+---
+
+## D25. Reduced motion is a calm tier, not "everything off" (Carls, 2026-11-27)
+
+The first plan turned every effect off under `prefers-reduced-motion: reduce`. That removed the color story and the
+reading rhythm, which don't trigger vestibular symptoms.
+
+**Choice:** with `reduce`, keep effects that change color, opacity or a stroke in place, and drop everything that moves
+things across the screen.
+
+| Effect | Full / mobile | Reduced motion |
+|---|---|---|
+| Background/text color tween between sections (0.9s) | on | **on** |
+| Statement words 20% → 100% opacity | on | **on** |
+| Generic reveal (`reveal`) | opacity plus `y: 56 → 0` | **opacity only** (no `y`) |
+| `reveal-fade` (chess frame) | opacity | **opacity** |
+| Onigiri stroke draw | over the hero pin, or over the band | **on**, scrubbed over the marquee band (`heroStaticMotion`) |
+| Heading line slide-up (`heading-line`) | on | off: shown in place |
+| Lenis smooth scroll | on | off (native scroll, instant anchors) |
+| Pins (hero, track, split) | on (`full` / `heroPinned`) | off |
+| Horizontal track and card drift | on (`full`) | off |
+| Gallery parallax | on (`full`) | off |
+| Hero scale/rotate shrink | on (`heroPinned`) | off: static hero |
+| Fan spread | animates from a stack | off: **shown already fanned** (CSS finished state) |
+| Contact clip-path growth | on | off: panel already open (CSS finished state) |
+| Marquee rows | CSS loop | off: static rows |
+| Hero intro on load (CSS `up`, underline `draw`) | on | off: everything visible, underline drawn |
+
+**Notes**
+- `data-motion="on"` is set in the calm tier too, so sections go transparent and the root color tween shows through.
+- The hero intro stays off under `reduce` because `globals.css` already has
+  `@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important } }`
+  for the whole site, and that file is out of scope (D4). Hover transitions are also instant under `reduce` for the
+  same reason, which is fine.
+- Implementation: `start()` no longer returns early for `reduce`. It runs `sectionThemes`, `heroStaticMotion`,
+  `wordsMotion` and `revealMotion(root, { moveY: false })` (which also applies to `reveal-fade`), plus `watchRefresh` with
+  no Lenis (ARCHITECTURE §4.2).
+
+**Why:** the brief asks to respect reduced motion. The vestibular triggers are motion across the screen, scaling,
+parallax and smooth-scroll hijacking, and all of those are off. Color, opacity and stroke changes in place are
+generally considered safe, and they carry the day-to-night story.
+
+---
+
+## D26. Reduced motion removes movement, not the desktop layout (Carls, 2026-11-27)
+
+In the first prototype, every non-pinned layout was the phone layout, so a 1900px reduced-motion screen showed one
+narrow centered column of cards.
+
+**Rule everywhere:** layout depends on **width only**. Single-column stacking happens only below 760px. At 760px and
+wider with reduced motion (`wideCalm`):
+- **Work section:**
+  - the intro panel ("01 / SELECTED WORK", "On the *clock.*", copy, note) is a normal heading row (max-width 640px)
+    above the cards
+  - the four project cards are a **2-column grid** inside the 1240px container (`gap: 64px 56px`), keeping the tilt,
+    tape, ink shadows and handwritten notes; the second-column cards (Bilyo, IT Ticketing) sit **40px lower**
+    (`margin-top: 40px`)
+  - "+ 8 more projects *below ↓*" is a full-width row below the grid
+  - no progress bar
+- **Split scene:**
+  - the two cards sit **beside the heading** (grid `l h r`: `minmax(0,1fr) auto minmax(0,1fr)`, cards
+    `min(100%, 300px)`, centered vertically)
+  - "Ink by *night.*" is a normal **full-width** dark block below, full-bleed: `width: 100vw; margin-inline: calc(50% - 50vw)`
+- **Hero:** the static hero (the card in flow, the band below, the onigiri drawing over the band).
+- **Gallery:** 3 columns with the 0/120/40px stagger, and no parallax.
+- **Fan:** fanned out at the 140px step. **Contact:** open panel with 40px corners.
+
+**Why:** reduced motion is a motion preference, not a screen size. Desktop visitors who set it should still get the
+desktop composition.

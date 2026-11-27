@@ -163,8 +163,11 @@ In order:
 2. `const mm = gsap.matchMedia()`.
 3. `mm.add({ full, mobile, reduce, heroPinned }, (context) => { … })`, with the query strings from `motion/queries.ts`
    (DESIGN_TOKENS §6). Inside the callback, read `const { full, mobile, reduce, heroPinned } = context.conditions`, then:
-   - **if `reduce`**: return early. No Lenis, no ScrollTriggers, `data-motion` stays `"off"`. CSS has already rendered
-     the static layout.
+   - **if `reduce` (the calm tier, D25)**, in this order: `root.dataset.motion = "on"`; `sectionThemes(root, context)`;
+     `heroStaticMotion(root)`; `wordsMotion(root)`; `revealMotion(root, { moveY: false })` (opacity only, applied to both
+     `reveal` and `reveal-fade`); `const unwatch = watchRefresh(root, null)`; `ScrollTrigger.refresh()`. **No** Lenis,
+     `headingLineMotion`, track, split, gallery, fan or contact growth. Return the same cleanup as below, without the
+     Lenis line. CSS has already rendered the right static layout (D26).
    - otherwise, in this exact order (DOM order, which ScrollTrigger needs):
      1. `root.dataset.motion = "on"`
      2. `const lenis = createLenis()` (D7)
@@ -275,8 +278,13 @@ everything. The one exception is §6.1's onigiri under `heroPinned`.
 
 ### 6.1 Hero (`Hero.module.css`)
 
-- Pinned (`heroPinned` query):
-  - section `height: calc(var(--stage-h) + 1000px)`, background ink
+- Pinned (`heroPinned` query, D24):
+  - section `height: calc(var(--stage-h) + 1000px); margin-top: calc(-1 * var(--header-h))`, background ink.
+    `--header-h: 74px` is on `.root`. The pull-up puts the stage under the frosted header, so the whole stage is in the
+    first screen.
+  - fitting: h1 `font-size: clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)`; portrait
+    `width: min(100%, calc((var(--stage-h) - 280px) * .8)); margin-inline: auto`; under `(max-height: 759.98px)`: card
+    padding `84px 24px 20px`, hero row gap 40px, paragraph margin-top 20px, CTA row margin-top 24px, caption margin-top 12px
   - stage `position: sticky; top: 0; height: var(--stage-h); overflow: hidden`
   - band `position: absolute; inset: 0`
   - card wrap `position: absolute; inset: 0; z-index: 1`
@@ -298,12 +306,17 @@ everything. The one exception is §6.1's onigiri under `heroPinned`.
     each side.
   - stage `position: sticky; top: 0; height: var(--stage-h); overflow: hidden; display: flex; align-items: center`
   - track `display: flex; gap: 64px; align-items: center; padding: 40px 6vw 0; width: max-content`
-- Static (`mobile` or `reduce`):
+- Narrow static (`< 760px`, either motion preference):
   - section `height: auto`
   - stage `position: static; height: auto; padding: 80px 0`
   - track `flex-direction: column; width: auto; padding: 0 20px`
-  - track `align-items: center`, and every child `width: min(100%, 500px)` (cards would otherwise stretch to 1240px
-    on a reduced-motion desktop)
+  - track `align-items: center`, and every child `width: min(100%, 500px)`
+  - the progress bar is `display: none`
+- Wide calm (`wideCalm`: ≥ 760px with reduced motion, D26):
+  - section `height: auto`; stage `position: static; padding: 120px 24px`
+  - track `display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px 56px; align-items: start; max-width: 1240px; margin: 0 auto; padding: 0`
+  - every child `width: auto`; intro panel `grid-column: 1 / -1; max-width: 640px`; end panel `grid-column: 1 / -1`
+  - cards keep `rotate`, tape, shadow and notes; the 2nd and 4th card (`:nth-of-type(even)` of the card element) get `margin-top: 40px`
   - the progress bar is `display: none`
 
 ### 6.3 Split scene (`SplitScene.module.css`)
@@ -315,9 +328,10 @@ everything. The one exception is §6.1's onigiri under `heroPinned`.
   - the overlay's finished state is `clip-path: circle(150% at 72% 50%)`
 - Static:
   - section `height: auto; padding: 120px 24px 0`
-  - stage `display: grid; gap: 48px; justify-items: center; grid-template-columns: 1fr 1fr; grid-template-areas: "heading heading" "left right" "overlay overlay"`.
-    Below 760px it's one column: `"heading" "left" "right" "overlay"`.
-  - cards `position: static; width: min(80vw, 300px)`, keeping their tilt and shadow
+  - below 760px: stage `display: grid; gap: 48px; justify-items: center; grid-template-columns: 1fr; grid-template-areas: "heading" "left" "right" "overlay"`,
+    cards `position: static; width: min(80vw, 300px)`, keeping their tilt and shadow
+  - `wideCalm` (D26): stage `display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); grid-template-areas: "left heading right" "overlay overlay overlay"; align-items: center; justify-items: center; gap: 48px 32px; max-width: 1240px; margin: 0 auto`,
+    cards `position: static; width: min(100%, 300px)`, overlay full-bleed `width: 100vw; margin-inline: calc(50% - 50vw)`
   - overlay `position: static; clip-path: none; width: 100%; padding: 120px 24px`. It's a full-width ink block
     with "Ink by night." visible.
 
@@ -340,7 +354,9 @@ The finished state is in CSS: `clip-path: inset(0% 0% 0% 0% round 40px 40px 0px 
 All numbers are copied in DESIGN_TOKENS §5. "Range" gives the ScrollTrigger `start` and `end`. Every one is
 `scrub: true` with `ease: "none"`.
 
-### 7.1 Reveals (`reveals.ts`, `full` and `mobile`)
+### 7.1 Reveals (`reveals.ts`; `full` and `mobile`, plus the calm tier with `moveY: false`, D25)
+
+Under `reduce`: `word` runs as below; `reveal` and `reveal-fade` both run as opacity-only; `heading-line` doesn't run.
 
 | `data-anim` | Tween | Trigger | Range |
 |---|---|---|---|
@@ -369,7 +385,7 @@ paragraph, a wrapper around the email button (never the button itself, D19), and
 | 0.55 | 0.4 | `hero-onigiri-path` (all) | `strokeDashoffset: 1000 → 0` |
 | 1 | — | `tl.set({}, {}, 1)` | |
 
-`heroStaticMotion` (any case where `heroPinned` doesn't match, except `reduce`): on `hero-onigiri` set
+`heroStaticMotion` (any case where `heroPinned` doesn't match, **including `reduce`**, D25): on `hero-onigiri` set
 `opacity: 1`; then `hero-onigiri-path` `strokeDashoffset: 1000 → 0`, trigger `hero-band`,
 `"top 80%"` → `"bottom 40%"`.
 
@@ -442,6 +458,13 @@ Both strings need the same structure, so GSAP can interpolate them.
 - `.chessFrame` re-points the global tokens to the dark palette (DESIGN_TOKENS §1.4). Everything inside `ChessSection`
   (`.cx-*`, `.sq`, `.btn`, `.section-label`, `.cx-toast`) already reads them.
 - `ChessSection.tsx`'s only change: `<div className="cx-moves" ref={movesBoxRef} data-lenis-prevent>`.
+- Compact layout (D12, DESIGN_TOKENS §4.8), all through `.chessFrame :global(...)`:
+  - ≥ 1024px: `#chess { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 32px; align-items: start }`
+  - `.cx-grid { grid-template-columns: minmax(0,320px) 220px }`
+  - `.cx-boardcol { max-width: 320px }`
+  - 760–1023px: `#chess` is one column (`.cx-head` above)
+  - < 760px: `.cx-grid` is one column, the board column is `width: min(100%, 320px); margin-inline: auto`, and `.cx-moves`
+    gets `max-height: 220px`
 - Constraints this layout has to respect, all checked in the code:
   - **No transformed ancestor**, because `.cx-toast` is `position: fixed`.
   - The section's IntersectionObserver (`threshold: 0.05`) and the arrow-key check (`getBoundingClientRect`

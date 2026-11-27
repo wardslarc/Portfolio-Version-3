@@ -2,21 +2,25 @@
 
 Branch: **`redesign/ink-by-night`**. Do the tasks **in order**. A task can start once every task it depends on is done.
 
-**Handoff batches**
+**Handoff batches** (changed 2026-11-27: Gemini writes all the code; Claude only reviews)
 
-| Batch | Who | Tasks | Starts when |
+| Step | Who | Tasks | Starts when |
 |---|---|---|---|
-| A | Claude | T02 | now (before Gemini starts) |
-| B | Gemini | T01, T03, T04, T05, T06, T07, T07b, T08, T09 | T02 is committed |
-| C | Claude | T10 | batch B is done |
-| D | Gemini | T11 | T10 is committed |
-| E | Claude | T12, T13, T14 | T11 is done |
-| F | Gemini | T15 | T14 is committed |
-| G | Claude | T16 | T15 is done |
+| B1 | Gemini | T01, T02, T03, T04, T05, T06, T07, T07b, T08, T09 | now |
+| R1 | Claude | review gate: B1, with extra care on **T02** (theme no-flash on all 4 routes) | B1 is done |
+| B2 | Gemini | T10, T11, T12, T13 | R1 passed (fix list done, if any) |
+| R2 | Claude | review gate: B2, with extra care on **T10** (Activity cleanup, Lenis), **T12** (pins) and **T13** (chess untouched) | B2 is done |
+| B3 | Gemini | T14, T15 | R2 passed |
+| R3 | Claude | review gate: **T14 security review** (honeypot, payload, API unchanged), then **T16** final review | B3 is done |
 
-- `[gemini]`: well-scoped build work for Gemini in Antigravity.
-- `[claude]`: judgment work (ScrollTrigger and Lenis integration, wiring the existing chess and contact features in,
-  the theme and security-sensitive bits, and the final review). Gemini skips these and stops when it reaches one.
+- `[gemini]`: Gemini implements it. Tasks marked **⚑ review gate** are the risky ones: Gemini stops at the end of its
+  batch so Claude can review before anything is built on top.
+- `[claude]`: Claude only reviews (R1–R3 and T16). Claude writes no feature code; small review fixes go back to
+  Gemini as a short fix list in `docs/redesign/REVIEW-R<n>.md`.
+- **Review procedure (R1–R3):** Claude re-runs `npm run lint`, `npm test` and `npm run build`, reads every diff since
+  the last gate, checks the touched tasks' acceptance criteria in a headless browser (the screenshot and measure
+  scripts described in `docs/redesign/HANDOFF.md`), then writes `REVIEW-R<n>.md` with either "passed" or a numbered
+  fix list. Gemini fixes and commits (`fix(home): R<n>.<k> …`), and Claude re-checks only those items.
 
 Read first, every time: `AGENTS.md`, `docs/redesign/DECISIONS.md`, `docs/redesign/ARCHITECTURE.md` and
 `docs/redesign/DESIGN_TOKENS.md`. The **visual and motion reference** is `docs/redesign/prototype/index.html`, a working
@@ -78,7 +82,11 @@ from DESIGN_TOKENS; if a number you need isn't there, **stop and ask**, don't in
 
 ---
 
-## T02 [claude] Homepage theme scope and no-flash (D1)
+## T02 [gemini] ⚑ review gate R1: Homepage theme scope and no-flash (D1)
+
+**How:** exactly as ARCHITECTURE §5.1 and DECISIONS D1 describe. `HomeThemeScope` uses `useLayoutEffect`, not `useEffect`.
+The test runs `themeScript` with `new Function(themeScript)` against stub globals (`document`, `location`,
+`localStorage`) in Vitest's node environment.
 
 **Depends on:** none.
 **Files:** `src/lib/theme.ts` (new), `src/lib/theme.test.ts` (new), `src/app/layout.tsx`, `src/app/globals.css`
@@ -229,7 +237,7 @@ Source) now includes the Instagram URL.
   `data-anim="hero-onigiri-path"` on each `<path>` and accepts `className`. Both variants are `aria-hidden="true"`.
 - `HomeHeader.tsx` `[C]`:
   - `<header>`, styled per DESIGN_TOKENS §4.3, with `<nav aria-label="Primary">`
-  - left: `<a href="#top">` with the logo and "carls.dale"
+  - left: `<a href="#top">` with the logo and "carls.dale.escalo" (one line, `white-space: nowrap`)
   - at ≥ 760px: the `home.nav` links (Blog uses `next/link`) and the coral "Let's talk" pill (`.btn`)
   - at < 760px: only the 44×44 menu button (DESIGN_TOKENS §4.12 icons) with `aria-expanded`,
     `aria-controls="home-menu"` and `aria-label` "Open menu" or "Close menu"
@@ -241,6 +249,9 @@ Source) now includes the Instagram URL.
 **Acceptance**
 - At 1440px: the logo, three links and a coral pill. The header sticks while scrolling, with a frosted
   background and a 1.5px bottom border in the text color.
+- "carls.dale.escalo" stays on one line at every width from 320 to 1920, and the header row never overflows
+  (`document.querySelector('header nav').scrollWidth <= clientWidth`). At 760px, the tightest desktop width, the logo,
+  three links and the pill all fit in one row; the prototype measured 126px to spare.
 - At 375px: only the logo and a 44×44 menu button. Tab to the button and press Enter: the menu opens and the
   screen reader announces "Close menu, expanded". Escape closes it, and focus stays on the button.
 - "Blog" navigates to `/blog` client-side; `/blog` shows its own header **with** the theme toggle.
@@ -288,9 +299,15 @@ Source) now includes the Instagram URL.
   photo. Leaving restores the photo. Clicking toggles the whole sketch on and off (`aria-pressed` flips). This works with
   Enter and Space too.
 - In the touch emulator: the caption reads "↑ tap me …", and tapping toggles.
-- At 375 × 667 and at 1000 × 800: the hero is in normal flow (nothing cut off). The portrait is fully visible, and the
-  dark marquee band sits under the card with both rows scrolling (in opposite directions) and the onigiri fully drawn over it.
-- With reduced motion: everything is visible immediately, with no motion and a static marquee.
+- **Pinned hero fits laptops (D24):** at 1280 × 600 and 1024 × 560, the hero is pinned. At scroll 0 the whole card
+  content (note, headline, paragraph, CTA row, portrait and caption) is visible inside the first screen, under the
+  header, with nothing cut off. Check that `document.querySelector('[data-anim=hero-card] > *').getBoundingClientRect().bottom`
+  is less than `innerHeight`. At 1440 × 900 the headline is about 121px.
+- At 375 × 667, at 1000 × 800 and at 1280 × 540 (too short): the hero is in normal flow (nothing cut off). The portrait
+  is fully visible, and the dark marquee band sits under the card with both rows scrolling (in opposite directions) and
+  the onigiri fully drawn over it.
+- With reduced motion: everything is visible immediately, with a static marquee and the underline already drawn (D25).
+  At ≥ 760px it's still the desktop composition (text beside the portrait), not the phone layout (D26).
 - "Résumé (PDF)" opens `/Escalo-CarlsDale_Resume.pdf` in a new tab, and Network shows the analytics event request
   (or `track` is called, in dev).
 - Lighthouse mobile: the LCP element is the h1 or the portrait, and nothing shifts while fonts load (CLS < 0.1).
@@ -336,12 +353,25 @@ Source) now includes the Instagram URL.
   `900 + (track width − 1440)` px tall. While scrolling through it, the stage sticks (no motion until T12) and shows
   the intro panel and the first card. Each card is tilted, shows its tape and note chip, and on hover straightens
   with a deeper shadow.
-- At 375 and with reduced motion: the panels stack vertically (intro, 4 cards, end panel), there's no progress
-  bar, and `scrollWidth === innerWidth`.
+- At 375 (either motion setting): the panels stack vertically (intro, 4 cards, end panel), there's no progress bar,
+  and `scrollWidth === innerWidth`.
+- **Reduced motion at 1440 and at 1900 wide (D26):** "On the *clock.*" and its copy are a heading row; below it the four
+  cards form a **2-column grid** inside 1240px, still tilted, taped and shadowed with their notes, with the right
+  column 40px lower; "+ 8 more projects below ↓" sits under the grid. It doesn't look like the phone layout.
 - "Show 5 more projects ↓" reveals 5 more rows and changes to "Show fewer ↑". The screen reader reports expanded/collapsed.
 - Bilyo, Relato and the more-project rows that have links open the real URLs in a new tab (bilyoapp.com, the Play
   listing, hardrock, citimax.ph, sticky-white-board).
 - The experience strip shows 4 cells (Rustan, Citimax, Business Machine, University of Makati) and wraps to 1 column at 375.
+- **Notes never overlap card text** (DESIGN_TOKENS §4.4 placement rule). In the sideways track (full motion) **and** in
+  the reduced-motion 2-column grid, at **1024, 1440 and 1920** wide:
+  - "built from scratch!" (RMK) and "my own product ✎" (Bilyo) sit over their card's screenshot area, or hang off the
+    card edge beside it
+  - "no more manual logs" (IT Ticketing) hangs off the top-right corner
+  - no note covers any card's kicker/status row, title, description, stack line or tape strip
+
+  Console check for each layout and width: for every `.case` note, its `getBoundingClientRect()` must not intersect the
+  rect of any element in any card's text body (`h3`, `p`, the kicker/status row) or any tape element. At 375, notes
+  may hang over the card edge, but they still must not cover text.
 
 **Do not:** add GSAP code; hard-code project text that exists in `src/content/*`.
 
@@ -420,9 +450,10 @@ from `src/components/Writing.tsx`.
 - In reduced motion (static layout), **both** split cards are visible at full size: the desk card on the left and the
   drawing card on the right. Neither is a 1px clipped box (D23). In the console,
   `[...document.querySelectorAll('[data-anim^="split-"]')].map(e => e.getBoundingClientRect().width)` shows no value under 100.
-  That's expected.
-- At 375 and with reduced motion: the heading, then the desk card, then the drawing card, then a full-width ink block
+- At 375 (either motion setting): the heading, then the desk card, then the drawing card, then a full-width ink block
   reading "Ink by night." No sticking and no horizontal overflow.
+- **Reduced motion at ≥ 760px (D26):** the desk card and the drawing card sit **beside** the "On the / Off the CLOCK"
+  heading, on the same row, and "Ink by night." is a full-bleed dark block below. No sticking.
 - The night section is ink with paper text, and "sketches." is coral-night. 9 frames appear in 3 columns (desktop,
   staggered by 0/120/40px) or 1 column (375, no stagger). Captions match DESIGN_TOKENS §4.8. Hovering a frame scales it to 1.03.
 
@@ -465,7 +496,11 @@ from `src/components/Writing.tsx`.
 
 ---
 
-## T10 [claude] Motion bootstrap: matchMedia, Lenis, themes, refresh
+## T10 [gemini] ⚑ review gate R2: Motion bootstrap: matchMedia, Lenis, themes, refresh
+
+**How:** ARCHITECTURE §4 (the lifecycle, including the D25 calm-tier branch), §5.3 (themes, with `context.add(null, fn)`)
+and §8 (refresh). The prototype's `build()` and `teardown()` in `docs/redesign/prototype/index.html` show the same flow in
+vanilla JS. The real build uses `gsap.matchMedia()` conditions instead of the prototype's `data-mode` attribute.
 
 **Depends on:** T09.
 **Files:** new `src/components/home/motion/{start,lenis,themes,refresh,queries,math}.ts`, `math.test.ts`;
@@ -477,7 +512,9 @@ from `src/components/Writing.tsx`.
 - The background tweens over about 0.9s: paper → sand when the work section's top crosses mid-screen, → paper at
   the split scene, → ink at night, → paper at the sketchbook. Scrolling back reverses each change, and returning
   into the hero shows paper. The header follows.
-- With reduced motion: no `lenis` class, `data-motion="off"`, sections keep their own solid backgrounds, and nothing animates.
+- With reduced motion (the calm tier, D25): no `lenis` class and native scrolling, but `data-motion="on"`, and the
+  background **still** changes color paper → sand → paper → ink → paper over about 0.9s. Nothing moves across the
+  screen: no pins and no slides.
 - Change the window across 760px, and toggle reduced motion while the page is open: no console errors, and the
   layout and motion match the new condition with no reload.
 - **Activity:** go to `/blog` with the "Blog" link. `<html>` has no `lenis` class, and wheel scrolling on `/blog` is
@@ -509,7 +546,11 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
   parallax at 375.
 - **Fan:** the cards start stacked and fan out while the section scrolls from 60% to 15% of the viewport.
 - **Contact:** the dark panel's clip-path opens from inset 9%/5% with 96px corners to full width with 40px corners.
-- **With reduced motion:** every one of these shows its finished state.
+- **With reduced motion (D25):** the statement words still fade 20% → 100%; `reveal` blocks fade in **without** moving
+  (no 56px slide); the onigiri still strokes itself over the marquee band. Headings are already in place (no
+  slide-up). The fan is shown fanned out, the contact panel is already open, the hero doesn't shrink and the gallery
+  doesn't parallax. Check in the Animations panel and the inline styles that, under `reduce`, nothing gets a
+  `transform`/`translate` tween.
 - The DevTools Performance panel shows no long tasks over 50ms while scrolling the hero, and the frame rate stays
   near 60fps on a mid-range laptop (Performance → Frames).
 - Every one of these elements animates only `transform`, `opacity`, `clip-path` or `stroke-dashoffset`. Check this
@@ -520,7 +561,10 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
 
 ---
 
-## T12 [claude] Pinned horizontal work track and split scene
+## T12 [gemini] ⚑ review gate R2: Pinned horizontal work track and split scene
+
+**How:** ARCHITECTURE §7.3 and §7.4, with every number from DESIGN_TOKENS §5.5 and §5.6. Pins are CSS `position: sticky`
+(D3); **never** use ScrollTrigger `pin: true`.
 
 **Depends on:** T11.
 **Files:** new `src/components/home/motion/{track,split}.ts`; `math.ts` and `math.test.ts` (`trackDistance`); `start.ts`.
@@ -534,12 +578,16 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
 - **Split (1440 × 900):** about 1400px pin. The desk photo slides in from the left and the drawing from the right by 35%.
   From 50% to 92%, a dark circle grows from about 72%/50% (the drawing) until the screen is ink with "Ink by night."
   The night section that follows starts ink-on-ink with no seam.
-- At 759px wide and below, and under reduced motion: both scenes are the static layouts from T07 and T08.
+- At 759px wide and below: both scenes are the stacked layouts from T07 and T08. Under reduced motion at ≥ 760px:
+  the desktop static layouts (D26): the 2-column card grid, and the split cards beside the heading.
 - After Show more/fewer (T07), the split scene's start is still in the right place (it doesn't start early or late).
 
 ---
 
-## T13 [claude] Visitor chess in the night section
+## T13 [gemini] ⚑ review gate R2: Visitor chess in the night section
+
+**How:** ARCHITECTURE §9 and DECISIONS D12 (compact card). Restyle **only** through `.chessFrame` token re-mapping and
+`.chessFrame :global(.cx-…)` overrides. `git diff src/components/ChessSection.tsx` must show exactly one added attribute.
 
 **Depends on:** T12.
 **Files:** `src/components/home/NightSection.tsx` + `.module.css` (chess frame and token re-mapping, D12);
@@ -549,6 +597,10 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
 **Acceptance**
 - The chess frame sits below the gallery in the night section, in the dark palette (DESIGN_TOKENS §1.4), with the Caveat
   note above it. `/#chess` lands on it.
+- **Compact (D12):** at 1440 the frame is a card whose text sits on the left, with the board (**≤ 320px wide**) and
+  the move list (**220px**) side by side on the right. The whole card is shorter than the gallery above it, so the art
+  stays the star. At 900 wide the text sits above the board and list. At 375 everything stacks, the board is at most
+  320px and centered, and the move list scrolls inside a 220px-tall box.
 - Everything from before still works: the board loads; selecting a piece shows legal targets; a move posts to
   `/api/chess/move` and shows the toast **centered at the bottom of the viewport** (not trapped in a container);
   the cooldown pill counts down; ← and → step through history while the board is on screen; "Back to live board" works.
@@ -563,7 +615,11 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
 
 ---
 
-## T14 [claude] Contact form in the new panel (security-sensitive)
+## T14 [gemini] ⚑ review gate R3: Contact form in the new panel (security-sensitive)
+
+**How:** ARCHITECTURE §10 and DECISIONS D13. Move the logic out of `Contact.tsx` **verbatim** into `useContactForm.ts`
+and `validate.ts` (cut and paste, then fix the imports; don't rewrite it). Keep every field `name`, `id`, `maxLength` and
+`autoComplete`, and the honeypot markup, exactly as listed in §10.
 
 **Depends on:** T13.
 **Files:** new `src/components/home/contact/{ContactPanel.tsx,ContactPanel.module.css,useContactForm.ts,validate.ts,validate.test.ts}`;
@@ -617,7 +673,10 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
 - Lighthouse **mobile** on the production build of `/`: Performance ≥ 85, Accessibility ≥ 95.
 - The whole sequence works in Chrome, Safari and Firefox (desktop), plus iOS Safari and Android Chrome.
 - At 375px: a clean vertical layout with no horizontal overflow, anywhere on the page.
-- With reduced motion: everything is visible and static; no Lenis. Both split cards and the "Latest from the blog"
+- With reduced motion: no Lenis, no pins and nothing moving across the screen, but the color tween, word fade,
+  opacity reveals and onigiri draw still run (D25). At 1440 and 1900 wide the layout is the desktop one (D26), and at
+  375 it stacks.
+- The hero pins and fits at 1024 × 560, 1280 × 600 and 1440 × 900 (D24). Both split cards and the "Latest from the blog"
   row are visible (D22, D23). No module defines the same class name twice
   (for each file: `for f in $(find src/components/home -name '*.module.css'); do grep -oE '^\.[A-Za-z][A-Za-z0-9_-]*\s*\{' "$f" | sort | uniq -d | sed "s|^|$f: |"; done`
   prints nothing).
@@ -634,9 +693,10 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
 
 > You're implementing the homepage redesign on branch `redesign/ink-by-night`. Read `AGENTS.md`, then
 > `docs/redesign/DECISIONS.md`, `docs/redesign/ARCHITECTURE.md`, `docs/redesign/DESIGN_TOKENS.md` and
-> `docs/redesign/TASKS.md`. Do the `[gemini]` tasks of batch **<B, D or F>** in the "Handoff batches" table, in
-> order, and stop at the end of that batch. Never do a `[claude]` task. If a task's dependencies aren't committed
-> yet, stop and report. Follow
+> `docs/redesign/TASKS.md`. Do the tasks of step **<B1, B2 or B3>** in the "Handoff batches" table, in order, and
+> stop at the end of that step so Claude can review. Tasks marked ⚑ are risky: follow their **How** line and the
+> ARCHITECTURE sections it names exactly. If a `docs/redesign/REVIEW-R<n>.md` file lists open fixes, do those first.
+> If a task's dependencies aren't committed yet, stop and report. Follow
 > the ground rules: one commit per task, lint/test/build green before each commit, no pushing or branch changes, and
 > every number from DESIGN_TOKENS.md. Don't invent values or copy. If something in the spec is unclear or seems
 > wrong, stop and describe it instead of guessing. When you stop, list the commits you made and anything you

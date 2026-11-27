@@ -126,7 +126,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 
 | Element | Font | Size | Line height | Letter spacing | Color | P line |
 |---|---|---|---|---|---|---|
-| Header logo "carls.dale" | Bricolage 800 | 18px | — | -.02em | inherit | 39 |
+| Header logo "carls.dale.escalo" (Carls, 2026-11-27; P has "carls.dale") | Bricolage 800 | 18px | — | -.02em | inherit, `white-space: nowrap` | 39 |
 | Header links | Geist 500 | 14px | — | — | inherit | 40 |
 | "Let's talk" pill | Geist 600 | 14px (inherited) | — | — | ink on coral | 42 |
 | Mobile menu links | Bricolage 700 | 22px | — | — | inherit; the last one is coral | 47–48 |
@@ -188,6 +188,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | "Let's talk" pill | `padding: 10px 18px` | 42 |
 | Mobile menu button | 44×44 | 44 |
 | Mobile menu panel | `padding: 4px 24px 20px`; links `padding: 12px 0` | 47–48 |
+| Header height (`--header-h`) | **74px** (nav padding 14 + 44px button + 14 + 1.5px border); the pinned hero pulls up by this (D24) | — |
 | Stage height (`--stage-h`) | `min(100vh, 900px)`; `min(100svh, 900px)` where supported (D: svh) | 53–54, 104, 186 |
 | Hero pin extra | **1000px** (B "about 1000px"; P `calc(min(100vh, 900px) + 1000px)`) | 53 |
 | Hero card padding | `92px 24px 32px` | 59 |
@@ -232,7 +233,8 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Gallery column | `flex: 1 1 260px; gap: 28px` | 207 |
 | Column start offsets | `0px`, `120px`, `40px` (`margin-top`; 0 at < 760px, D17) | 346–348 |
 | Art frame padding | 12px; caption `padding: 10px 4px 2px` | 209–211 |
-| Chess frame | `margin-top: 120px; padding: 32px; gap: 40px` | 218 |
+| Chess frame | `margin-top: 120px` (P 218); **padding 24px, gap 32px** (D12 compact) | 218, D |
+| Chess board / move list | board column **max 320px**; move list **220px** beside it; below 760px the move list is `max-height: 220px` (D12) | D |
 | Sketchbook section padding | `150px 24px 200px`; `text-align: center` | 232 |
 | Fan stage | `height: 420px; margin: 70px auto 0; max-width: 900px` | 234 |
 | Fan card | `width: 240px; aspect-ratio: 3 / 4; margin-left: -120px; left: 50%; top: 0; padding: 10px; box-sizing: border-box`. Below 760px: width 180px, margin-left -90px (D17) | 236 |
@@ -248,6 +250,29 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Submit | `min-height: 50px` | 257 |
 | Footer | `margin: 100px auto 0; padding-top: 24px; gap: 12px` | 260 |
 | Touch targets | ≥ 44px (B) | — |
+
+### 3.1 Hero fit when pinned (D24)
+
+| Item | Value |
+|---|---|
+| Pin threshold | `(min-width: 1024px) and (min-height: 560px)` and no reduced motion |
+| Section pull-up | `margin-top: calc(-1 * var(--header-h))` |
+| h1 size | `clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)` |
+| Portrait width | `min(100%, calc((var(--stage-h) - 280px) * .8))`, so the height is about `--stage-h` − 280px |
+| Short screens `(max-height: 759.98px)` | card padding `84px 24px 20px`; row gap 40px; paragraph margin-top 20px; CTA margin-top 24px; caption margin-top 12px |
+| Tall screens | card padding `92px 24px 32px` (P 59); gap 56px; margins as in §3 |
+
+### 3.2 Reduced-motion desktop layout, `wideCalm` (D26)
+
+| Item | Value |
+|---|---|
+| Work stage | `padding: 120px 24px` |
+| Card grid | 2 columns `repeat(2, minmax(0, 1fr))`, `gap: 64px 56px`, `max-width: 1240px`, `align-items: start` |
+| Second-column offset | `margin-top: 40px` on cards 2 and 4 |
+| Intro row | `grid-column: 1 / -1; max-width: 640px` |
+| "+ 8 more" row | `grid-column: 1 / -1` |
+| Split grid | `minmax(0,1fr) auto minmax(0,1fr)`, areas `"l h r" "o o o"`, `gap: 48px 32px`, cards `min(100%, 300px)` |
+| "Ink by night." block | full-bleed: `width: 100vw; margin-inline: calc(50% - 50vw)`; `padding: 120px 24px` |
 
 ## 4. Radius, border, shadow and surfaces (P)
 
@@ -278,7 +303,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | # | Project (`featuredProjects` title) | Kicker | Status text | Status color | `rotate` | Drift (`data-drift`, px) | Tape | Note |
 |---|---|---|---|---|---|---|---|---|
 | 1 | RMK Learning Hub | `01 — Rustan Marketing` | `● in production` | `#1F7A4D` | `-1.5deg` | `-50` | `top: -14px; left: 40px; rotate(-4deg)` | "built from scratch!": `right: -20px; top: 36%; rotate(8deg)`, 28px |
-| 2 | Bilyo | `02 — Personal SaaS` | `● live beta` | `#B8361A` | `1.2deg` | `40` | `top: -14px; right: 50px; rotate(5deg)` | "my own product ✎": `left: -24px; bottom: 30px; rotate(-7deg)`, 28px |
+| 2 | Bilyo | `02 — Personal SaaS` | `● live beta` | `#B8361A` | `1.2deg` | `40` | `top: -14px; right: 50px; rotate(5deg)` | "my own product ✎": `left: -24px; top: 45%; rotate(-7deg)`, 28px (D: moved from P's `bottom: 30px`, which covered the description) |
 | 3 | Relato - AI Resume Builder (displayed as "Relato") | `03 — Android` | `● on Google Play` | `#1F7A4D` | `-1deg` | `-30` | none | none |
 | 4 | IT Ticketing System | `04 — Citimax Group` | `● internal` | inherit (muted) | `1.5deg` | `50` | none | "no more manual logs": `right: -16px; top: -22px; rotate(6deg)`, 26px |
 
@@ -286,6 +311,11 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 - Screenshot: `border: 1.5px solid #16161A; border-radius: 12px; background: #E9E6DF`, placeholder in Geist Mono 12px muted.
 - Tape: `position: absolute; width: 110px; height: 28px; background: #E8492A99` (aria-hidden).
 - Note chip: `position: absolute; background: #E6E0D2; padding: 2px 10px; border-radius: 8px` (aria-hidden).
+- **Note placement rule (Carls, 2026-11-27): a note never covers card text.** Every note sits over the screenshot area
+  or hangs off the card edge beside it. It never covers the kicker/status row, title, description, stack line or a tape
+  strip, at any card width: 500px in the track, about 460–600px in the reduced-motion grid. Percentage `top` values are
+  of the card's height, and these three stay inside the screenshot band at every width checked (1024, 1440 and 1920 wide,
+  in both layouts; measured in the prototype on 2026-11-27).
 - Descriptions (P, verbatim):
   1. "The company LMS for assigned courses and progress tracking. Built from the ground up, used across the organization."
   2. "Quotation maker for Filipino freelancers: one-tap client acceptance, PDF export, multi-currency, view tracking."
@@ -504,8 +534,10 @@ start `inset(9% 5% 0% 5% round 96px 96px 0px 0px)`, end `inset(0% 0% 0% 0% round
 |---|---|---|
 | `full` | `(min-width: 760px) and (prefers-reduced-motion: no-preference)` | track and split pinned layouts, gallery parallax |
 | `mobile` | `(max-width: 759.98px) and (prefers-reduced-motion: no-preference)` | motion without pins |
-| `reduce` | `(prefers-reduced-motion: reduce)` | static everything, no Lenis |
-| `heroPinned` | `(min-width: 1024px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)` | hero pinned layout and shrink |
+| `reduce` | `(prefers-reduced-motion: reduce)` | the calm tier (D25): color tween, word fade, opacity reveals, onigiri draw; no Lenis, pins, parallax or movement |
+| `heroPinned` | `(min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)` | hero pinned layout and shrink (D24) |
+| `wideCalm` | `(min-width: 760px) and (prefers-reduced-motion: reduce)` | reduced-motion desktop layouts (D26) |
+| short screen | `(max-height: 759.98px)` (inside `heroPinned`) | tighter hero spacing (D24) |
 | narrow layout | `(max-width: 759.98px)` | header (links → menu button), gallery stagger off, fan 70px/180px, split static one column |
 | hover caption | `(hover: none)` | portrait caption "tap me" variant |
 
