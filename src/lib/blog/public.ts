@@ -2,7 +2,14 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import type { Filter } from "mongodb";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
-import { POSTS_COLLECTION, type PostCover, type PostDoc } from "./indexes";
+import {
+  MEDIA_COLLECTION,
+  POSTS_COLLECTION,
+  type MediaDoc,
+  type PostCover,
+  type PostDoc,
+} from "./indexes";
+import type { ImageSize } from "./markdown";
 import { tagToSlug } from "./slug";
 
 export const BLOG_PAGE_SIZE = 10;
@@ -412,5 +419,31 @@ export async function getRecentLivePostsForRss(limit = 20): Promise<PublicPostDe
     return docs.map(serializeDetail);
   } catch {
     return [];
+  }
+}
+
+export async function getMediaSizes(urls: string[]): Promise<Map<string, ImageSize>> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  const sizes = new Map<string, ImageSize>();
+  if (!isMongoConfigured() || urls.length === 0) return sizes;
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<MediaDoc>(MEDIA_COLLECTION)
+      .find({ url: { $in: urls } }, { projection: { url: 1, width: 1, height: 1 } })
+      .toArray();
+
+    for (const doc of docs) {
+      if (doc.width > 0 && doc.height > 0) {
+        sizes.set(doc.url, { width: doc.width, height: doc.height });
+      }
+    }
+    return sizes;
+  } catch {
+    return sizes;
   }
 }

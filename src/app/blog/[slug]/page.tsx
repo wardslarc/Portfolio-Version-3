@@ -4,11 +4,12 @@ import { Suspense } from "react";
 import ArticleView from "@/components/blog/ArticleView";
 import ViewBeacon from "@/components/blog/ViewBeacon";
 import { site } from "@/content/site";
-import { extractToc, renderMarkdown } from "@/lib/blog/markdown";
+import { extractMarkdownImageUrls, extractToc, renderMarkdown } from "@/lib/blog/markdown";
 import {
   getAdjacentPosts,
   getLivePostBySlug,
   getLivePostSlugs,
+  getMediaSizes,
   getRelatedPosts,
 } from "@/lib/blog/public";
 
@@ -71,11 +72,13 @@ async function ArticleContent({ params }: { params: Promise<{ slug: string }> })
     notFound();
   }
 
-  const [html, adjacent, related] = await Promise.all([
-    renderMarkdown(post.body),
+  const bodyImageUrls = extractMarkdownImageUrls(post.body);
+  const [imageSizes, adjacent, related] = await Promise.all([
+    getMediaSizes(bodyImageUrls),
     getAdjacentPosts({ publishedAt: post.publishedAt, slug: post.slug }),
     getRelatedPosts(post.slug, post.tags),
   ]);
+  const html = await renderMarkdown(post.body, imageSizes);
   const toc = extractToc(post.body);
 
   const postUrl = `${site.url}/blog/${post.slug}`;

@@ -1,7 +1,13 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { MongoClient, ObjectId, type Db } from "mongodb";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { POSTS_COLLECTION, ensureBlogIndexes, type PostDoc } from "./indexes";
+import {
+  MEDIA_COLLECTION,
+  POSTS_COLLECTION,
+  ensureBlogIndexes,
+  type MediaDoc,
+  type PostDoc,
+} from "./indexes";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({
@@ -23,6 +29,7 @@ const {
   getLatestPosts,
   getLivePostBySlug,
   getLivePosts,
+  getMediaSizes,
   getRelatedPosts,
   getTagIndex,
 } = await import("./public");
@@ -75,6 +82,7 @@ describe("blog public queries", () => {
   beforeEach(async () => {
     mongoConfigured = true;
     await db.collection(POSTS_COLLECTION).deleteMany({});
+    await db.collection(MEDIA_COLLECTION).deleteMany({});
   });
 
   it("returns empty results when MongoDB is not configured", async () => {
@@ -84,6 +92,7 @@ describe("blog public queries", () => {
     expect(await getTagIndex()).toEqual([]);
     expect(await getLatestPosts(3)).toEqual([]);
     expect(await getRelatedPosts("anything", ["Next.js"])).toEqual([]);
+    expect(await getMediaSizes(["https://example.com/a.webp"])).toEqual(new Map());
     expect(await getLivePostBySlug("anything")).toBeNull();
   });
 
@@ -211,5 +220,42 @@ describe("blog public queries", () => {
       "one-tag-older",
       "zero-tags-latest",
     ]);
+  });
+
+  it("looks up image dimensions from media collection in a single $in query", async () => {
+    const urlA = "https://k3x9.public.blob.vercel-storage.com/blog/a.webp";
+    const urlB = "https://k3x9.public.blob.vercel-storage.com/blog/b.webp";
+    await db.collection<MediaDoc>(MEDIA_COLLECTION).insertMany([
+      {
+        _id: new ObjectId(),
+        url: urlA,
+        pathname: "blog/a.webp",
+        contentType: "image/webp",
+        size: 1234,
+        width: 1280,
+        height: 720,
+        usedBy: [],
+        uploadedBy: new ObjectId(),
+        uploadedAt: new Date(),
+      },
+      {
+        _id: new ObjectId(),
+        url: urlB,
+        pathname: "blog/b.webp",
+        contentType: "image/webp",
+        size: 5678,
+        width: 800,
+        height: 600,
+        usedBy: [],
+        uploadedBy: new ObjectId(),
+        uploadedAt: new Date(),
+      },
+    ]);
+
+    expect(await getMediaSizes([])).toEqual(new Map());
+    const result = await getMediaSizes([urlA, "https://example.com/unknown.png"]);
+    expect(result.get(urlA)).toEqual({ width: 1280, height: 720 });
+    expect(result.has("https://example.com/unknown.png")).toBe(false);
+    expect(result.size).toBe(1);
   });
 });
