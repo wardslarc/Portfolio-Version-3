@@ -4,11 +4,10 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 
 ## Where things stand
 
-- **Phase:** planning is finished. No feature code exists yet. Next is Gemini's step **B1** (TASKS.md "Handoff batches").
-- **Branch:** `redesign/ink-by-night`, tracking `origin/redesign/ink-by-night`. The plan was committed and pushed as `1d2fa49`.
-  Later rounds (D24–D26, the notes rule, the header name, the owner switch, this file, `tools/`) are **uncommitted**.
-  **First action in the new chat:** commit `docs/redesign/` (`docs(redesign): …`) and push, so Gemini's first commit
-  doesn't sweep these files in. Carls approved pushing the docs earlier on this branch.
+- **Phase:** planning is finished. Gemini is working on step **B1** (TASKS.md "Handoff batches"); it had started T01
+  (gsap and lenis added to `package.json`) on 2026-11-27. Next for Claude is review gate **R1** once B1's commits land.
+- **Branch:** `redesign/ink-by-night`, tracking `origin/redesign/ink-by-night`. All of `docs/redesign/` is committed and
+  pushed (`1d2fa49`, `9667366`).
 - **Who codes:** Gemini (Antigravity, "Gemini Hydrogen") implements **every** task, T01–T15. Claude writes **no feature
   code**; it runs review gates R1–R3 and the final review T16. Carls decided this on 2026-11-27 to save Claude usage.
 
