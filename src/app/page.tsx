@@ -9,6 +9,7 @@ import shellStyles from "@/components/home/HomeShell.module.css";
 import HomeThemeScope from "@/components/home/HomeThemeScope";
 import Statement from "@/components/home/Statement";
 import ExperienceStrip from "@/components/home/work/ExperienceStrip";
+import LatestPosts from "@/components/home/work/LatestPosts";
 import MoreWork from "@/components/home/work/MoreWork";
 import moreWorkStyles from "@/components/home/work/MoreWork.module.css";
 import WorkTrack from "@/components/home/work/WorkTrack";
@@ -88,6 +89,7 @@ export default function Home() {
             <div className={moreWorkStyles.sandInner}>
               <MoreWork />
               <ExperienceStrip />
+              <LatestPosts />
             </div>
           </section>
         </main>
