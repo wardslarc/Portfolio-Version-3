@@ -16,6 +16,9 @@ export interface PublicPostSummary {
   publishedAt: string;
   updatedAt: string;
   readingMinutes: number;
+  views: number;
+  likes: number;
+  hideStats: boolean;
   authorName: string;
 }
 
@@ -41,6 +44,9 @@ function serializeSummary(doc: PostDoc): PublicPostSummary {
     publishedAt: (doc.publishedAt ?? doc.createdAt).toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
     readingMinutes: doc.readingMinutes,
+    views: doc.views ?? 0,
+    likes: doc.likes ?? 0,
+    hideStats: Boolean(doc.hideStats),
     authorName: doc.authorName,
   };
 }

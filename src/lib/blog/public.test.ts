@@ -135,4 +135,40 @@ describe("blog public queries", () => {
     expect(adj.prev?.slug).toBe("older-post");
     expect(adj.next?.slug).toBe("newest-post");
   });
+
+  it("includes views, likes, and hideStats on PublicPostSummary", async () => {
+    const now = Date.now();
+    await db.collection<PostDoc>(POSTS_COLLECTION).insertMany([
+      makePost({
+        title: "Popular",
+        slug: "popular-post",
+        publishedAt: new Date(now - 10_000),
+        views: 1200,
+        likes: 34,
+        hideStats: false,
+      }),
+      makePost({
+        title: "Private Stats",
+        slug: "private-stats",
+        publishedAt: new Date(now - 20_000),
+        views: 500,
+        likes: 10,
+        hideStats: true,
+      }),
+    ]);
+
+    const res = await getLivePosts();
+    expect(res.items[0]).toMatchObject({
+      slug: "popular-post",
+      views: 1200,
+      likes: 34,
+      hideStats: false,
+    });
+    expect(res.items[1]).toMatchObject({
+      slug: "private-stats",
+      views: 500,
+      likes: 10,
+      hideStats: true,
+    });
+  });
 });

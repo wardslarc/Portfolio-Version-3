@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { site } from "@/content/site";
+import { formatEngagementMeta } from "@/lib/blog/format";
 import { getAllTags, getLivePosts } from "@/lib/blog/public";
 
 export const metadata: Metadata = {
@@ -50,6 +51,7 @@ async function BlogIndexContent({
   const { items, total, page, totalPages } = result;
   const showFeatured = page === 1 && items.length > 0;
   const featured = showFeatured ? items[0]! : null;
+  const featuredStats = featured ? formatEngagementMeta(featured) : null;
   const listItems = showFeatured ? items.slice(1) : items;
 
   return (
@@ -101,6 +103,7 @@ async function BlogIndexContent({
                 <p className="blog-meta">
                   <span>{formatPostDate(featured.publishedAt)}</span>
                   <span>{featured.readingMinutes} min read</span>
+                  {featuredStats ? <span>{featuredStats}</span> : null}
                   {featured.tags.length > 0 ? (
                     <span className="blog-tagl">{featured.tags.join(" · ")}</span>
                   ) : null}
@@ -113,13 +116,16 @@ async function BlogIndexContent({
 
           {listItems.length > 0 ? (
             <ul className="blog-plist">
-              {listItems.map((post) => (
+              {listItems.map((post) => {
+                const stats = formatEngagementMeta(post);
+                return (
                 <li key={post.id}>
                   <Link className="blog-pitem" href={`/blog/${post.slug}`}>
                     <div>
                       <p className="blog-meta">
                         <span>{formatPostDate(post.publishedAt)}</span>
                         <span>{post.readingMinutes} min read</span>
+                        {stats ? <span>{stats}</span> : null}
                       </p>
                       <h3>{post.title}</h3>
                       {post.excerpt ? <p className="blog-excerpt">{post.excerpt}</p> : null}
@@ -140,7 +146,8 @@ async function BlogIndexContent({
                     ) : null}
                   </Link>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           ) : null}
 
