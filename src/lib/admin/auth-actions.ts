@@ -31,7 +31,7 @@ import {
 } from "./auth";
 import { hmacHash, maskEmail } from "./crypto";
 import { sendLoginCodeEmail, sendNewDeviceEmail } from "./email";
-import { consumeRateLimit } from "./rate-limit";
+import { consumeRateLimit, peekRateLimit } from "./rate-limit";
 
 const LOGIN_RATE_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_RATE_MAX = 5;
@@ -116,21 +116,21 @@ export async function loginStepOneAction(
   await ensureAdminIndexes(db);
   const meta = await getRequestMeta();
 
+  const emailKey = `admin-login:email:${hmacHash("rate", parsed.data.email)}`;
   const [ipOk, emailOk] = await Promise.all([
     consumeRateLimit(db, `admin-login:ip:${meta.ipHash}`, LOGIN_RATE_WINDOW_MS, LOGIN_RATE_MAX),
-    consumeRateLimit(
-      db,
-      `admin-login:email:${hmacHash("rate", parsed.data.email)}`,
-      LOGIN_RATE_WINDOW_MS,
-      LOGIN_RATE_MAX,
-    ),
+    peekRateLimit(db, emailKey, LOGIN_RATE_WINDOW_MS, LOGIN_RATE_MAX),
   ]);
-  if (!ipOk || !emailOk) {
+  if (!ipOk) {
     return { step: "credentials", error: "Too many sign-in attempts. Wait 15 minutes and try again." };
   }
 
   const admin = await verifyAdminCredentials(db, parsed.data.email, parsed.data.password);
   if (!admin) {
+    const emailStillOk = await consumeRateLimit(db, emailKey, LOGIN_RATE_WINDOW_MS, LOGIN_RATE_MAX);
+    if (!emailOk || !emailStillOk) {
+      return { step: "credentials", error: "Too many sign-in attempts. Wait 15 minutes and try again." };
+    }
     return { step: "credentials", error: "Invalid email or password." };
   }
 
@@ -148,6 +148,10 @@ export async function loginStepOneAction(
     cookieStore.set(NO_TRACK_COOKIE_NAME, "1", noTrackCookieOptions());
     await logAudit(db, admin, "auth.sign_in", admin.email, "Trusted device");
     redirect("/admin");
+  }
+
+  if (!emailOk) {
+    return { step: "credentials", error: "Too many sign-in attempts. Wait 15 minutes and try again." };
   }
 
   const challenge = await createLoginChallenge(db, admin._id);

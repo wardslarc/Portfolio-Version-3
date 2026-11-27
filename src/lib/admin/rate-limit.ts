@@ -66,3 +66,17 @@ export async function consumeRateLimit(
 
   return (doc?.count ?? 1) <= maxPerWindow;
 }
+
+export async function peekRateLimit(
+  db: Db,
+  key: string,
+  windowMs: number,
+  maxPerWindow: number,
+  nowMs = Date.now(),
+): Promise<boolean> {
+  await ensureRateLimitIndex(db);
+  const limits = db.collection<RateLimitDoc>(RATE_LIMITS_COLLECTION);
+  const windowStart = Math.floor(nowMs / windowMs) * windowMs;
+  const doc = await limits.findOne({ _id: `${key}:${windowStart}` });
+  return (doc?.count ?? 0) < maxPerWindow;
+}
