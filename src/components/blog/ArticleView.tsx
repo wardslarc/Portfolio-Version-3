@@ -6,6 +6,7 @@ import type { TocItem } from "@/lib/blog/markdown";
 import type { PostCover } from "@/lib/blog/posts";
 import { tagToSlug } from "@/lib/blog/slug";
 import CodeCopy from "./CodeCopy";
+import Breadcrumbs from "./Breadcrumbs";
 import ShareRow from "./ShareRow";
 import Toc from "./Toc";
 
@@ -47,8 +48,8 @@ export default function ArticleView({
   post,
   html,
   toc,
-  backHref = "/blog",
-  backLabel = "← All posts",
+  backHref,
+  backLabel,
   prev,
   next,
   related = [],
@@ -70,9 +71,19 @@ export default function ArticleView({
   return (
     <>
       <article className="blog-art">
-        <Link className="blog-crumb" href={backHref}>
-          {backLabel}
-        </Link>
+        {backHref && backLabel ? (
+          <Link className="blog-crumb" href={backHref}>
+            {backLabel}
+          </Link>
+        ) : (
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Blog", href: "/blog" },
+              { label: post.title || "Untitled post" },
+            ]}
+          />
+        )}
 
         <p className="blog-meta">
           <span>{formatArticleDate(post.publishedAt)}</span>

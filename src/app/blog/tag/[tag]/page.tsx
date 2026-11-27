@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import Breadcrumbs from "@/components/blog/Breadcrumbs";
 import PostList from "@/components/blog/PostList";
 import { site } from "@/content/site";
 import { getLivePosts, getTagIndex } from "@/lib/blog/public";
@@ -152,6 +153,13 @@ export default async function BlogTagPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <section className="blog-hero">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Blog", href: "/blog" },
+            { label: tagInfo.name },
+          ]}
+        />
         <p className="section-label" style={{ marginBottom: "16px" }}>
           Tag
         </p>

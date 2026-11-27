@@ -580,11 +580,55 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   align-items: center;
   gap: 6px;
   min-height: 40px;
+  max-width: 100%;
   margin-bottom: 20px;
 }
 
-.blog-crumb:hover {
+.blog-crumb ol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.blog-crumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.blog-crumb li:last-child {
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.blog-crumb a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.blog-crumb a:hover,
+a.blog-crumb:hover {
   color: var(--ink);
+}
+
+.blog-crumb-sep {
+  color: var(--faint);
+}
+
+.blog-crumb-curr {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .blog-art h1 {
