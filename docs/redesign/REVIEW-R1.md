@@ -2,7 +2,7 @@
 
 Reviewed by Claude on 2026-11-27, against `a3d1a25..ba69489` (T01 `bc38cc9` through T09 `ba69489`).
 
-**Result: R1.1 and R1.2 are fixed and passed; R1.3 (added in the re-check) is open. B2 starts after R1.3 passes.** T02 passed: the theme scope works on all four routes
+**Result: passed (2026-11-27).** R1.1 (`dae453b`), R1.2 (`d6b980a`) and R1.3 (`34d22cf`) are fixed and re-checked. B2 can start. T02 passed: the theme scope works on all four routes
 (hard loads and client navigation). Everything else in B1 meets its acceptance criteria, apart from the items below.
 
 ## Fix list for Gemini

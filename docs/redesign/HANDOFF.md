@@ -4,12 +4,11 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 
 ## Where things stand
 
-- **Phase:** B1 (T01–T09, `bc38cc9`..`ba69489`) is done and reviewed. **R1** is in `REVIEW-R1.md`: T02 passed, and
-  there are two fixes (R1.1 narrow card notes, R1.2 split heading notes). Next: Gemini fixes R1.1–R1.2, Claude re-checks
-  only those two, then B2. A scratch probe for note overlaps was used (layout/notefix checks); re-create it from the
-  console checks in TASKS T07 if needed. Use port 3100 for `next start` (Gemini's dev server holds 3000).
-- **Branch:** `redesign/ink-by-night`, tracking `origin/redesign/ink-by-night`. All of `docs/redesign/` is committed and
-  pushed (`1d2fa49`, `9667366`).
+- **Phase:** B1 (T01–T09) and **R1 passed** (`REVIEW-R1.md`, fixes R1.1–R1.3 ending at `34d22cf`), pushed on
+  2026-11-27. Next: Gemini does **B2** (T10–T13), then Claude runs **R2**. Use port 3100 for `next start` (Gemini's
+  dev server holds 3000). For note-overlap checks, use the console check in TASKS T07; the R1 scratch probes are gone.
+- **Branch:** `redesign/ink-by-night`, tracking `origin/redesign/ink-by-night`. Everything through R1 is pushed.
+  Push again only after a gate passes, because pushing sends Gemini's unreviewed commits too.
 - **Who codes:** Gemini (Antigravity, "Gemini Hydrogen") implements **every** task, T01–T15. Claude writes **no feature
   code**; it runs review gates R1–R3 and the final review T16. Carls decided this on 2026-11-27 to save Claude usage.
 
