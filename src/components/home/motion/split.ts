@@ -23,8 +23,8 @@ export function splitMotion(root: HTMLElement): void {
   if (left) {
     tl.fromTo(
       left,
-      { xPercent: -130 },
-      { xPercent: 0, duration: 0.35, ease: "none" },
+      { "--split-x": "-130%" },
+      { "--split-x": "0%", duration: 0.35, ease: "none" },
       0,
     );
   }
@@ -32,8 +32,8 @@ export function splitMotion(root: HTMLElement): void {
   if (right) {
     tl.fromTo(
       right,
-      { xPercent: 130 },
-      { xPercent: 0, duration: 0.35, ease: "none" },
+      { "--split-x": "130%" },
+      { "--split-x": "0%", duration: 0.35, ease: "none" },
       0,
     );
   }

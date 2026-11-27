@@ -49,7 +49,12 @@ export function trackMotion(root: HTMLElement): () => void {
 
   for (const card of cards) {
     const drift = Number(card.dataset.drift ?? 0);
-    tl.fromTo(card, { y: 0 }, { y: drift, duration: 1, ease: "none" }, 0);
+    tl.fromTo(
+      card,
+      { "--drift-y": "0px" },
+      { "--drift-y": `${drift}px`, duration: 1, ease: "none" },
+      0,
+    );
   }
 
   tl.set({}, {}, 1);
