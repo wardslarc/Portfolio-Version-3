@@ -3,7 +3,9 @@
 Reviewed by Claude on 2026-11-27, against `5a38a33..a6c2817` (T10 `5638623`, T11 `7f39462`, T12 `46b518b`,
 T13 `a6c2817`).
 
-**Result: two fixes (R2.1, R2.2).** Everything else in B2 meets its acceptance criteria. The code follows
+**Result: passed (2026-11-28).** R2.1 (`2191d25`) and R2.2 (`a5f95ab`) are fixed and re-checked (see the end of this file). B3 can start.
+
+Original result: two fixes (R2.1, R2.2). Everything else in B2 meets its acceptance criteria. The code follows
 ARCHITECTURE §4, §5.3, §7 and §8 closely: synchronous `start()`, the D25 calm-tier branch, `context.add(null, fn)`,
 normalized scrub timelines, sticky pins (no `pin: true`) and the full cleanup chain. Both findings are gaps in my
 spec, not departures from it. R2.1 comes from the prototype's own CSS + GSAP pattern. The spec is fixed in
@@ -97,3 +99,15 @@ the 74px header covers "Where I've built.". (`/#chess` is a `<section>` and land
 Real wheel/trackpad feel, frame rate and long tasks, chess move/toast/polling against a live API, and the theme
 staying on the last section after a jump past the sketchbook (the trigger never toggles; behavior is the same as the
 prototype, and nothing sits on paper there because the contact panel is ink).
+
+## Re-check (2026-11-28): R2.1 and R2.2 passed
+
+- `2191d25` and `a5f95ab` match the fix list exactly (5 files, +13/−5). Lint, `npm test` (26 files, 140 tests) and the
+  build pass, and `/` is still `○`.
+- R2.1: at 1440 × 900 in full motion, the RMK card's inline style mid-track is `--rotate: -1.5deg; --drift-y: -1.38px`
+  with no `transform`. Hover straightens it (`rotate` −1.5deg → 0deg), the same as under reduced motion. The split
+  cards' `--split-x` reads −92.86% at 10% of the pin, −55.71% at 20% and 0% from 35%, which matches `xPercent` before.
+  Their CSS `rotate` (±5deg) is untouched. After `/` → "Blog" → back → "Blog", the trigger list is 0 and no
+  `[data-anim]` element has `transform`, `translate`, `rotate`, `scale`, `--drift-y` or `--split-x` inline. After
+  resizing to 700 and turning reduced motion on, the card's inline style is just `--rotate`. No console errors.
+- R2.2: `/#experience` lands at 80px at 1440 × 900 and at 375 × 800. `/#work` and `/#chess` still land at 80px.
