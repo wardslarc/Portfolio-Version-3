@@ -2,6 +2,7 @@ import type { Viewport } from "next";
 import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
 import { homeFontVariables } from "@/components/home/fonts";
+import Hero from "@/components/home/hero/Hero";
 import HomeHeader from "@/components/home/HomeHeader";
 import HomeShell from "@/components/home/HomeShell";
 import shellStyles from "@/components/home/HomeShell.module.css";
@@ -74,7 +75,9 @@ export default function Home() {
       />
       <HomeShell fontClassName={homeFontVariables}>
         <HomeHeader />
-        <main id="main" className={shellStyles.main} />
+        <main id="main" className={shellStyles.main}>
+          <Hero />
+        </main>
         <ChessSection />
         <Contact />
       </HomeShell>
