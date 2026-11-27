@@ -4,7 +4,7 @@ import { site } from "@/content/site";
 import { getLivePostSlugs, getTagIndex } from "@/lib/blog/public";
 
 // Bump when the homepage content changes meaningfully, so crawlers know to revisit.
-const lastModified = new Date("2026-11-26");
+const lastModified = new Date("2026-11-28");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Render per request. A build-time sitemap went stale: it missed posts published after

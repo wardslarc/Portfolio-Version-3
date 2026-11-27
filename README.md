@@ -18,11 +18,14 @@ src/
   app/
     layout.tsx           # fonts, metadata, no-flash theme script
     page.tsx             # the one-page site
-    globals.css          # design tokens (light + dark) and all styles
+    globals.css          # global design tokens (light + dark) for blog, admin, and 404
     api/contact/route.ts # POST /api/contact → validate, rate-limit, save, notify
     robots.ts, sitemap.ts
-  components/            # Header, Intro, Work, Experience/Skills, Contact
-  content/               # edit these to update the site: site, projects, experience
+  components/
+    home/                # homepage sections (CSS Modules, GSAP + Lenis motion in motion/)
+    blog/                # blog UI components
+    ...                  # shared Header, ChessSection, TrackedLink, Telemetry, Icons
+  content/               # edit these to update the site: site, projects, experience, home
   lib/
     mongodb.ts           # cached MongoClient
     contact.ts           # zod schema, IP hashing, Resend notification
