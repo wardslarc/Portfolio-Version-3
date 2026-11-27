@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { site } from "@/content/site";
 import { requireAdmin } from "@/lib/admin/auth";
 import { queryAdminOverview } from "@/lib/admin/data";
+import { queryEngagementSummary } from "@/lib/blog/engagement";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
 
 export const metadata: Metadata = {
@@ -22,7 +23,10 @@ async function OverviewContent() {
   }
 
   const db = await getDb();
-  const data = await queryAdminOverview(db);
+  const [data, engagement7d] = await Promise.all([
+    queryAdminOverview(db),
+    queryEngagementSummary(db, { days: 7 }),
+  ]);
   const maxMoves = Math.max(1, ...data.movesPerDay.map((d) => d.count));
 
   return (
@@ -55,6 +59,24 @@ async function OverviewContent() {
             </div>
           ) : null}
         </div>
+        <Link href="/admin/blog/engagement" className="admin-card admin-card-link">
+          <div className="admin-stat-label">Blog (7d)</div>
+          <div className="admin-stat-val" style={{ fontSize: "1.375rem" }}>
+            {engagement7d.totals.views} views · {engagement7d.totals.likes} likes
+          </div>
+          <div
+            className="mono"
+            style={{
+              color: "var(--muted)",
+              fontSize: "0.75rem",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {engagement7d.topPosts[0]?.title ?? "No post activity yet"}
+          </div>
+        </Link>
       </div>
 
       <div className="admin-two-col">

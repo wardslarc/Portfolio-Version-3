@@ -96,6 +96,15 @@ Public posts live at `/blog` and `/blog/[slug]`, with an RSS 2.0 feed at `/blog/
 2. Pull the environment variable locally with `vercel env pull .env.local`.
 3. Without `BLOB_READ_WRITE_TOKEN`, the app still builds and runs cleanly; the blog editor shows `"Image uploads aren't configured."` and disables upload controls. Without `MONGODB_URI`, `/blog` renders the empty state.
 
+## Blog engagement
+
+Article pages stay cached/prerendered and load live engagement counts client-side via `GET /api/blog/engagement`.
+
+- **What's counted:** Views (`POST /api/blog/view`, deduped per IP for 24 hours), toggleable likes (`POST /api/blog/like`, one per `visitor_id` cookie per post, capped at 3 distinct visitors per IP hash per post), and shares (`POST /api/blog/share` across `copy`, `x`, `linkedin`, and `native`, deduped per visitor/channel for 24 hours). Daily totals are recorded in `post_stats_daily`.
+- **No-track cookie (`blog_notrack`):** Signing in to `/admin` sets an `HttpOnly`, `Path=/` `blog_notrack=1` cookie for 1 year (preserved across sign-out) so visits, likes, and shares from your own devices are ignored without modifying counts.
+- **Bot filtering:** Empty user agents and common crawlers/link-previews/headless browsers (`isLikelyBot` in `src/lib/visitor.ts`) return success without writing to MongoDB.
+- **Managing & resetting stats:** `owner` and `admin` roles can open `/admin/blog/engagement` or `/admin/blog/[id]/stats` to inspect daily trends, remove likes from flagged IP sources, toggle public count visibility per post, or reset selected counters (`Views`, `Likes`, `Shares` — confirmed by typing the post title or slug). Every management action is audit-logged; `viewer` accounts can inspect stats without modifying them.
+
 ## Vercel Analytics
 
 Vercel Web Analytics and Speed Insights are enabled on the public site (`src/components/Telemetry.tsx`). Both use a `beforeSend` filter (`src/lib/analytics.ts`) to drop any `/admin` URLs, and `/admin` is disallowed in `src/app/robots.ts`.

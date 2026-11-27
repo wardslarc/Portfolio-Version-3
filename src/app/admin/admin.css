@@ -370,8 +370,19 @@
 
 .admin-stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 12px;
+}
+
+.admin-card-link {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.admin-card-link:hover {
+  border-color: var(--faint);
+  background: var(--surface);
 }
 
 .admin-stats-grid.cols-3 {
