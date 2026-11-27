@@ -102,3 +102,72 @@
 .year {
   color: var(--home-coral-night);
 }
+
+.chessFrame {
+  margin-top: 120px;
+  border: 1.5px solid var(--home-night-rule);
+  border-radius: 20px;
+  padding: 24px;
+  background: var(--home-frame);
+  color: var(--home-paper);
+
+  --bg: #1F1F25;
+  --surface: #2B2B33;
+  --ink: #F3F1EC;
+  --muted: #C9C5BB;
+  --faint: #C9C5BB;
+  --line: #F3F1EC33;
+  --accent: #FF6A47;
+  --ok: #4cc38a;
+  --wait: #f0b351;
+  --danger: #fb923c;
+  --sq-l: #E9E6DF;
+  --sq-d: #8E8A80;
+  --hl-last: rgb(255 106 71 / 0.35);
+  --hl-sel: rgb(255 106 71 / 0.55);
+  --hl-check: rgba(220, 38, 38, 0.55);
+  --dot: rgb(22 22 26 / 0.3);
+}
+
+.chessNote {
+  margin: 0 0 12px;
+  font-size: 26px;
+  color: var(--home-coral-night);
+}
+
+.chessFrame :global(.cx-grid) {
+  grid-template-columns: minmax(0, 320px) 220px;
+}
+
+.chessFrame :global(.cx-boardcol) {
+  max-width: 320px;
+}
+
+@media (min-width: 1024px) {
+  .chessFrame :global(#chess) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .chessFrame :global(.cx-head) {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 759.98px) {
+  .chessFrame :global(.cx-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chessFrame :global(.cx-boardcol) {
+    width: min(100%, 320px);
+    max-width: 320px;
+    margin-inline: auto;
+  }
+
+  .chessFrame :global(.cx-moves) {
+    max-height: 220px;
+  }
+}

@@ -1,5 +1,4 @@
 import type { Viewport } from "next";
-import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
 import contactShellStyles from "@/components/home/contact/ContactShell.module.css";
 import CopyrightYear from "@/components/home/CopyrightYear";
@@ -101,7 +100,6 @@ export default function Home() {
           <SplitScene />
           <NightSection />
           <Sketchbook />
-          <ChessSection />
         </main>
         <div data-anim="contact-grow" className={contactShellStyles.panel}>
           <div className={contactShellStyles.inner}>

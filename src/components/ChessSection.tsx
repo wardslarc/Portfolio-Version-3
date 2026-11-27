@@ -749,7 +749,7 @@ export default function ChessSection() {
             </span>
           </div>
 
-          <div className="cx-moves" ref={movesBoxRef}>
+          <div className="cx-moves" ref={movesBoxRef} data-lenis-prevent>
             {moves.map((m, idx) => {
               const num = moveNumberPrefix(idx);
               const ago = formatAgo(m.playedAt, serverNowMs);

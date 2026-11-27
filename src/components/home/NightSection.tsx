@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import ChessSection from "@/components/ChessSection";
 import { night } from "@/content/home";
 import { site } from "@/content/site";
 import AssetImage from "./AssetImage";
@@ -64,7 +65,16 @@ export default function NightSection() {
           ))}
         </div>
 
-        {/* chess: T13 */}
+        <div
+          className={styles.chessFrame}
+          data-anim="reveal-fade"
+          data-refresh-on-resize
+        >
+          <p className={`${shellStyles.note} ${styles.chessNote}`}>
+            {night.chessNote}
+          </p>
+          <ChessSection />
+        </div>
       </div>
     </section>
   );
