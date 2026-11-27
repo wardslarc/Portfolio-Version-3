@@ -17,6 +17,7 @@ export const site = {
     github: "https://github.com/wardslarc",
     linkedin: "https://www.linkedin.com/in/carls-dale-escalo-797701366/",
     x: "https://x.com/daleonigiri",
+    instagram: "https://www.instagram.com/daleonigiri/",
   },
   analyticsUrl: "https://vercel.com/dashboard",
 } as const;
