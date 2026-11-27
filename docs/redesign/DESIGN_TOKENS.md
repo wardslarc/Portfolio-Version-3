@@ -316,6 +316,10 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
   strip, at any card width: 500px in the track, about 460–600px in the reduced-motion grid. Percentage `top` values are
   of the card's height, and these three stay inside the screenshot band at every width checked (1024, 1440 and 1920 wide,
   in both layouts; measured in the prototype on 2026-11-27).
+- **Below 760px (added in review R1, 2026-11-27):** the percentage tops fall onto the kicker row and title on narrow
+  cards. Under `(max-width: 759.98px)`, the RMK and Bilyo notes use `top: 56px` instead (measured in the real build at
+  320, 375, 500 and 759 wide: the note spans about 30–88px of a 159–303px tall screenshot, with no text hit). The
+  ticketing note keeps `top: -22px`.
 - Descriptions (P, verbatim):
   1. "The company LMS for assigned courses and progress tracking. Built from the ground up, used across the organization."
   2. "Quotation maker for Filipino freelancers: one-tap client acceptance, PDF export, multi-currency, view tracking."

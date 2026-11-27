@@ -4,8 +4,10 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 
 ## Where things stand
 
-- **Phase:** planning is finished. Gemini is working on step **B1** (TASKS.md "Handoff batches"); it had started T01
-  (gsap and lenis added to `package.json`) on 2026-11-27. Next for Claude is review gate **R1** once B1's commits land.
+- **Phase:** B1 (T01–T09, `bc38cc9`..`ba69489`) is done and reviewed. **R1** is in `REVIEW-R1.md`: T02 passed, and
+  there are two fixes (R1.1 narrow card notes, R1.2 split heading notes). Next: Gemini fixes R1.1–R1.2, Claude re-checks
+  only those two, then B2. A scratch probe for note overlaps was used (layout/notefix checks); re-create it from the
+  console checks in TASKS T07 if needed. Use port 3100 for `next start` (Gemini's dev server holds 3000).
 - **Branch:** `redesign/ink-by-night`, tracking `origin/redesign/ink-by-night`. All of `docs/redesign/` is committed and
   pushed (`1d2fa49`, `9667366`).
 - **Who codes:** Gemini (Antigravity, "Gemini Hydrogen") implements **every** task, T01–T15. Claude writes **no feature
