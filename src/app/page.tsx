@@ -1,6 +1,8 @@
 import type { Viewport } from "next";
 import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
+import contactShellStyles from "@/components/home/contact/ContactShell.module.css";
+import CopyrightYear from "@/components/home/CopyrightYear";
 import { homeFontVariables } from "@/components/home/fonts";
 import Hero from "@/components/home/hero/Hero";
 import HomeHeader from "@/components/home/HomeHeader";
@@ -8,6 +10,7 @@ import HomeShell from "@/components/home/HomeShell";
 import shellStyles from "@/components/home/HomeShell.module.css";
 import HomeThemeScope from "@/components/home/HomeThemeScope";
 import NightSection from "@/components/home/NightSection";
+import Sketchbook from "@/components/home/Sketchbook";
 import SplitScene from "@/components/home/SplitScene";
 import Statement from "@/components/home/Statement";
 import ExperienceStrip from "@/components/home/work/ExperienceStrip";
@@ -16,6 +19,7 @@ import MoreWork from "@/components/home/work/MoreWork";
 import moreWorkStyles from "@/components/home/work/MoreWork.module.css";
 import WorkTrack from "@/components/home/work/WorkTrack";
 import { skills } from "@/content/experience";
+import { contact } from "@/content/home";
 import { site } from "@/content/site";
 
 export const viewport: Viewport = { themeColor: "#F3F1EC" };
@@ -96,9 +100,20 @@ export default function Home() {
           </section>
           <SplitScene />
           <NightSection />
+          <Sketchbook />
+          <ChessSection />
         </main>
-        <ChessSection />
-        <Contact />
+        <div data-anim="contact-grow" className={contactShellStyles.panel}>
+          <div className={contactShellStyles.inner}>
+            <Contact />
+          </div>
+          <footer className={contactShellStyles.footer}>
+            <span>
+              © <CopyrightYear /> {site.name} · {contact.footerPlace}
+            </span>
+            <span>{contact.footerRight}</span>
+          </footer>
+        </div>
       </HomeShell>
     </>
   );
