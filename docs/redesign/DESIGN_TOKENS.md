@@ -320,6 +320,10 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
   cards. Under `(max-width: 759.98px)`, the RMK and Bilyo notes use `top: 56px` instead (measured in the real build at
   320, 375, 500 and 759 wide: the note spans about 30–88px of a 159–303px tall screenshot, with no text hit). The
   ticketing note keeps `top: -22px`.
+- **Narrow reduced-motion grid (added in the R1 re-check):** from 760 to 1023px with reduced motion, the 2-column grid
+  makes cards about 330–450px wide, and the percentage tops cover text from 760 to about 850px. The same `top: 56px`
+  applies under `(min-width: 760px) and (max-width: 1023.98px) and (prefers-reduced-motion: reduce)` (measured at
+  760, 800, 900, 1000 and 1023: no text hit). So the "460–600px" grid width above holds only from 1024px up.
 - Descriptions (P, verbatim):
   1. "The company LMS for assigned courses and progress tracking. Built from the ground up, used across the organization."
   2. "Quotation maker for Filipino freelancers: one-tap client acceptance, PDF export, multi-currency, view tracking."

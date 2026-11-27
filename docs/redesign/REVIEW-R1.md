@@ -2,7 +2,7 @@
 
 Reviewed by Claude on 2026-11-27, against `a3d1a25..ba69489` (T01 `bc38cc9` through T09 `ba69489`).
 
-**Result: two fixes required (R1.1, R1.2), then B2 can start.** T02 passed: the theme scope works on all four routes
+**Result: R1.1 and R1.2 are fixed and passed; R1.3 (added in the re-check) is open. B2 starts after R1.3 passes.** T02 passed: the theme scope works on all four routes
 (hard loads and client navigation). Everything else in B1 meets its acceptance criteria, apart from the items below.
 
 ## Fix list for Gemini
@@ -34,6 +34,26 @@ read as "On the CLOCK Off the CLOCK", and ARCHITECTURE §13 makes handwritten no
 - Add `aria-hidden="true"` to both `.splitNote` spans. Don't change the layout.
 - Check: `document.querySelector('[data-anim=split-stage] h2')` has no accessible text beyond "On the CLOCK Off the CLOCK"
   (the DevTools Accessibility pane shows that name for the heading).
+
+## Re-check (2026-11-27): R1.1 and R1.2 passed, one new fix R1.3
+
+- `dae453b` (R1.1) and `d6b980a` (R1.2) match the fix list exactly. Lint and build pass. `npm test` failed once
+  (1 test) and then passed 4 runs in a row, so it's a timing flake, not these changes.
+- R1.1: no note hits at 320, 375, 500, 759, 1024, 1440 and 1920 in both motion settings. Narrow notes compute to
+  `top: 56px`; wide ones keep their percentages. R1.2: the split heading's text is "On the CLOCK Off the CLOCK".
+- **New, found by an extra width (my spec gap, not a regression):** at **760px with reduced motion**, the 2-column grid
+  makes cards about 330px wide, and both notes cover text (Bilyo up to about 850px). This was there before R1.1.
+
+### R1.3 Narrow note offset in the 760–1023px reduced-motion grid (T07)
+
+DESIGN_TOKENS §4.4 now has a "Narrow reduced-motion grid" bullet.
+
+- `src/components/home/work/WorkTrack.module.css`: add a second block with the same rule as the narrow one,
+  `@media (min-width: 760px) and (max-width: 1023.98px) and (prefers-reduced-motion: reduce) { .cardNote { top: var(--note-top-narrow, var(--note-top)); } }`.
+  Change nothing else.
+- Check: with reduced motion at 760, 800, 900, 1000 and 1023, no note hits card text. With reduced motion at 1024 and
+  1440, the notes still use their percentage tops. With full motion at 760–1023, nothing changes (the track cards
+  there are 500px and pass now).
 
 ## What was checked
 
