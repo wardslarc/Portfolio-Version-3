@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { clientIp, hashIp } from "@/lib/contact";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
+import { NO_TRACK_COOKIE_NAME, noTrackCookieOptions } from "@/lib/visitor";
 import { logAudit } from "./audit";
 import {
   ADMINS_COLLECTION,
@@ -144,6 +145,7 @@ export async function loginStepOneAction(
       session.token,
       adminCookieOptions(Math.floor(SESSION_TTL_MS / 1000)),
     );
+    cookieStore.set(NO_TRACK_COOKIE_NAME, "1", noTrackCookieOptions());
     await logAudit(db, admin, "auth.sign_in", admin.email, "Trusted device");
     redirect("/admin");
   }
@@ -239,6 +241,7 @@ export async function verifyLoginCodeAction(
     session.token,
     adminCookieOptions(Math.floor(SESSION_TTL_MS / 1000)),
   );
+  cookieStore.set(NO_TRACK_COOKIE_NAME, "1", noTrackCookieOptions());
 
   const trustChecked = parsed.data.trustDevice === "on" || parsed.data.trustDevice === "true";
   if (trustChecked) {

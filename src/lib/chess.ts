@@ -5,12 +5,23 @@ import { Chess, DEFAULT_POSITION } from "chess.js";
 import type { Collection, Db, ObjectId } from "mongodb";
 import { z } from "zod";
 
+import {
+  VISITOR_COOKIE_MAX_AGE,
+  VISITOR_COOKIE_NAME,
+  formatVisitorSetCookie,
+  parseVisitorCookie,
+} from "./visitor";
+
+export {
+  VISITOR_COOKIE_MAX_AGE,
+  VISITOR_COOKIE_NAME,
+  formatVisitorSetCookie,
+  parseVisitorCookie,
+};
+
 export const GAMES_COLLECTION = "chess_games";
 export const LOCKS_COLLECTION = "chess_move_locks";
 export const RATE_LIMITS_COLLECTION = "rate_limits";
-
-export const VISITOR_COOKIE_NAME = "visitor_id";
-export const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const RATE_LIMIT_MAX_PER_WINDOW = 10;
@@ -107,8 +118,6 @@ export const moveBodySchema = z.object({
 });
 
 export type MoveBodyInput = z.infer<typeof moveBodySchema>;
-
-const uuidSchema = z.string().uuid();
 
 const globalForChessIndexes = globalThis as unknown as {
   _chessIndexes?: WeakMap<object, Map<string, Promise<void>>>;
@@ -260,43 +269,6 @@ export function hashVisitorId(visitorId: string): string {
 export function hashChessIp(rawIp: string): string {
   const prefix = normalizeIpPrefix(rawIp);
   return createHash("sha256").update(`${getChessSalt()}:ip:${prefix}`).digest("hex");
-}
-
-export function parseVisitorCookie(headers: Headers): { visitorId: string; isNew: boolean } {
-  const cookieHeader = headers.get("cookie");
-  if (cookieHeader) {
-    for (const part of cookieHeader.split(";")) {
-      const eq = part.indexOf("=");
-      if (eq === -1) continue;
-      const name = part.slice(0, eq).trim();
-      if (name !== VISITOR_COOKIE_NAME) continue;
-      const rawVal = part.slice(eq + 1).trim();
-      let decoded = rawVal;
-      try {
-        decoded = decodeURIComponent(rawVal);
-      } catch {
-        // Use raw value if not URL-encoded
-      }
-      if (uuidSchema.safeParse(decoded).success) {
-        return { visitorId: decoded, isNew: false };
-      }
-    }
-  }
-  return { visitorId: crypto.randomUUID(), isNew: true };
-}
-
-export function formatVisitorSetCookie(visitorId: string): string {
-  const parts = [
-    `${VISITOR_COOKIE_NAME}=${visitorId}`,
-    "Path=/",
-    `Max-Age=${VISITOR_COOKIE_MAX_AGE}`,
-    "HttpOnly",
-    "SameSite=Lax",
-  ];
-  if (process.env.NODE_ENV === "production") {
-    parts.push("Secure");
-  }
-  return parts.join("; ");
 }
 
 export function geoFromHeaders(headers: Headers): { city: string | null; country: string | null } {
