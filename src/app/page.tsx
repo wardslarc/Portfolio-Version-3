@@ -1,5 +1,5 @@
 import type { Viewport } from "next";
-import Contact from "@/components/Contact";
+import ContactPanel from "@/components/home/contact/ContactPanel";
 import contactShellStyles from "@/components/home/contact/ContactShell.module.css";
 import CopyrightYear from "@/components/home/CopyrightYear";
 import { homeFontVariables } from "@/components/home/fonts";
@@ -103,7 +103,9 @@ export default function Home() {
         </main>
         <div data-anim="contact-grow" className={contactShellStyles.panel}>
           <div className={contactShellStyles.inner}>
-            <Contact />
+            <section id="contact" aria-labelledby="contact-h">
+              <ContactPanel />
+            </section>
           </div>
           <footer className={contactShellStyles.footer}>
             <span>

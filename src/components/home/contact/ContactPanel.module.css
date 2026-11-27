@@ -1,0 +1,149 @@
+.cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 64px;
+}
+
+.left {
+  flex: 999 1 460px;
+  min-width: 0;
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: clamp(56px, 9vw, 132px);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  color: var(--home-paper);
+}
+
+.headingAccent {
+  color: var(--home-coral-night);
+}
+
+.copy {
+  margin: 28px 0;
+  max-width: 440px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--home-muted-dark);
+}
+
+.mail {
+  min-height: 52px;
+  padding: 12px 22px;
+  border: 1.5px solid var(--home-paper);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--home-paper);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.mail:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 5px 5px 0 currentColor;
+}
+
+.mailLabel {
+  margin-left: 10px;
+  font-size: 22px;
+  color: var(--home-coral-night);
+}
+
+.signature {
+  margin-top: 40px;
+  font-size: 44px;
+  rotate: -4deg;
+  display: inline-block;
+  color: var(--home-coral-night);
+}
+
+.signatureNote {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--home-muted-dark);
+}
+
+.form {
+  flex: 1 1 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--home-paper);
+  color: var(--home-ink);
+  border-radius: 20px;
+  padding: 28px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--home-ink);
+}
+
+.field input,
+.field textarea {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid var(--home-ink);
+  border-radius: 12px;
+  background: var(--home-card);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 15px;
+  color: var(--home-ink);
+}
+
+.field textarea {
+  padding: 12px 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.err {
+  color: var(--home-coral-text);
+  font-weight: 400;
+}
+
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.send {
+  min-height: 50px;
+  background: var(--home-coral);
+  color: var(--home-ink);
+  font-size: 16px;
+}
+
+.send:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.status {
+  min-height: 1.5em;
+  font-size: 14px;
+}
+
+.statusOk {
+  color: var(--home-green);
+}
+
+.statusError {
+  color: var(--home-coral-text);
+}
