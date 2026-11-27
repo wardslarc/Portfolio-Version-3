@@ -5,7 +5,10 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   // 90 is used for the About portrait so the face stays sharp.
-  images: { qualities: [75, 90] },
+  images: {
+    qualities: [75, 90],
+    remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
+  },
 };
 
 export default nextConfig;

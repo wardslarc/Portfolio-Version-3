@@ -5,6 +5,7 @@ import { Experience, Skills } from "@/components/Experience";
 import Header from "@/components/Header";
 import Intro from "@/components/Intro";
 import Work from "@/components/Work";
+import Writing from "@/components/Writing";
 import { skills } from "@/content/experience";
 import { site } from "@/content/site";
 
@@ -79,6 +80,7 @@ export default function Home() {
         <Intro />
         <About />
         <Work />
+        <Writing />
         <Experience />
         <Skills />
         <ChessSection />
