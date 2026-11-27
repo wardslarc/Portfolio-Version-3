@@ -422,6 +422,26 @@ export async function getRecentLivePostsForRss(limit = 20): Promise<PublicPostDe
   }
 }
 
+export async function getAllLivePostSummaries(): Promise<PublicPostSummary[]> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  if (!isMongoConfigured()) return [];
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<PostDoc>(POSTS_COLLECTION)
+      .find(liveFilter(new Date()), { projection: { body: 0 } })
+      .sort({ publishedAt: -1, _id: -1 })
+      .toArray();
+    return docs.map(serializeSummary);
+  } catch {
+    return [];
+  }
+}
+
 export async function getMediaSizes(urls: string[]): Promise<Map<string, ImageSize>> {
   "use cache";
   cacheTag("posts");
