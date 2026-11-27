@@ -29,7 +29,10 @@ export default function SplitScene() {
               {split.left}
             </span>
             <span>{split.word}</span>
-            <span className={`${shellStyles.note} ${styles.splitNote}`}>
+            <span
+              className={`${shellStyles.note} ${styles.splitNote}`}
+              aria-hidden="true"
+            >
               {split.noteLeft}
             </span>
           </span>
@@ -38,7 +41,10 @@ export default function SplitScene() {
               {split.right}
             </span>
             <span>{split.word}</span>
-            <span className={`${shellStyles.note} ${styles.splitNote}`}>
+            <span
+              className={`${shellStyles.note} ${styles.splitNote}`}
+              aria-hidden="true"
+            >
               {split.noteRight}
             </span>
           </span>
