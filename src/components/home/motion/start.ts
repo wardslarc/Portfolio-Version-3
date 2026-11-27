@@ -8,7 +8,9 @@ import { createLenis } from "./lenis";
 import { MOTION_QUERIES } from "./queries";
 import { watchRefresh } from "./refresh";
 import { headingLineMotion, revealMotion, wordsMotion } from "./reveals";
+import { splitMotion } from "./split";
 import { sectionThemes } from "./themes";
+import { trackMotion } from "./track";
 
 /** Starts all homepage motion inside a single gsap.matchMedia() context. */
 export function start(root: HTMLElement): () => void {
@@ -50,6 +52,8 @@ export function start(root: HTMLElement): () => void {
     wordsMotion(root);
     revealMotion(root);
     headingLineMotion(root);
+    if (full) cleanups.push(trackMotion(root));
+    if (full) splitMotion(root);
     if (full) galleryMotion(root);
     fanMotion(root, full ? 140 : 70);
     contactGrowMotion(root);
