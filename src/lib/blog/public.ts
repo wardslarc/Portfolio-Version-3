@@ -223,7 +223,9 @@ export async function getLatestPosts(limit = 3): Promise<PublicPostSummary[]> {
   }
 }
 
-export async function getLivePostSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
+export async function getLivePostSlugs(): Promise<
+  { slug: string; updatedAt: Date; coverUrl: string | null }[]
+> {
   "use cache";
   cacheTag("posts");
   cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
@@ -234,10 +236,14 @@ export async function getLivePostSlugs(): Promise<{ slug: string; updatedAt: Dat
     const db = await getDb();
     const docs = await db
       .collection<PostDoc>(POSTS_COLLECTION)
-      .find(liveFilter(new Date()), { projection: { slug: 1, updatedAt: 1 } })
+      .find(liveFilter(new Date()), { projection: { slug: 1, updatedAt: 1, cover: 1 } })
       .sort({ publishedAt: -1 })
       .toArray();
-    return docs.map((d) => ({ slug: d.slug, updatedAt: d.updatedAt }));
+    return docs.map((d) => ({
+      slug: d.slug,
+      updatedAt: d.updatedAt,
+      coverUrl: d.cover?.url ?? null,
+    }));
   } catch {
     return [];
   }

@@ -5,16 +5,71 @@ import { Suspense } from "react";
 import { site } from "@/content/site";
 import { getAllTags, getLivePosts } from "@/lib/blog/public";
 
-export const metadata: Metadata = {
-  title: `Blog | ${site.name}`,
-  description:
-    "Write-ups on the systems behind this site and the tools I build at work: what I tried, what broke, what I'd do again.",
-  alternates: {
-    canonical: "/blog",
-    types: {
-      "application/rss+xml": "/blog/rss.xml",
+const BLOG_TITLE = `Blog | ${site.name}`;
+const BLOG_DESCRIPTION =
+  "Write-ups on the systems behind this site and the tools I build at work: what I tried, what broke, what I'd do again.";
+
+// The page already streams its post list at request time, so reading searchParams here
+// only defers metadata alongside it. Page 2+ is its own canonical URL so Google keeps
+// crawling older posts; tag filters are duplicates of /blog and stay out of the index.
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string; page?: string }>;
+}): Promise<Metadata> {
+  const sp = await searchParams;
+  const tag = sp.tag?.trim();
+  const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
+  const canonical = page > 1 ? `/blog?page=${page}` : "/blog";
+  const title = page > 1 ? `Blog, page ${page} | ${site.name}` : BLOG_TITLE;
+
+  return {
+    title,
+    description: BLOG_DESCRIPTION,
+    alternates: {
+      canonical,
+      types: { "application/rss+xml": "/blog/rss.xml" },
     },
-  },
+    ...(tag ? { robots: { index: false, follow: true } } : {}),
+    openGraph: {
+      title,
+      description: BLOG_DESCRIPTION,
+      url: canonical,
+      siteName: site.name,
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: BLOG_DESCRIPTION,
+      creator: "@daleonigiri",
+    },
+  };
+}
+
+const blogJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Blog",
+      "@id": `${site.url}/blog#blog`,
+      url: `${site.url}/blog`,
+      name: `${site.name} Blog`,
+      description: BLOG_DESCRIPTION,
+      inLanguage: "en",
+      isPartOf: { "@id": `${site.url}/#website` },
+      author: { "@id": `${site.url}/#person` },
+      publisher: { "@id": `${site.url}/#person` },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+        { "@type": "ListItem", position: 2, name: "Blog", item: `${site.url}/blog` },
+      ],
+    },
+  ],
 };
 
 function formatPostDate(iso: string): string {
@@ -181,6 +236,10 @@ export default function BlogIndexPage({
 }) {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd).replace(/</g, "\\u003c") }}
+      />
       <section className="blog-hero">
         <p className="section-label" style={{ marginBottom: "16px" }}>
           Blog

@@ -1,11 +1,15 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { site } from "@/content/site";
 import { getLivePostSlugs } from "@/lib/blog/public";
 
-// Bump when the page content changes meaningfully, so crawlers know to revisit.
+// Bump when the homepage content changes meaningfully, so crawlers know to revisit.
 const lastModified = new Date("2026-11-26");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Render per request. A build-time sitemap went stale: it missed posts published after
+  // the deploy. The post list itself is still cached and refreshed by updateTag("posts").
+  await connection();
   const posts = await getLivePostSlugs();
   const latestPostDate = posts[0]?.updatedAt ?? lastModified;
 
@@ -29,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: post.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.7,
+      images: [post.coverUrl ?? `${site.url}/blog/${post.slug}/opengraph-image`],
     })),
   ];
 }
