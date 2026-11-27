@@ -5,14 +5,26 @@ import { logAudit } from "@/lib/admin/audit";
 import type { AdminDoc } from "@/lib/admin/auth";
 import { can } from "@/lib/admin/permissions";
 import {
+  emptyShares,
+  sumShares,
+  type PostShares,
+} from "./engagement-types";
+import {
   MEDIA_COLLECTION,
   POSTS_COLLECTION,
+  POST_LIKES_COLLECTION,
+  POST_SHARES_COLLECTION,
+  POST_STATS_DAILY_COLLECTION,
   POST_VIEWS_COLLECTION,
   ensureBlogIndexes,
   type MediaDoc,
   type PostCover,
   type PostDoc,
+  type PostLikeDoc,
+  type PostShareDoc,
+  type PostStatsDailyDoc,
   type PostStatus,
+  type PostViewDoc,
 } from "./indexes";
 import {
   extractMarkdownImageUrls,
@@ -24,11 +36,15 @@ import { isValidSlug, makeUniqueSlug, slugify } from "./slug";
 export {
   MEDIA_COLLECTION,
   POSTS_COLLECTION,
+  POST_LIKES_COLLECTION,
+  POST_SHARES_COLLECTION,
+  POST_STATS_DAILY_COLLECTION,
   POST_VIEWS_COLLECTION,
   ensureBlogIndexes,
   type MediaDoc,
   type PostCover,
   type PostDoc,
+  type PostShares,
   type PostStatus,
 };
 
@@ -47,6 +63,10 @@ export interface SerializedAdminPost {
   publishedAt: string | null;
   readingMinutes: number;
   views: number;
+  likes: number;
+  shares: number;
+  sharesByChannel: PostShares;
+  hideStats: boolean;
   authorId: string;
   authorName: string;
   createdAt: string;
@@ -83,6 +103,12 @@ export function isPostLive(
 }
 
 export function serializeAdminPost(doc: PostDoc, now = new Date()): SerializedAdminPost {
+  const sharesByChannel: PostShares = {
+    copy: doc.shares?.copy ?? 0,
+    x: doc.shares?.x ?? 0,
+    linkedin: doc.shares?.linkedin ?? 0,
+    native: doc.shares?.native ?? 0,
+  };
   return {
     id: doc._id.toString(),
     title: doc.title,
@@ -96,6 +122,10 @@ export function serializeAdminPost(doc: PostDoc, now = new Date()): SerializedAd
     publishedAt: doc.publishedAt ? doc.publishedAt.toISOString() : null,
     readingMinutes: doc.readingMinutes,
     views: doc.views,
+    likes: doc.likes ?? 0,
+    shares: sumShares(sharesByChannel),
+    sharesByChannel,
+    hideStats: Boolean(doc.hideStats),
     authorId: doc.authorId.toString(),
     authorName: doc.authorName,
     createdAt: doc.createdAt.toISOString(),
@@ -263,6 +293,9 @@ export async function createDraftPost(
     publishedAt: null,
     readingMinutes: readingMinutes(body),
     views: 0,
+    likes: 0,
+    shares: emptyShares(),
+    hideStats: false,
     authorId: actor._id,
     authorName: actor.name,
     createdAt: now,
@@ -540,6 +573,9 @@ export async function duplicatePost(
     publishedAt: null,
     readingMinutes: readingMinutes(source.body),
     views: 0,
+    likes: 0,
+    shares: emptyShares(),
+    hideStats: false,
     authorId: actor._id,
     authorName: actor.name,
     createdAt: now,
@@ -597,6 +633,14 @@ export async function deletePost(
 
   await media.updateMany({ usedBy: _id }, { $pull: { usedBy: _id } });
   await posts.deleteOne({ _id });
+
+  const idPrefixRegex = new RegExp(`^${_id.toString()}:`);
+  await Promise.all([
+    db.collection<PostLikeDoc>(POST_LIKES_COLLECTION).deleteMany({ postId: _id }),
+    db.collection<PostStatsDailyDoc>(POST_STATS_DAILY_COLLECTION).deleteMany({ postId: _id }),
+    db.collection<PostShareDoc>(POST_SHARES_COLLECTION).deleteMany({ _id: { $regex: idPrefixRegex } }),
+    db.collection<PostViewDoc>(POST_VIEWS_COLLECTION).deleteMany({ _id: { $regex: idPrefixRegex } }),
+  ]);
 
   const removeBlob = opts.deleteBlob ?? defaultDeleteBlob;
   let deletedMediaCount = 0;

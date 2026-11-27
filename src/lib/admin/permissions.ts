@@ -12,6 +12,7 @@ export type AdminAction =
   | "messages:mutate"
   | "blog:view"
   | "blog:write"
+  | "blog:engagement"
   | "chess:view"
   | "chess:mutate"
   | "admins:manage"
@@ -31,6 +32,7 @@ const PERMISSIONS: Record<AdminRole, ReadonlySet<AdminAction>> = {
     "messages:mutate",
     "blog:view",
     "blog:write",
+    "blog:engagement",
     "chess:view",
     "chess:mutate",
     "admins:manage",
@@ -43,6 +45,7 @@ const PERMISSIONS: Record<AdminRole, ReadonlySet<AdminAction>> = {
     "messages:mutate",
     "blog:view",
     "blog:write",
+    "blog:engagement",
     "chess:view",
     "chess:mutate",
     "audit:view",

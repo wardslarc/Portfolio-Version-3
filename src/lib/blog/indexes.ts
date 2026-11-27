@@ -1,9 +1,13 @@
 import "server-only";
 import type { Db, ObjectId } from "mongodb";
+import type { PostShares } from "./engagement-types";
 
 export const POSTS_COLLECTION = "posts";
 export const MEDIA_COLLECTION = "media";
 export const POST_VIEWS_COLLECTION = "post_views";
+export const POST_LIKES_COLLECTION = "post_likes";
+export const POST_SHARES_COLLECTION = "post_shares";
+export const POST_STATS_DAILY_COLLECTION = "post_stats_daily";
 
 export interface PostCover {
   url: string;
@@ -26,6 +30,9 @@ export interface PostDoc {
   publishedAt: Date | null;
   readingMinutes: number;
   views: number;
+  likes?: number;
+  shares?: PostShares;
+  hideStats?: boolean;
   authorId: ObjectId;
   authorName: string;
   createdAt: Date;
@@ -48,6 +55,27 @@ export interface MediaDoc {
 export interface PostViewDoc {
   _id: string; // `${postId}:${ipHash}`
   expiresAt: Date;
+}
+
+export interface PostLikeDoc {
+  _id: string; // `${postId}:${visitorHash}`
+  postId: ObjectId;
+  ipHash: string;
+  createdAt: Date;
+}
+
+export interface PostShareDoc {
+  _id: string; // `${postId}:${visitorHash}:${channel}`
+  expiresAt: Date;
+}
+
+export interface PostStatsDailyDoc {
+  _id: string; // `${postId}:${YYYY-MM-DD}`
+  postId: ObjectId;
+  date: string; // "YYYY-MM-DD" (UTC)
+  views: number;
+  likes: number;
+  shares: PostShares;
 }
 
 const globalForBlogIndexes = globalThis as unknown as {
@@ -76,6 +104,15 @@ export function ensureBlogIndexes(db: Db): Promise<void> {
     db
       .collection<PostViewDoc>(POST_VIEWS_COLLECTION)
       .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
+    db.collection<PostLikeDoc>(POST_LIKES_COLLECTION).createIndex({ postId: 1, ipHash: 1 }),
+    db.collection<PostLikeDoc>(POST_LIKES_COLLECTION).createIndex({ postId: 1, createdAt: -1 }),
+    db
+      .collection<PostShareDoc>(POST_SHARES_COLLECTION)
+      .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
+    db.collection<PostStatsDailyDoc>(POST_STATS_DAILY_COLLECTION).createIndex({ date: 1 }),
+    db
+      .collection<PostStatsDailyDoc>(POST_STATS_DAILY_COLLECTION)
+      .createIndex({ postId: 1, date: 1 }),
   ])
     .then(() => undefined)
     .catch((err) => {
