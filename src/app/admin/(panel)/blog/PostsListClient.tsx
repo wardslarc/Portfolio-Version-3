@@ -9,14 +9,15 @@ import {
   duplicatePostAction,
   unpublishPostAction,
 } from "@/lib/admin/actions";
-import type { DerivedPostStatus, SerializedAdminPost } from "@/lib/blog/posts";
+import type { AdminPostSort, DerivedPostStatus, SerializedAdminPost } from "@/lib/blog/posts";
 
 type FilterStatus = "all" | DerivedPostStatus;
 
-function buildUrl(params: { status: FilterStatus; q: string }): string {
+function buildUrl(params: { status: FilterStatus; q: string; sort?: AdminPostSort }): string {
   const sp = new URLSearchParams();
   if (params.status !== "all") sp.set("status", params.status);
   if (params.q.trim()) sp.set("q", params.q.trim());
+  if (params.sort && params.sort !== "updated") sp.set("sort", params.sort);
   const qs = sp.toString();
   return qs ? `/admin/blog?${qs}` : "/admin/blog";
 }
@@ -57,12 +58,14 @@ export default function PostsListClient({
   counts,
   q,
   status,
+  sort,
   canWrite,
 }: {
   items: SerializedAdminPost[];
   counts: { all: number; published: number; scheduled: number; draft: number };
   q: string;
   status: FilterStatus;
+  sort: AdminPostSort;
   canWrite: boolean;
 }) {
   const router = useRouter();
@@ -96,11 +99,11 @@ export default function PostsListClient({
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchText.trim() !== q.trim()) {
-        router.replace(buildUrl({ status, q: searchText }));
+        router.replace(buildUrl({ status, q: searchText, sort }));
       }
     }, 220);
     return () => clearTimeout(timer);
-  }, [searchText, q, status, router]);
+  }, [searchText, q, status, sort, router]);
 
   function handleDuplicate(postId: string) {
     setOpenMenuId(null);
@@ -168,11 +171,16 @@ export default function PostsListClient({
           <h1>Blog</h1>
           <p className="admin-blog-sub">Write, schedule and publish posts on carlsdaleescalo.com/blog.</p>
         </div>
-        {canWrite ? (
-          <Link href="/admin/blog/new" className="admin-btn primary">
-            New post
+        <div className="admin-row-actions">
+          <Link href="/admin/blog/engagement" className="admin-btn">
+            Engagement
           </Link>
-        ) : null}
+          {canWrite ? (
+            <Link href="/admin/blog/new" className="admin-btn primary">
+              New post
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <div className="admin-blog-toolbar">
@@ -188,7 +196,7 @@ export default function PostsListClient({
           {filterTabs.map((tab) => (
             <Link
               key={tab.key}
-              href={buildUrl({ status: tab.key, q: searchText })}
+              href={buildUrl({ status: tab.key, q: searchText, sort })}
               aria-current={status === tab.key ? "page" : undefined}
             >
               {tab.label}
@@ -198,14 +206,64 @@ export default function PostsListClient({
         </div>
       </div>
 
-      <div className="admin-ptable">
-        <div className={`admin-prow th${canWrite ? "" : " readonly"}`}>
-          <span />
-          <span>Title</span>
-          <span>Status</span>
-          <span className="c-date">Date</span>
-          <span className="r c-views">Views</span>
-          {canWrite ? <span /> : null}
+      <div className="admin-ptable" role="table" aria-label="Blog posts">
+        <div className="admin-prow th" role="row">
+          <span role="columnheader" />
+          <span role="columnheader">Title</span>
+          <span role="columnheader">Status</span>
+          <span
+            role="columnheader"
+            className="c-date"
+            aria-sort={sort === "updated" ? "descending" : "none"}
+          >
+            <Link
+              href={buildUrl({ status, q: searchText, sort: "updated" })}
+              className="admin-sort-link"
+              data-active={sort === "updated" ? "true" : undefined}
+            >
+              Date{sort === "updated" ? " ↓" : ""}
+            </Link>
+          </span>
+          <span
+            role="columnheader"
+            className="r c-views"
+            aria-sort={sort === "views" ? "descending" : "none"}
+          >
+            <Link
+              href={buildUrl({ status, q: searchText, sort: "views" })}
+              className="admin-sort-link"
+              data-active={sort === "views" ? "true" : undefined}
+            >
+              Views{sort === "views" ? " ↓" : ""}
+            </Link>
+          </span>
+          <span
+            role="columnheader"
+            className="r c-likes"
+            aria-sort={sort === "likes" ? "descending" : "none"}
+          >
+            <Link
+              href={buildUrl({ status, q: searchText, sort: "likes" })}
+              className="admin-sort-link"
+              data-active={sort === "likes" ? "true" : undefined}
+            >
+              Likes{sort === "likes" ? " ↓" : ""}
+            </Link>
+          </span>
+          <span
+            role="columnheader"
+            className="r c-shares"
+            aria-sort={sort === "shares" ? "descending" : "none"}
+          >
+            <Link
+              href={buildUrl({ status, q: searchText, sort: "shares" })}
+              className="admin-sort-link"
+              data-active={sort === "shares" ? "true" : undefined}
+            >
+              Shares{sort === "shares" ? " ↓" : ""}
+            </Link>
+          </span>
+          <span role="columnheader" />
         </div>
 
         {items.length === 0 ? (
@@ -220,7 +278,8 @@ export default function PostsListClient({
             return (
               <div
                 key={post.id}
-                className={`admin-prow${canWrite ? "" : " readonly"}`}
+                className="admin-prow"
+                role="row"
               >
                 <span className="thumb">
                   {post.cover ? (
@@ -251,22 +310,24 @@ export default function PostsListClient({
                 <span className="d c-date">{displayDate(post)}</span>
 
                 <span className="r c-views">{post.views > 0 ? post.views : "–"}</span>
+                <span className="r c-likes">{post.likes > 0 ? post.likes : "–"}</span>
+                <span className="r c-shares">{post.shares > 0 ? post.shares : "–"}</span>
 
-                {canWrite ? (
-                  <div className="admin-more-wrap">
-                    <button
-                      type="button"
-                      className="admin-more-btn"
-                      aria-label={`More actions for ${post.title || "Untitled post"}`}
-                      aria-expanded={menuOpen}
-                      aria-haspopup="menu"
-                      disabled={pending}
-                      onClick={() => setOpenMenuId(menuOpen ? null : post.id)}
-                    >
-                      ⋯
-                    </button>
-                    {menuOpen ? (
-                      <div className="admin-menu" role="menu">
+                <div className="admin-more-wrap">
+                  <button
+                    type="button"
+                    className="admin-more-btn"
+                    aria-label={`More actions for ${post.title || "Untitled post"}`}
+                    aria-expanded={menuOpen}
+                    aria-haspopup="menu"
+                    disabled={pending}
+                    onClick={() => setOpenMenuId(menuOpen ? null : post.id)}
+                  >
+                    ⋯
+                  </button>
+                  {menuOpen ? (
+                    <div className="admin-menu" role="menu">
+                      {canWrite ? (
                         <Link
                           href={`/admin/blog/${post.id}`}
                           role="menuitem"
@@ -274,45 +335,56 @@ export default function PostsListClient({
                         >
                           Edit
                         </Link>
-                        {post.derivedStatus === "published" ? (
-                          <Link
-                            href={`/blog/${post.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            role="menuitem"
-                            onClick={() => setOpenMenuId(null)}
-                          >
-                            View on site ↗
-                          </Link>
-                        ) : null}
-                        <button
-                          type="button"
+                      ) : null}
+                      <Link
+                        href={`/admin/blog/${post.id}/stats`}
+                        role="menuitem"
+                        onClick={() => setOpenMenuId(null)}
+                      >
+                        Stats
+                      </Link>
+                      {post.derivedStatus === "published" ? (
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           role="menuitem"
-                          onClick={() => handleDuplicate(post.id)}
+                          onClick={() => setOpenMenuId(null)}
                         >
-                          Duplicate
-                        </button>
-                        {post.status === "published" ? (
+                          View on site ↗
+                        </Link>
+                      ) : null}
+                      {canWrite ? (
+                        <>
                           <button
                             type="button"
                             role="menuitem"
-                            onClick={() => handleUnpublish(post.id)}
+                            onClick={() => handleDuplicate(post.id)}
                           >
-                            Unpublish
+                            Duplicate
                           </button>
-                        ) : null}
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="danger"
-                          onClick={() => openDeleteConfirm(post)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
+                          {post.status === "published" ? (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              onClick={() => handleUnpublish(post.id)}
+                            >
+                              Unpublish
+                            </button>
+                          ) : null}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="danger"
+                            onClick={() => openDeleteConfirm(post)}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             );
           })

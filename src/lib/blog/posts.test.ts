@@ -2,6 +2,7 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import { MongoClient, ObjectId, type Db } from "mongodb";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AdminDoc } from "@/lib/admin/auth";
+import type { PostDoc } from "./indexes";
 
 vi.mock("server-only", () => ({}));
 
@@ -342,5 +343,47 @@ describe("blog posts core", () => {
       expect(unpub.post.status).toBe("draft");
       expect(unpub.post.publishedAt).toBeNull();
     }
+  });
+
+  it("sorts admin posts by updated, views, likes, and shares", async () => {
+    const owner = makeAdmin("owner");
+    const t0 = new Date("2026-11-27T08:00:00Z");
+    const p1 = await createDraftPost(db, owner, { title: "Most Viewed" }, new Date(t0.getTime() + 1000));
+    const p2 = await createDraftPost(db, owner, { title: "Most Liked" }, new Date(t0.getTime() + 2000));
+    const p3 = await createDraftPost(db, owner, { title: "Most Shared" }, new Date(t0.getTime() + 3000));
+
+    await db.collection<PostDoc>(POSTS_COLLECTION).updateOne(
+      { _id: p1._id },
+      { $set: { views: 50, likes: 2, shares: { copy: 1, x: 0, linkedin: 0, native: 0 } } },
+    );
+    await db.collection<PostDoc>(POSTS_COLLECTION).updateOne(
+      { _id: p2._id },
+      { $set: { views: 10, likes: 30, shares: { copy: 0, x: 2, linkedin: 0, native: 0 } } },
+    );
+    await db.collection<PostDoc>(POSTS_COLLECTION).updateOne(
+      { _id: p3._id },
+      { $set: { views: 5, likes: 5, shares: { copy: 3, x: 4, linkedin: 2, native: 1 } } },
+    );
+
+    expect((await queryAdminPosts(db, { sort: "updated" })).items.map((p) => p.title)).toEqual([
+      "Most Shared",
+      "Most Liked",
+      "Most Viewed",
+    ]);
+    expect((await queryAdminPosts(db, { sort: "views" })).items.map((p) => p.title)).toEqual([
+      "Most Viewed",
+      "Most Liked",
+      "Most Shared",
+    ]);
+    expect((await queryAdminPosts(db, { sort: "likes" })).items.map((p) => p.title)).toEqual([
+      "Most Liked",
+      "Most Shared",
+      "Most Viewed",
+    ]);
+    expect((await queryAdminPosts(db, { sort: "shares" })).items.map((p) => p.title)).toEqual([
+      "Most Shared",
+      "Most Liked",
+      "Most Viewed",
+    ]);
   });
 });

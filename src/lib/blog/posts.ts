@@ -669,19 +669,48 @@ export async function deletePost(
   return { ok: true, slug: post.slug, deletedMediaCount, failedMediaUrls };
 }
 
+export type AdminPostSort = "updated" | "views" | "likes" | "shares";
+
 export async function queryAdminPosts(
   db: Db,
-  opts: { q?: string; status?: "all" | DerivedPostStatus; now?: Date } = {},
+  opts: { q?: string; status?: "all" | DerivedPostStatus; sort?: AdminPostSort; now?: Date } = {},
 ): Promise<{
   items: SerializedAdminPost[];
   counts: { all: number; published: number; scheduled: number; draft: number };
 }> {
   const now = opts.now ?? new Date();
-  const docs = await db
-    .collection<PostDoc>(POSTS_COLLECTION)
-    .find({})
-    .sort({ updatedAt: -1 })
-    .toArray();
+  const sort = opts.sort ?? "updated";
+  const col = db.collection<PostDoc>(POSTS_COLLECTION);
+
+  let docs: PostDoc[];
+  if (sort === "shares") {
+    docs = await col
+      .aggregate<PostDoc>([
+        {
+          $addFields: {
+            _sharesTotal: {
+              $add: [
+                { $ifNull: ["$shares.copy", 0] },
+                { $ifNull: ["$shares.x", 0] },
+                { $ifNull: ["$shares.linkedin", 0] },
+                { $ifNull: ["$shares.native", 0] },
+              ],
+            },
+          },
+        },
+        { $sort: { _sharesTotal: -1, updatedAt: -1 } },
+        { $project: { _sharesTotal: 0 } },
+      ])
+      .toArray();
+  } else {
+    const sortSpec: Record<string, 1 | -1> =
+      sort === "views"
+        ? { views: -1, updatedAt: -1 }
+        : sort === "likes"
+          ? { likes: -1, updatedAt: -1 }
+          : { updatedAt: -1 };
+    docs = await col.find({}).sort(sortSpec).toArray();
+  }
 
   const serialized = docs.map((d) => serializeAdminPost(d, now));
   const counts = {
