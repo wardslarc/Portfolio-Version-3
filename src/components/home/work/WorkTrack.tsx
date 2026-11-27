@@ -61,13 +61,18 @@ export default function WorkTrack() {
                 {card.note ? (
                   <div
                     className={`${shellStyles.note} ${styles.cardNote}`}
-                    style={{
-                      top: card.note.top,
-                      left: card.note.left,
-                      right: card.note.right,
-                      rotate: card.note.rotate,
-                      fontSize: card.note.fontSize,
-                    }}
+                    style={
+                      {
+                        "--note-top": card.note.top,
+                        ...(card.note.narrowTop
+                          ? { "--note-top-narrow": card.note.narrowTop }
+                          : {}),
+                        left: card.note.left,
+                        right: card.note.right,
+                        rotate: card.note.rotate,
+                        fontSize: card.note.fontSize,
+                      } as CSSProperties
+                    }
                     aria-hidden="true"
                   >
                     {card.note.text}

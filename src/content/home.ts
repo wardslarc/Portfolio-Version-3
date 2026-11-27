@@ -169,6 +169,7 @@ export interface WorkCardConfig {
   note: {
     text: string;
     top: string;
+    narrowTop?: string;
     left?: string;
     right?: string;
     rotate: string;
@@ -199,6 +200,7 @@ export const work = {
       note: {
         text: "built from scratch!",
         top: "36%",
+        narrowTop: "56px",
         right: "-20px",
         rotate: "8deg",
         fontSize: "28px",
@@ -219,6 +221,7 @@ export const work = {
       note: {
         text: "my own product ✎",
         top: "45%",
+        narrowTop: "56px",
         left: "-24px",
         rotate: "-7deg",
         fontSize: "28px",

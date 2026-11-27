@@ -81,6 +81,7 @@
 
 .cardNote {
   position: absolute;
+  top: var(--note-top);
   background: var(--home-sand);
   color: var(--home-coral-text);
   padding: 2px 10px;
@@ -89,6 +90,12 @@
   white-space: nowrap;
   pointer-events: none;
   z-index: 2;
+}
+
+@media (max-width: 759.98px) {
+  .cardNote {
+    top: var(--note-top-narrow, var(--note-top));
+  }
 }
 
 .shot {
