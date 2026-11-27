@@ -19,6 +19,11 @@ export interface TocItem {
   text: string;
 }
 
+export interface ImageSize {
+  width: number;
+  height: number;
+}
+
 const sanitizeSchema: Schema = {
   ...defaultSchema,
   // Keep heading IDs matching extractToc() without a "user-content-" prefix.
@@ -28,6 +33,7 @@ const sanitizeSchema: Schema = {
     ...defaultSchema.attributes,
     h2: [...(defaultSchema.attributes?.h2 ?? []), "id"],
     h3: [...(defaultSchema.attributes?.h3 ?? []), "id"],
+    img: [...(defaultSchema.attributes?.img ?? []), "width", "height", "loading", "decoding"],
     code: [["className", "hljs", /^language-./]],
     span: [["className", /^hljs-./]],
   },
@@ -62,13 +68,31 @@ function isStandaloneImageParagraph(node: Element): Element | null {
   return null;
 }
 
+function applyImageAttributes(
+  img: Element,
+  imageSizes?: ReadonlyMap<string, ImageSize>,
+): void {
+  img.properties ??= {};
+  img.properties.loading = "lazy";
+  img.properties.decoding = "async";
+
+  const src = typeof img.properties.src === "string" ? img.properties.src : "";
+  const dims = src ? imageSizes?.get(src) : undefined;
+  if (dims && dims.width > 0 && dims.height > 0) {
+    img.properties.width = dims.width;
+    img.properties.height = dims.height;
+  }
+}
+
 function rehypeBlogPostProcess() {
-  return (tree: Root) => {
+  return (tree: Root, file: { data?: Record<string, unknown> }) => {
+    const rawSizes = file.data?.imageSizes;
+    const imageSizes =
+      rawSizes instanceof Map ? (rawSizes as ReadonlyMap<string, ImageSize>) : undefined;
+
     visit(tree, "element", (node) => {
       if (node.tagName === "img") {
-        node.properties ??= {};
-        node.properties.loading = "lazy";
-        node.properties.decoding = "async";
+        applyImageAttributes(node, imageSizes);
         return;
       }
 
@@ -82,11 +106,9 @@ function rehypeBlogPostProcess() {
 
       const img = isStandaloneImageParagraph(node);
       if (img) {
-        img.properties ??= {};
-        img.properties.loading = "lazy";
-        img.properties.decoding = "async";
+        applyImageAttributes(img, imageSizes);
 
-        const alt = typeof img.properties.alt === "string" ? img.properties.alt.trim() : "";
+        const alt = typeof img.properties?.alt === "string" ? img.properties.alt.trim() : "";
         const children: ElementContent[] = [img];
         if (alt) {
           const captionText: Text = { type: "text", value: alt };
@@ -120,8 +142,13 @@ const htmlProcessor = unified()
 const tocProcessor = unified().use(remarkParse).use(remarkGfm).use(remarkRehype);
 
 /** Render GFM Markdown to sanitized HTML for articles and live editor preview. */
-export async function renderMarkdown(markdown: string): Promise<string> {
-  const file = await htmlProcessor.process(markdown);
+export async function renderMarkdown(
+  markdown: string,
+  imageSizes?: ReadonlyMap<string, ImageSize>,
+): Promise<string> {
+  const file = await htmlProcessor.process(
+    imageSizes ? { value: markdown, data: { imageSizes } } : markdown,
+  );
   return String(file);
 }
 

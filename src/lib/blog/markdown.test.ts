@@ -107,4 +107,27 @@ describe("blog markdown pipeline", () => {
       "https://example.com/3.webp",
     ]);
   });
+
+  it("applies width and height for known image URLs and leaves external images unchanged", async () => {
+    const uploaded = "https://abc.public.blob.vercel-storage.com/blog/diagram.webp";
+    const external = "https://example.com/external.webp";
+    const md = [
+      `![Uploaded diagram](${uploaded})`,
+      "",
+      `Inline ![badge](${uploaded}) and ![other](${external})`,
+    ].join("\n");
+
+    const imageSizes = new Map([[uploaded, { width: 1200, height: 630 }]]);
+    const html = await renderMarkdown(md, imageSizes);
+
+    expect(html).toContain(
+      `<img src="${uploaded}" alt="Uploaded diagram" loading="lazy" decoding="async" width="1200" height="630">`,
+    );
+    expect(html).toContain(
+      `<img src="${uploaded}" alt="badge" loading="lazy" decoding="async" width="1200" height="630">`,
+    );
+    expect(html).toContain(
+      `<img src="${external}" alt="other" loading="lazy" decoding="async">`,
+    );
+  });
 });

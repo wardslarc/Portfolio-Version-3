@@ -502,6 +502,14 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   color: var(--accent);
 }
 
+.blog-tagl a {
+  text-decoration: none;
+}
+
+.blog-tagl a:hover {
+  text-decoration: underline;
+}
+
 .blog-plist {
   list-style: none;
   margin: 0;
@@ -572,11 +580,55 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   align-items: center;
   gap: 6px;
   min-height: 40px;
+  max-width: 100%;
   margin-bottom: 20px;
 }
 
-.blog-crumb:hover {
+.blog-crumb ol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.blog-crumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.blog-crumb li:last-child {
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.blog-crumb a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.blog-crumb a:hover,
+a.blog-crumb:hover {
   color: var(--ink);
+}
+
+.blog-crumb-sep {
+  color: var(--faint);
+}
+
+.blog-crumb-curr {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .blog-art h1 {
@@ -768,6 +820,10 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   margin: 1.6em 0;
 }
 
+.blog-prose img {
+  height: auto;
+}
+
 .blog-prose figure img {
   border-radius: 12px;
   width: 100%;
@@ -940,6 +996,60 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   text-align: right;
 }
 
+.blog-related {
+  padding-top: 8px;
+}
+
+.blog-related .section-label {
+  margin-bottom: 14px;
+}
+
+.blog-related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.blog-rcard {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.blog-rcard .blog-meta {
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.blog-rcard h3 {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.blog-rcard h3 a {
+  text-decoration: none;
+}
+
+.blog-rcard h3 a:hover {
+  color: var(--accent);
+}
+
+.blog-rexcerpt {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Homepage Writing section */
 .writing-list {
   list-style: none;
@@ -1009,6 +1119,10 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   }
 
   .blog-nextprev {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .blog-related-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 

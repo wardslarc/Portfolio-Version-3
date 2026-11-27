@@ -1,9 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { site } from "@/content/site";
 import type { TocItem } from "@/lib/blog/markdown";
 import type { PostCover } from "@/lib/blog/posts";
+import { tagToSlug } from "@/lib/blog/slug";
 import ArticleMetaViews from "./ArticleMetaViews";
+import Breadcrumbs from "./Breadcrumbs";
 import CodeCopy from "./CodeCopy";
 import LikeButton from "./LikeButton";
 import ShareRow from "./ShareRow";
@@ -25,6 +28,15 @@ export interface AdjacentPostLink {
   title: string;
 }
 
+export interface RelatedPostItem {
+  title: string;
+  slug: string;
+  excerpt: string;
+  publishedAt: string;
+  readingMinutes: number;
+  cover: PostCover | null;
+}
+
 function formatArticleDate(iso: string | null): string {
   if (!iso) return "Unpublished draft";
   return new Date(iso).toLocaleDateString("en-US", {
@@ -38,10 +50,11 @@ export default function ArticleView({
   post,
   html,
   toc,
-  backHref = "/blog",
-  backLabel = "← All posts",
+  backHref,
+  backLabel,
   prev,
   next,
+  related = [],
   showShare = true,
 }: {
   post: ArticleDisplayPost;
@@ -51,6 +64,7 @@ export default function ArticleView({
   backLabel?: string;
   prev?: AdjacentPostLink | null;
   next?: AdjacentPostLink | null;
+  related?: RelatedPostItem[];
   showShare?: boolean;
 }) {
   const bodyId = `article-body-${post.slug || "preview"}`;
@@ -59,16 +73,33 @@ export default function ArticleView({
   return (
     <>
       <article className="blog-art">
-        <Link className="blog-crumb" href={backHref}>
-          {backLabel}
-        </Link>
+        {backHref && backLabel ? (
+          <Link className="blog-crumb" href={backHref}>
+            {backLabel}
+          </Link>
+        ) : (
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Blog", href: "/blog" },
+              { label: post.title || "Untitled post" },
+            ]}
+          />
+        )}
 
         <p className="blog-meta">
           <span>{formatArticleDate(post.publishedAt)}</span>
           <span>{post.readingMinutes} min read</span>
           <ArticleMetaViews />
           {post.tags.length > 0 ? (
-            <span className="blog-tagl">{post.tags.join(" · ")}</span>
+            <span className="blog-tagl">
+              {post.tags.map((tag, i) => (
+                <Fragment key={`${tag}-${i}`}>
+                  {i > 0 ? " · " : null}
+                  <Link href={`/blog/tag/${tagToSlug(tag)}`}>{tag}</Link>
+                </Fragment>
+              ))}
+            </span>
           ) : null}
         </p>
 
@@ -114,7 +145,7 @@ export default function ArticleView({
         <CodeCopy containerId={bodyId} />
       </div>
 
-      {showShare || prev || next ? (
+      {showShare || prev || next || related.length > 0 ? (
         <div className="blog-aend">
           {showShare ? (
             <>
@@ -141,6 +172,28 @@ export default function ArticleView({
                 <div />
               )}
             </div>
+          ) : null}
+          {related.length > 0 ? (
+            <section className="blog-related" aria-labelledby="keep-reading-heading">
+              <h2 id="keep-reading-heading" className="section-label">
+                Keep reading
+              </h2>
+              <div className="blog-related-grid">
+                {related.slice(0, 3).map((item) => (
+                  <article key={item.slug} className="blog-rcard">
+                    <p className="blog-meta">
+                      <span>
+                        {formatArticleDate(item.publishedAt)} · {item.readingMinutes} min read
+                      </span>
+                    </p>
+                    <h3>
+                      <Link href={`/blog/${item.slug}`}>{item.title}</Link>
+                    </h3>
+                    {item.excerpt ? <p className="blog-rexcerpt">{item.excerpt}</p> : null}
+                  </article>
+                ))}
+              </div>
+            </section>
           ) : null}
         </div>
       ) : null}

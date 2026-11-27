@@ -2,9 +2,24 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import type { Filter } from "mongodb";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
-import { POSTS_COLLECTION, type PostCover, type PostDoc } from "./indexes";
+import {
+  MEDIA_COLLECTION,
+  POSTS_COLLECTION,
+  type MediaDoc,
+  type PostCover,
+  type PostDoc,
+} from "./indexes";
+import type { ImageSize } from "./markdown";
+import { tagToSlug } from "./slug";
 
 export const BLOG_PAGE_SIZE = 10;
+
+export interface TagIndexEntry {
+  slug: string;
+  name: string;
+  count: number;
+  latestUpdatedAt: Date;
+}
 
 export interface PublicPostSummary {
   id: string;
@@ -24,6 +39,15 @@ export interface PublicPostSummary {
 
 export interface PublicPostDetail extends PublicPostSummary {
   body: string;
+}
+
+export interface RelatedPostSummary {
+  title: string;
+  slug: string;
+  excerpt: string;
+  publishedAt: string;
+  readingMinutes: number;
+  cover: PostCover | null;
 }
 
 function liveFilter(now = new Date()): Filter<PostDoc> {
@@ -62,7 +86,9 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export async function getLivePosts(opts: { tag?: string; page?: number } = {}): Promise<{
+export async function getLivePosts(
+  opts: { tag?: string; tagSlug?: string; page?: number } = {},
+): Promise<{
   items: PublicPostSummary[];
   total: number;
   page: number;
@@ -82,8 +108,25 @@ export async function getLivePosts(opts: { tag?: string; page?: number } = {}): 
     const now = new Date();
     const filter: Filter<PostDoc> = liveFilter(now);
 
+    const tagSlug = opts.tagSlug?.trim().toLowerCase();
     const tag = opts.tag?.trim();
-    if (tag) {
+    if (tagSlug) {
+      const tagDocs = await col.find(liveFilter(now), { projection: { tags: 1 } }).toArray();
+      const matchedNames = new Set<string>();
+      for (const d of tagDocs) {
+        for (const t of d.tags) {
+          if (tagToSlug(t) === tagSlug) {
+            matchedNames.add(t);
+          }
+        }
+      }
+      if (matchedNames.size === 0) {
+        return { items: [], total: 0, page: 1, totalPages: 1 };
+      }
+      filter.tags = {
+        $in: [...matchedNames].map((name) => new RegExp(`^${escapeRegex(name)}$`, "i")),
+      };
+    } else if (tag) {
       filter.tags = { $regex: new RegExp(`^${escapeRegex(tag)}$`, "i") };
     }
 
@@ -181,6 +224,69 @@ export async function getAdjacentPosts(post: {
   }
 }
 
+export async function getRelatedPosts(
+  slug: string,
+  tags: string[],
+  limit = 3,
+): Promise<RelatedPostSummary[]> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  if (!isMongoConfigured() || limit <= 0) return [];
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<PostDoc>(POSTS_COLLECTION)
+      .find(
+        { ...liveFilter(new Date()), slug: { $ne: slug } },
+        {
+          projection: {
+            title: 1,
+            slug: 1,
+            excerpt: 1,
+            publishedAt: 1,
+            createdAt: 1,
+            readingMinutes: 1,
+            cover: 1,
+            tags: 1,
+          },
+        },
+      )
+      .sort({ publishedAt: -1, _id: -1 })
+      .toArray();
+
+    const targetTags = new Set(tags.map((t) => t.trim().toLowerCase()).filter(Boolean));
+
+    const scored = docs.map((doc, index) => {
+      const docTags = new Set(doc.tags.map((t) => t.trim().toLowerCase()).filter(Boolean));
+      let sharedCount = 0;
+      for (const t of docTags) {
+        if (targetTags.has(t)) sharedCount += 1;
+      }
+      const publishedMs = (doc.publishedAt ?? doc.createdAt).getTime();
+      return { doc, sharedCount, publishedMs, index };
+    });
+
+    scored.sort(
+      (a, b) =>
+        b.sharedCount - a.sharedCount || b.publishedMs - a.publishedMs || a.index - b.index,
+    );
+
+    return scored.slice(0, limit).map(({ doc }) => ({
+      title: doc.title,
+      slug: doc.slug,
+      excerpt: doc.excerpt,
+      publishedAt: (doc.publishedAt ?? doc.createdAt).toISOString(),
+      readingMinutes: doc.readingMinutes,
+      cover: doc.cover,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getAllTags(): Promise<string[]> {
   "use cache";
   cacheTag("posts");
@@ -208,6 +314,52 @@ export async function getAllTags(): Promise<string[]> {
   }
 }
 
+export async function getTagIndex(): Promise<TagIndexEntry[]> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  if (!isMongoConfigured()) return [];
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<PostDoc>(POSTS_COLLECTION)
+      .find(liveFilter(new Date()), { projection: { tags: 1, updatedAt: 1 } })
+      .toArray();
+
+    const map = new Map<string, TagIndexEntry>();
+    for (const d of docs) {
+      const seenInPost = new Set<string>();
+      for (const t of d.tags) {
+        const slug = tagToSlug(t);
+        if (!slug) continue;
+        let entry = map.get(slug);
+        if (!entry) {
+          entry = {
+            slug,
+            name: t,
+            count: 0,
+            latestUpdatedAt: d.updatedAt,
+          };
+          map.set(slug, entry);
+        }
+        if (!seenInPost.has(slug)) {
+          seenInPost.add(slug);
+          entry.count += 1;
+          if (d.updatedAt > entry.latestUpdatedAt) {
+            entry.latestUpdatedAt = d.updatedAt;
+          }
+        }
+      }
+    }
+
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  } catch {
+    return [];
+  }
+}
+
 export async function getLatestPosts(limit = 3): Promise<PublicPostSummary[]> {
   "use cache";
   cacheTag("posts");
@@ -229,7 +381,9 @@ export async function getLatestPosts(limit = 3): Promise<PublicPostSummary[]> {
   }
 }
 
-export async function getLivePostSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
+export async function getLivePostSlugs(): Promise<
+  { slug: string; updatedAt: Date; coverUrl: string | null }[]
+> {
   "use cache";
   cacheTag("posts");
   cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
@@ -240,10 +394,14 @@ export async function getLivePostSlugs(): Promise<{ slug: string; updatedAt: Dat
     const db = await getDb();
     const docs = await db
       .collection<PostDoc>(POSTS_COLLECTION)
-      .find(liveFilter(new Date()), { projection: { slug: 1, updatedAt: 1 } })
+      .find(liveFilter(new Date()), { projection: { slug: 1, updatedAt: 1, cover: 1 } })
       .sort({ publishedAt: -1 })
       .toArray();
-    return docs.map((d) => ({ slug: d.slug, updatedAt: d.updatedAt }));
+    return docs.map((d) => ({
+      slug: d.slug,
+      updatedAt: d.updatedAt,
+      coverUrl: d.cover?.url ?? null,
+    }));
   } catch {
     return [];
   }
@@ -267,5 +425,51 @@ export async function getRecentLivePostsForRss(limit = 20): Promise<PublicPostDe
     return docs.map(serializeDetail);
   } catch {
     return [];
+  }
+}
+
+export async function getAllLivePostSummaries(): Promise<PublicPostSummary[]> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  if (!isMongoConfigured()) return [];
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<PostDoc>(POSTS_COLLECTION)
+      .find(liveFilter(new Date()), { projection: { body: 0 } })
+      .sort({ publishedAt: -1, _id: -1 })
+      .toArray();
+    return docs.map(serializeSummary);
+  } catch {
+    return [];
+  }
+}
+
+export async function getMediaSizes(urls: string[]): Promise<Map<string, ImageSize>> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  const sizes = new Map<string, ImageSize>();
+  if (!isMongoConfigured() || urls.length === 0) return sizes;
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<MediaDoc>(MEDIA_COLLECTION)
+      .find({ url: { $in: urls } }, { projection: { url: 1, width: 1, height: 1 } })
+      .toArray();
+
+    for (const doc of docs) {
+      if (doc.width > 0 && doc.height > 0) {
+        sizes.set(doc.url, { width: doc.width, height: doc.height });
+      }
+    }
+    return sizes;
+  } catch {
+    return sizes;
   }
 }

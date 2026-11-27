@@ -5,11 +5,13 @@ import ArticleView from "@/components/blog/ArticleView";
 import EngagementProvider from "@/components/blog/EngagementProvider";
 import ViewBeacon from "@/components/blog/ViewBeacon";
 import { site } from "@/content/site";
-import { extractToc, renderMarkdown } from "@/lib/blog/markdown";
+import { extractMarkdownImageUrls, extractToc, renderMarkdown } from "@/lib/blog/markdown";
 import {
   getAdjacentPosts,
   getLivePostBySlug,
   getLivePostSlugs,
+  getMediaSizes,
+  getRelatedPosts,
 } from "@/lib/blog/public";
 
 export async function generateMetadata({
@@ -71,27 +73,51 @@ async function ArticleContent({ params }: { params: Promise<{ slug: string }> })
     notFound();
   }
 
-  const [html, adjacent] = await Promise.all([
-    renderMarkdown(post.body),
+  const bodyImageUrls = extractMarkdownImageUrls(post.body);
+  const [imageSizes, adjacent, related] = await Promise.all([
+    getMediaSizes(bodyImageUrls),
     getAdjacentPosts({ publishedAt: post.publishedAt, slug: post.slug }),
+    getRelatedPosts(post.slug, post.tags),
   ]);
+  const html = await renderMarkdown(post.body, imageSizes);
   const toc = extractToc(post.body);
 
+  const postUrl = `${site.url}/blog/${post.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.publishedAt,
-    dateModified: post.updatedAt,
-    url: `${site.url}/blog/${post.slug}`,
-    ...(post.cover ? { image: post.cover.url } : {}),
-    author: {
-      "@id": `${site.url}/#person`,
-      "@type": "Person",
-      name: post.authorName || site.name,
-    },
-    publisher: { "@id": `${site.url}/#person` },
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": `${postUrl}#post`,
+        mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
+        headline: post.title,
+        description: post.excerpt,
+        datePublished: post.publishedAt,
+        dateModified: post.updatedAt,
+        url: postUrl,
+        inLanguage: "en",
+        // Fall back to the generated share card so every post has an image for rich results.
+        image: post.cover ? post.cover.url : `${postUrl}/opengraph-image`,
+        ...(post.tags.length > 0 ? { keywords: post.tags.join(", ") } : {}),
+        wordCount: post.body.split(/\s+/).filter(Boolean).length,
+        isPartOf: { "@id": `${site.url}/blog#blog` },
+        author: {
+          "@id": `${site.url}/#person`,
+          "@type": "Person",
+          name: post.authorName || site.name,
+          url: site.url,
+        },
+        publisher: { "@id": `${site.url}/#person` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${site.url}/blog` },
+          { "@type": "ListItem", position: 3, name: post.title, item: postUrl },
+        ],
+      },
+    ],
   };
 
   return (
@@ -109,6 +135,7 @@ async function ArticleContent({ params }: { params: Promise<{ slug: string }> })
           toc={toc}
           prev={adjacent.prev}
           next={adjacent.next}
+          related={related}
         />
         <ViewBeacon slug={post.slug} />
       </EngagementProvider>
