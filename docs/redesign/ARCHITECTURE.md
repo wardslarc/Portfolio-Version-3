@@ -400,7 +400,8 @@ The intro animation on load and the marquee are CSS (D10). They're not in this f
 - Timeline: trigger `track-section`, `start: "top top"`,
   `end: () => "+=" + (section.offsetHeight - stage.offsetHeight)`, `invalidateOnRefresh: true`. At 0 for
   duration 1: `track` `x: 0 → () => -distance()`; `track-bar` `scaleX: 0 → 1` (transform-origin left, in CSS); each
-  `track-drift` card `y: 0 → Number(card.dataset.drift)`. Finish with `tl.set({}, {}, 1)`.
+  `track-drift` card `"--drift-y": "0px" → Number(card.dataset.drift) + "px"` (a custom property; CSS turns it into
+  `translate`, see "Elements with a CSS `rotate`" below). Finish with `tl.set({}, {}, 1)`.
 - Return a cleanup: `ScrollTrigger.removeEventListener("refreshInit", setExtra)` and
   `section.style.removeProperty("--hz-extra")`. Gather these cleanups in `start()`'s condition cleanup.
 
@@ -410,10 +411,18 @@ Timeline: trigger `split-section`, same start/end pattern as §7.2.
 
 | At | Duration | Target | From → to |
 |---|---|---|---|
-| 0 | 0.35 | `split-left` | `xPercent: -130 → 0` |
-| 0 | 0.35 | `split-right` | `xPercent: 130 → 0` |
+| 0 | 0.35 | `split-left` | `"--split-x": "-130%" → "0%"` (custom property, see below) |
+| 0 | 0.35 | `split-right` | `"--split-x": "130%" → "0%"` |
 | 0.5 | 0.42 | `split-overlay` | `clipPath: "circle(0% at 72% 50%)" → "circle(150% at 72% 50%)"` |
 | 1 | — | `tl.set({}, {}, 1)` | |
+
+**Elements with a CSS `rotate` (R2.1).** The track cards (`rotate: var(--rotate)`, straightened on hover) and the
+split cards (`rotate: ±5deg`) use the CSS `rotate` property. A GSAP transform tween (`y`, `xPercent`) on such an element
+folds the CSS rotation into an inline `transform` and writes `rotate: none` inline. That kills the card hover while
+motion is on, and `mm.revert()` leaves those inline values behind. So these two never get a GSAP transform tween:
+GSAP tweens a custom property, and CSS applies it with the independent `translate` property:
+`.card { translate: 0 var(--drift-y, 0px) }` and `.splitLeft, .splitRight { translate: var(--split-x, 0%) 0 }`.
+`--split-x` in `%` of the card's own width is the same as `xPercent`. `revert()` removes the custom properties.
 
 ### 7.5 Gallery (`gallery.ts`, `full` only)
 

@@ -1,4 +1,4 @@
-# Claude handoff: homepage redesign "Code by day, ink by night" (updated 2026-11-27, after R1)
+# Claude handoff: homepage redesign "Code by day, ink by night" (updated 2026-11-27, R2 fix list out)
 
 Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then continue."**
 
@@ -7,8 +7,11 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 - **Done:** B1 (T01–T09) and review gate **R1 passed** (`docs/redesign/REVIEW-R1.md`). The three R1 fixes are
   R1.1 `dae453b`, R1.2 `d6b980a` and R1.3 `34d22cf`. Everything through `5a38a33` is pushed to
   `origin/redesign/ink-by-night`.
-- **Now:** Carls has the **B2** prompt (below). Gemini may already be running T10–T13. When Carls pastes Gemini's B2
-  report, run **R2** (see "How Claude reviews").
+- **B2 done** (T10 `5638623`, T11 `7f39462`, T12 `46b518b`, T13 `a6c2817`), not pushed. **R2 reviewed:** two fixes
+  in `docs/redesign/REVIEW-R2.md` (R2.1: GSAP transform tweens on cards with CSS `rotate` kill the hover and leak
+  inline styles, so tween `--drift-y`/`--split-x` instead; R2.2: `scroll-margin-top` on `#experience`).
+- **Now:** Carls gives Gemini the R2 fix-round prompt (below). When Gemini reports, re-check only R2.1 and R2.2 (the
+  "Check" bullets), mark REVIEW-R2 passed, update this file, push, and give Carls the B3 prompt.
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.
@@ -28,7 +31,7 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 | 17 tasks, gates, acceptance criteria | `docs/redesign/TASKS.md` |
 | Working prototype (GSAP + ScrollTrigger + Lenis, vanilla JS) | `docs/redesign/prototype/index.html` |
 | Headless browser screenshots for reviews | `docs/redesign/tools/cdp-check.mjs` (usage in its header comment) |
-| Review results | `docs/redesign/REVIEW-R1.md` (passed); `REVIEW-R2.md` and `R3.md` come next |
+| Review results | `docs/redesign/REVIEW-R1.md` (passed); `REVIEW-R2.md` (fix list open); `R3.md` comes next |
 
 **Prototype artifact:** https://claude.ai/artifact/1Qgd9KA9C2drKuwu3bed7i (slug `034e867d-5e5d-4321-a6e0-3589f881e1bd`,
 live version `1795785022-6a09`). To change it, edit `docs/redesign/prototype/index.html`, then `publish_files` with that
@@ -86,6 +89,14 @@ panel" (bottom left) that forces Full, Mobile or Reduced motion.
    updates this handoff, and pushes. Give Carls the next Gemini prompt each time.
 
 ## Gotchas
+
+- **Counting ScrollTriggers without changing code:** `ScrollTrigger` isn't on `window`. R2 found its internal trigger
+  array through CDP: `DOMDebugger.getEventListeners` on `window` (evaluate it with an `objectGroup`, and call
+  `Debugger.enable` first), then `Runtime.getProperties` on each handler's `[[Scopes]]`, and pick the array whose items
+  have `trigger`, `progress`, `refresh` and `kill`. Store it as `window.__STL`. The script is
+  `docs/redesign/tools/probe.mjs` (`node probe.mjs <url> <W>x<H> <full|reduce> <evalFile.js> --st`).
+- **GSAP and CSS `rotate`/`translate`/`scale`:** a GSAP transform tween on an element with one of these folds it into an
+  inline `transform` and sets the property to `none` inline, and `revert()` keeps that. Use a custom property (R2.1).
 
 - **The Bash safety check refuses long inline scripts.** Write the script to a file (scratchpad), then run it in one line.
 - Start servers and headless Chrome as **background tasks**, and stop them with **TaskStop** (`pkill` exits 144).

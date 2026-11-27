@@ -381,7 +381,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 
 - Art frame: `border: 1px solid #F3F1EC26; border-radius: 16px; background: #1F1F25; padding: 12px; margin: 0` (`<figure>`).
 - Art image: `border-radius: 10px; background: #2B2B33`. Placeholder in Geist Mono 11px `#C9C5BB`.
-- Chess frame: `border: 1.5px solid #F3F1EC33; border-radius: 20px; padding: 32px`.
+- Chess frame: `border: 1.5px solid #F3F1EC33; border-radius: 20px; padding: 24px` (D12 compact; §3 and the prototype agree).
 - Gallery columns and items (P 345–348):
 
 | Column | Speed (`data-speed`) | `margin-top` | Items (aspect-ratio, caption) |
@@ -494,7 +494,7 @@ The text is split on single spaces (P 334). "Then I go home and draw." is **one*
 
 - Distance `tx = max(0, track.scrollWidth − window.innerWidth)`, only at ≥ 760px. Section height = `stage + tx`.
 - Track `x: 0 → −tx`. Progress bar `scaleX: 0 → 1`, `transform-origin: left`, fill `#E8492A`, rail `#16161A22`, radius 3px.
-- Card drift `y: 0 → s`, with s = −50, 40, −30, 50 px (B "±30–50px").
+- Card drift `y: 0 → s`, with s = −50, 40, −30, 50 px (B "±30–50px"). Applied as `translate: 0 var(--drift-y)`, tweening `--drift-y` (ARCHITECTURE §7.3, R2.1).
 - Hover: `rotate: 0deg` and `box-shadow: 12px 14px 0 #16161A`, `transition: rotate .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s` (P 28).
 
 ### 5.6 Split scene (scrub over the 1400px pin, P 25)
@@ -532,6 +532,7 @@ start `inset(9% 5% 0% 5% round 96px 96px 0px 0px)`, end `inset(0% 0% 0% 0% round
 | Card hover | straighten (`rotate: 0deg`) plus `12px 14px 0` shadow, .45s | B; P 28 |
 | Art frame hover | `transform: scale(1.03); transition: transform .4s` | B; P 29 |
 | Focus | `outline: 2px solid #E8492A; outline-offset: 3px` on `input:focus, textarea:focus, button:focus-visible, a:focus-visible` | P 31 |
+| Anchor offset | every hash target on `/` clears the 74px sticky header: `section` gets `scroll-margin-top: 80px` from `globals.css`; a non-section target (`#experience`) needs the same rule itself (R2.2) | D |
 | Smooth scroll | Lenis `lerp: 0.09` (the prototype's `0.09` per frame); wheel `deltaMode === 1` lines count 40px (Lenis handles this) | P 282, 288 |
 
 ---
