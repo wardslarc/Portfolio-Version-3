@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Fragment } from "react";
 import { site } from "@/content/site";
 import type { TocItem } from "@/lib/blog/markdown";
 import type { PostCover } from "@/lib/blog/posts";
+import { tagToSlug } from "@/lib/blog/slug";
 import CodeCopy from "./CodeCopy";
 import ShareRow from "./ShareRow";
 import Toc from "./Toc";
@@ -65,7 +67,14 @@ export default function ArticleView({
           <span>{formatArticleDate(post.publishedAt)}</span>
           <span>{post.readingMinutes} min read</span>
           {post.tags.length > 0 ? (
-            <span className="blog-tagl">{post.tags.join(" · ")}</span>
+            <span className="blog-tagl">
+              {post.tags.map((tag, i) => (
+                <Fragment key={`${tag}-${i}`}>
+                  {i > 0 ? " · " : null}
+                  <Link href={`/blog/tag/${tagToSlug(tag)}`}>{tag}</Link>
+                </Fragment>
+              ))}
+            </span>
           ) : null}
         </p>
 

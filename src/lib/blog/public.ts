@@ -3,8 +3,16 @@ import { cacheLife, cacheTag } from "next/cache";
 import type { Filter } from "mongodb";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
 import { POSTS_COLLECTION, type PostCover, type PostDoc } from "./indexes";
+import { tagToSlug } from "./slug";
 
 export const BLOG_PAGE_SIZE = 10;
+
+export interface TagIndexEntry {
+  slug: string;
+  name: string;
+  count: number;
+  latestUpdatedAt: Date;
+}
 
 export interface PublicPostSummary {
   id: string;
@@ -56,7 +64,9 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export async function getLivePosts(opts: { tag?: string; page?: number } = {}): Promise<{
+export async function getLivePosts(
+  opts: { tag?: string; tagSlug?: string; page?: number } = {},
+): Promise<{
   items: PublicPostSummary[];
   total: number;
   page: number;
@@ -76,8 +86,25 @@ export async function getLivePosts(opts: { tag?: string; page?: number } = {}): 
     const now = new Date();
     const filter: Filter<PostDoc> = liveFilter(now);
 
+    const tagSlug = opts.tagSlug?.trim().toLowerCase();
     const tag = opts.tag?.trim();
-    if (tag) {
+    if (tagSlug) {
+      const tagDocs = await col.find(liveFilter(now), { projection: { tags: 1 } }).toArray();
+      const matchedNames = new Set<string>();
+      for (const d of tagDocs) {
+        for (const t of d.tags) {
+          if (tagToSlug(t) === tagSlug) {
+            matchedNames.add(t);
+          }
+        }
+      }
+      if (matchedNames.size === 0) {
+        return { items: [], total: 0, page: 1, totalPages: 1 };
+      }
+      filter.tags = {
+        $in: [...matchedNames].map((name) => new RegExp(`^${escapeRegex(name)}$`, "i")),
+      };
+    } else if (tag) {
       filter.tags = { $regex: new RegExp(`^${escapeRegex(tag)}$`, "i") };
     }
 
@@ -197,6 +224,52 @@ export async function getAllTags(): Promise<string[]> {
       }
     }
     return [...map.values()].sort((a, b) => a.localeCompare(b));
+  } catch {
+    return [];
+  }
+}
+
+export async function getTagIndex(): Promise<TagIndexEntry[]> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  if (!isMongoConfigured()) return [];
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<PostDoc>(POSTS_COLLECTION)
+      .find(liveFilter(new Date()), { projection: { tags: 1, updatedAt: 1 } })
+      .toArray();
+
+    const map = new Map<string, TagIndexEntry>();
+    for (const d of docs) {
+      const seenInPost = new Set<string>();
+      for (const t of d.tags) {
+        const slug = tagToSlug(t);
+        if (!slug) continue;
+        let entry = map.get(slug);
+        if (!entry) {
+          entry = {
+            slug,
+            name: t,
+            count: 0,
+            latestUpdatedAt: d.updatedAt,
+          };
+          map.set(slug, entry);
+        }
+        if (!seenInPost.has(slug)) {
+          seenInPost.add(slug);
+          entry.count += 1;
+          if (d.updatedAt > entry.latestUpdatedAt) {
+            entry.latestUpdatedAt = d.updatedAt;
+          }
+        }
+      }
+    }
+
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
   } catch {
     return [];
   }

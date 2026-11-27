@@ -23,6 +23,7 @@ const {
   getLatestPosts,
   getLivePostBySlug,
   getLivePosts,
+  getTagIndex,
 } = await import("./public");
 
 function makePost(overrides: Partial<PostDoc>): PostDoc {
@@ -79,6 +80,7 @@ describe("blog public queries", () => {
     mongoConfigured = false;
     expect(await getLivePosts()).toEqual({ items: [], total: 0, page: 1, totalPages: 1 });
     expect(await getAllTags()).toEqual([]);
+    expect(await getTagIndex()).toEqual([]);
     expect(await getLatestPosts(3)).toEqual([]);
     expect(await getLivePostBySlug("anything")).toBeNull();
   });
@@ -134,5 +136,15 @@ describe("blog public queries", () => {
     const adj = await getAdjacentPosts({ publishedAt: mid!.publishedAt, slug: mid!.slug });
     expect(adj.prev?.slug).toBe("older-post");
     expect(adj.next?.slug).toBe("newest-post");
+
+    const tagIndex = await getTagIndex();
+    expect(tagIndex.map((t) => ({ slug: t.slug, name: t.name, count: t.count }))).toEqual([
+      { slug: "mongodb", name: "MongoDB", count: 2 },
+      { slug: "next-js", name: "Next.js", count: 2 },
+    ]);
+
+    const byTagSlug = await getLivePosts({ tagSlug: "next-js" });
+    expect(byTagSlug.items.map((p) => p.slug)).toEqual(["newest-post", "middle-post"]);
+    expect((await getLivePosts({ tagSlug: "missing-tag" })).total).toBe(0);
   });
 });

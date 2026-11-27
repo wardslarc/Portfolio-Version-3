@@ -18,6 +18,17 @@ export function isValidSlug(slug: string): boolean {
   return slug.length >= 1 && slug.length <= SLUG_MAX_LENGTH && SLUG_REGEX.test(slug);
 }
 
+/** Convert a blog tag name into a URL-safe lowercase slug. */
+export function tagToSlug(tag: string): string {
+  return tag
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 /**
  * Given a desired string and an async collision check, returns a valid unique slug
  * by appending -2, -3, ... when needed while keeping length <= SLUG_MAX_LENGTH.

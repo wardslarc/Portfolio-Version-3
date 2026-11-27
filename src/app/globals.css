@@ -502,6 +502,14 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
   color: var(--accent);
 }
 
+.blog-tagl a {
+  text-decoration: none;
+}
+
+.blog-tagl a:hover {
+  text-decoration: underline;
+}
+
 .blog-plist {
   list-style: none;
   margin: 0;
