@@ -7,6 +7,8 @@ import HomeHeader from "@/components/home/HomeHeader";
 import HomeShell from "@/components/home/HomeShell";
 import shellStyles from "@/components/home/HomeShell.module.css";
 import HomeThemeScope from "@/components/home/HomeThemeScope";
+import NightSection from "@/components/home/NightSection";
+import SplitScene from "@/components/home/SplitScene";
 import Statement from "@/components/home/Statement";
 import ExperienceStrip from "@/components/home/work/ExperienceStrip";
 import LatestPosts from "@/components/home/work/LatestPosts";
@@ -92,6 +94,8 @@ export default function Home() {
               <LatestPosts />
             </div>
           </section>
+          <SplitScene />
+          <NightSection />
         </main>
         <ChessSection />
         <Contact />
