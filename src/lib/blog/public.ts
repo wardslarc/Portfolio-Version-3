@@ -31,6 +31,15 @@ export interface PublicPostDetail extends PublicPostSummary {
   body: string;
 }
 
+export interface RelatedPostSummary {
+  title: string;
+  slug: string;
+  excerpt: string;
+  publishedAt: string;
+  readingMinutes: number;
+  cover: PostCover | null;
+}
+
 function liveFilter(now = new Date()): Filter<PostDoc> {
   return {
     status: "published",
@@ -199,6 +208,69 @@ export async function getAdjacentPosts(post: {
     };
   } catch {
     return { prev: null, next: null };
+  }
+}
+
+export async function getRelatedPosts(
+  slug: string,
+  tags: string[],
+  limit = 3,
+): Promise<RelatedPostSummary[]> {
+  "use cache";
+  cacheTag("posts");
+  cacheLife({ stale: 300, revalidate: 900, expire: 86_400 });
+
+  if (!isMongoConfigured() || limit <= 0) return [];
+
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<PostDoc>(POSTS_COLLECTION)
+      .find(
+        { ...liveFilter(new Date()), slug: { $ne: slug } },
+        {
+          projection: {
+            title: 1,
+            slug: 1,
+            excerpt: 1,
+            publishedAt: 1,
+            createdAt: 1,
+            readingMinutes: 1,
+            cover: 1,
+            tags: 1,
+          },
+        },
+      )
+      .sort({ publishedAt: -1, _id: -1 })
+      .toArray();
+
+    const targetTags = new Set(tags.map((t) => t.trim().toLowerCase()).filter(Boolean));
+
+    const scored = docs.map((doc, index) => {
+      const docTags = new Set(doc.tags.map((t) => t.trim().toLowerCase()).filter(Boolean));
+      let sharedCount = 0;
+      for (const t of docTags) {
+        if (targetTags.has(t)) sharedCount += 1;
+      }
+      const publishedMs = (doc.publishedAt ?? doc.createdAt).getTime();
+      return { doc, sharedCount, publishedMs, index };
+    });
+
+    scored.sort(
+      (a, b) =>
+        b.sharedCount - a.sharedCount || b.publishedMs - a.publishedMs || a.index - b.index,
+    );
+
+    return scored.slice(0, limit).map(({ doc }) => ({
+      title: doc.title,
+      slug: doc.slug,
+      excerpt: doc.excerpt,
+      publishedAt: (doc.publishedAt ?? doc.createdAt).toISOString(),
+      readingMinutes: doc.readingMinutes,
+      cover: doc.cover,
+    }));
+  } catch {
+    return [];
   }
 }
 

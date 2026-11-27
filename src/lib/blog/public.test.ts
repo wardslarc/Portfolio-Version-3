@@ -23,6 +23,7 @@ const {
   getLatestPosts,
   getLivePostBySlug,
   getLivePosts,
+  getRelatedPosts,
   getTagIndex,
 } = await import("./public");
 
@@ -82,6 +83,7 @@ describe("blog public queries", () => {
     expect(await getAllTags()).toEqual([]);
     expect(await getTagIndex()).toEqual([]);
     expect(await getLatestPosts(3)).toEqual([]);
+    expect(await getRelatedPosts("anything", ["Next.js"])).toEqual([]);
     expect(await getLivePostBySlug("anything")).toBeNull();
   });
 
@@ -146,5 +148,68 @@ describe("blog public queries", () => {
     const byTagSlug = await getLivePosts({ tagSlug: "next-js" });
     expect(byTagSlug.items.map((p) => p.slug)).toEqual(["newest-post", "middle-post"]);
     expect((await getLivePosts({ tagSlug: "missing-tag" })).total).toBe(0);
+  });
+
+  it("ranks related posts by shared tags desc, then publishedAt desc, fills with latest, and excludes self/unpublished", async () => {
+    const now = Date.now();
+    await db.collection<PostDoc>(POSTS_COLLECTION).insertMany([
+      makePost({ title: "Draft", slug: "draft", status: "draft", publishedAt: null, tags: ["Next.js", "SEO"] }),
+      makePost({
+        title: "Scheduled",
+        slug: "scheduled",
+        status: "published",
+        publishedAt: new Date(now + 3_600_000),
+        tags: ["Next.js", "SEO"],
+      }),
+      makePost({
+        title: "Current",
+        slug: "current",
+        publishedAt: new Date(now - 50_000),
+        tags: ["Next.js", "SEO"],
+      }),
+      makePost({
+        title: "One Tag Older",
+        slug: "one-tag-older",
+        publishedAt: new Date(now - 300_000),
+        tags: ["next.js"],
+      }),
+      makePost({
+        title: "Two Tags",
+        slug: "two-tags",
+        publishedAt: new Date(now - 400_000),
+        tags: ["Next.js", "SEO"],
+      }),
+      makePost({
+        title: "One Tag Newer",
+        slug: "one-tag-newer",
+        publishedAt: new Date(now - 100_000),
+        tags: ["SEO"],
+      }),
+      makePost({
+        title: "Zero Tags Latest",
+        slug: "zero-tags-latest",
+        publishedAt: new Date(now - 20_000),
+        tags: ["Chess"],
+      }),
+    ]);
+
+    const related = await getRelatedPosts("current", ["Next.js", "SEO"], 3);
+    expect(related.map((p) => p.slug)).toEqual(["two-tags", "one-tag-newer", "one-tag-older"]);
+    expect(Object.keys(related[0]!).sort()).toEqual([
+      "cover",
+      "excerpt",
+      "publishedAt",
+      "readingMinutes",
+      "slug",
+      "title",
+    ]);
+
+    const filled = await getRelatedPosts("current", ["Next.js", "SEO"], 4);
+    expect(filled.map((p) => p.slug)).toEqual([
+      "two-tags",
+      "one-tag-newer",
+      "one-tag-older",
+      "zero-tags-latest",
+    ]);
   });
 });

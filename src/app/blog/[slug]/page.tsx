@@ -9,6 +9,7 @@ import {
   getAdjacentPosts,
   getLivePostBySlug,
   getLivePostSlugs,
+  getRelatedPosts,
 } from "@/lib/blog/public";
 
 export async function generateMetadata({
@@ -70,9 +71,10 @@ async function ArticleContent({ params }: { params: Promise<{ slug: string }> })
     notFound();
   }
 
-  const [html, adjacent] = await Promise.all([
+  const [html, adjacent, related] = await Promise.all([
     renderMarkdown(post.body),
     getAdjacentPosts({ publishedAt: post.publishedAt, slug: post.slug }),
+    getRelatedPosts(post.slug, post.tags),
   ]);
   const toc = extractToc(post.body);
 
@@ -128,6 +130,7 @@ async function ArticleContent({ params }: { params: Promise<{ slug: string }> })
         toc={toc}
         prev={adjacent.prev}
         next={adjacent.next}
+        related={related}
       />
       <ViewBeacon slug={post.slug} />
     </>
