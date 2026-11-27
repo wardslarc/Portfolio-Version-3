@@ -1,13 +1,10 @@
 import type { Viewport } from "next";
-import About from "@/components/About";
 import ChessSection from "@/components/ChessSection";
 import Contact from "@/components/Contact";
-import { Experience, Skills } from "@/components/Experience";
-import Header from "@/components/Header";
+import { homeFontVariables } from "@/components/home/fonts";
+import HomeShell from "@/components/home/HomeShell";
+import shellStyles from "@/components/home/HomeShell.module.css";
 import HomeThemeScope from "@/components/home/HomeThemeScope";
-import Intro from "@/components/Intro";
-import Work from "@/components/Work";
-import Writing from "@/components/Writing";
 import { skills } from "@/content/experience";
 import { site } from "@/content/site";
 
@@ -62,12 +59,6 @@ const structuredData = {
   ],
 };
 
-// Cached so the page can stay prerendered; it's recomputed when the cache revalidates.
-async function CopyrightYear() {
-  "use cache";
-  return <>{new Date().getFullYear()}</>;
-}
-
 export default function Home() {
   return (
     <>
@@ -80,23 +71,11 @@ export default function Home() {
         // Static, build-time JSON; "<" is escaped so it can't close the script tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
-      <Header />
-      <main id="main" className="wrap">
-        <Intro />
-        <About />
-        <Work />
-        <Writing />
-        <Experience />
-        <Skills />
+      <HomeShell fontClassName={homeFontVariables}>
+        <main id="main" className={shellStyles.main} />
         <ChessSection />
         <Contact />
-      </main>
-      <footer className="site-footer">
-        <div className="wrap">
-          <span>© <CopyrightYear /> {site.name}</span>
-          <span>Built with Next.js and MongoDB · Hosted on Vercel</span>
-        </div>
-      </footer>
+      </HomeShell>
     </>
   );
 }
