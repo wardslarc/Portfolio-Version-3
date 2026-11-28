@@ -854,10 +854,10 @@ export default function EditorClient({
                 />
               </div>
               {slugError ? (
-                <span style={{ color: "var(--danger)", fontSize: "0.8125rem" }}>{slugError}</span>
+                <span className="admin-hint danger">{slugError}</span>
               ) : null}
               {derivedStatus !== "draft" && slug !== savedSlug ? (
-                <span style={{ color: "var(--wait)", fontSize: "0.8125rem" }}>
+                <span className="admin-hint wait">
                   Changing the slug of a live post breaks old links.
                 </span>
               ) : null}
@@ -866,7 +866,7 @@ export default function EditorClient({
             <div className="admin-efield">
               <label htmlFor="post-excerpt">
                 Excerpt
-                <span style={{ color: excerpt.length > 160 ? "var(--danger)" : undefined }}>
+                <span className={excerpt.length > 160 ? "admin-hint danger" : undefined}>
                   {excerpt.length}/160
                 </span>
               </label>
@@ -1033,7 +1033,7 @@ export default function EditorClient({
           {canWrite ? (
             <section className="admin-card">
               <h2>Danger zone</h2>
-              <p className="admin-auth-sub" style={{ fontSize: "0.875rem" }}>
+              <p className="admin-auth-sub sm">
                 Deleting removes the post and any images only it uses.
               </p>
               <div>
