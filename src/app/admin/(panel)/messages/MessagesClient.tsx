@@ -122,7 +122,7 @@ export default function MessagesClient({
         </form>
       </div>
 
-      <div className="admin-row-actions" role="tablist" aria-label="Message filters">
+      <div className="admin-row-actions" role="group" aria-label="Message filters">
         {FILTERS.map((f) => {
           const active = filter === f.key;
           return (
