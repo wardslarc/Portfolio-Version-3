@@ -44,7 +44,7 @@ html:root[data-home] {
   --accent: #E8492A; color-scheme: light; scroll-behavior: auto;
 }
 :root:not([data-home]):has(.ink:not(.ink-contained)) { --bg: #F3F1EC; --ink: #16161A; }
-:root[data-theme="dark"]:not([data-home]):has(.ink:not(.ink-contained)), :root:not([data-home]):has(.ink-dark) { --bg: #16161A; --ink: #F3F1EC; }
+:root[data-theme="dark"]:not([data-home]):has(.ink:not(.ink-contained)), :root:not([data-home]):has(.ink.ink-dark) { --bg: #16161A; --ink: #F3F1EC; }
 @media (prefers-color-scheme: dark) { :root:not([data-home]):not([data-theme="light"]):has(.ink:not(.ink-contained)) { --bg: #16161A; --ink: #F3F1EC; } }
 
 *, *::before, *::after { box-sizing: border-box; }
