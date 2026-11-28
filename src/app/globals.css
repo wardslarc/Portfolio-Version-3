@@ -79,32 +79,6 @@ a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; 
 }
 .mono { font-family: var(--f-mono); font-size: 0.8125rem; }
 
-/* Header */
-.site-header {
-  position: sticky; top: 0; z-index: 5;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
-  border-bottom: 1px solid transparent; transition: border-color .2s;
-}
-.site-header.scrolled { border-bottom-color: var(--line); }
-.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; }
-.brand { font-weight: 600; text-decoration: none; letter-spacing: -0.01em; white-space: nowrap; }
-.nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
-.nav a {
-  display: inline-flex; align-items: center; min-height: 36px; padding: 0 10px; border-radius: 8px;
-  text-decoration: none; color: var(--muted); font-size: 0.9375rem;
-}
-.nav a:hover { color: var(--ink); background: var(--surface); }
-.nav a[aria-current="true"],
-.nav a[aria-current="page"] { color: var(--ink); font-weight: 500; }
-.header-right { display: flex; align-items: center; gap: 4px; }
-.icon-btn {
-  width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: 8px;
-  border: 0; background: transparent; color: var(--muted); cursor: pointer;
-}
-.icon-btn:hover { color: var(--ink); background: var(--surface); }
-.icon-btn svg { width: 18px; height: 18px; }
-
 main { display: grid; gap: 88px; padding-block: 56px 96px; }
 section { scroll-margin-top: 80px; }
 .section-label { font-size: 0.8125rem; font-weight: 500; font-family: var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin: 0 0 24px; }
@@ -336,11 +310,7 @@ a.card:hover .arrow { transform: translate(2px, -2px); color: var(--accent); }
 .status.ok { color: var(--ok); }
 .status.error { color: var(--danger); }
 
-.site-footer { border-top: 1px solid var(--line); }
-.site-footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 28px 40px; color: var(--faint); font-size: 0.875rem; }
-
 @media (max-width: 640px) {
-  .nav .nav-section { display: none; }
   main { gap: 72px; padding-top: 36px; }
   .intro { --top-pad: 36px; }
   .about-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }

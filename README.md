@@ -23,8 +23,13 @@ src/
     robots.ts, sitemap.ts
   components/
     home/                # homepage sections (CSS Modules, GSAP + Lenis motion in motion/)
+    ink/                 # ink-by-night scope, theme toggle, footer, reading progress
     blog/                # blog UI components
-    ...                  # shared Header, ChessSection, TrackedLink, Telemetry, Icons
+    admin-auth/          # sign-in and invite shell, OTP input, shake hook
+    ...                  # shared ChessSection, TrackedLink, Telemetry, Icons
+  styles/
+    ink.css              # ink-by-night tokens, primitives, and CSS motion layer
+    ink-blog.css         # blog and prose styles scoped under .ink
   content/               # edit these to update the site: site, projects, experience, home
   lib/
     mongodb.ts           # cached MongoClient
