@@ -10,8 +10,11 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 - **B2 done and R2 passed** (`docs/redesign/REVIEW-R2.md`): T10 `5638623`, T11 `7f39462`, T12 `46b518b`, T13
   `a6c2817`, fixes R2.1 `2191d25` and R2.2 `a5f95ab`. Everything is pushed to `origin/redesign/ink-by-night`.
 - **B3 done and R3 passed** (`docs/redesign/REVIEW-R3.md`, no fixes): T14 `b702e27`, T15 `df22609`. Pushed.
-- **Now:** **T16 final review** (Claude). Gemini has no open task. The real contact submit and rate limit were
-  verified (REVIEW-R3.md; 3 "R3 review test" messages in the live DB to delete). The clipboard `copied!` path was checked by Carls.
+- **T16 done** (`docs/redesign/REVIEW-T16.md`): everything checkable in headless Chrome passed (Lighthouse mobile
+  87/100, CLS 0). **Left for Carls:** real browsers and devices (checklist in REVIEW-T16), deleting the 3 "R3 review
+  test" messages, then merging to `main`.
+- **Next (Carls asked 2026-11-28):** bring `/blog` (index and post) and `/admin/login` into the landing page's design.
+  Claude presents a plan first, then makes artifact mockups.
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.
@@ -31,7 +34,7 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 | 17 tasks, gates, acceptance criteria | `docs/redesign/TASKS.md` |
 | Working prototype (GSAP + ScrollTrigger + Lenis, vanilla JS) | `docs/redesign/prototype/index.html` |
 | Headless browser screenshots for reviews | `docs/redesign/tools/cdp-check.mjs` (usage in its header comment) |
-| Review results | `docs/redesign/REVIEW-R1.md` (passed); `REVIEW-R2.md` (passed); `REVIEW-R3.md` (passed) |
+| Review results | `docs/redesign/REVIEW-R1.md` (passed); `REVIEW-R2.md` (passed); `REVIEW-R3.md` (passed); `REVIEW-T16.md` (final review) |
 
 **Prototype artifact:** https://claude.ai/artifact/1Qgd9KA9C2drKuwu3bed7i (slug `034e867d-5e5d-4321-a6e0-3589f881e1bd`,
 live version `1795785022-6a09`). To change it, edit `docs/redesign/prototype/index.html`, then `publish_files` with that
