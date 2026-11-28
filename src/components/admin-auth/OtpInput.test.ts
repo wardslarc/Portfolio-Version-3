@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractLastDigit, spreadOtpDigits } from "./OtpInput";
+import { applyOtpInput, extractLastDigit, spreadOtpDigits } from "./OtpInput";
 
 describe("OtpInput helpers", () => {
   it("extracts the last digit and ignores non-digits", () => {
@@ -31,5 +31,21 @@ describe("OtpInput helpers", () => {
   it("returns null when pasted text has no digits", () => {
     expect(spreadOtpDigits("hello-world!")).toBeNull();
     expect(spreadOtpDigits("")).toBeNull();
+  });
+
+  it("spreads autofilled 6-digit input in box 1 across all six boxes", () => {
+    const empty = ["", "", "", "", "", ""];
+    expect(applyOtpInput(empty, 0, "123456")).toEqual({
+      digits: ["1", "2", "3", "4", "5", "6"],
+      nextFocus: 5,
+    });
+  });
+
+  it("replaces a single digit in a filled box and moves focus right", () => {
+    const filled = ["5", "2", "3", "4", "5", "6"];
+    expect(applyOtpInput(filled, 0, "7")).toEqual({
+      digits: ["7", "2", "3", "4", "5", "6"],
+      nextFocus: 1,
+    });
   });
 });

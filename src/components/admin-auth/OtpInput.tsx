@@ -19,6 +19,39 @@ export function spreadOtpDigits(text: string): string[] | null {
   return Array.from({ length: BOX_COUNT }, (_, i) => clean[i] ?? "");
 }
 
+export interface OtpInputUpdate {
+  digits: string[];
+  nextFocus: number | null;
+}
+
+/**
+ * Applies a single-box onChange value (typed digit, replacement, or autofilled code).
+ */
+export function applyOtpInput(
+  prev: string[],
+  index: number,
+  raw: string,
+): OtpInputUpdate {
+  const onlyDigits = raw.replace(/\D/g, "");
+  if (onlyDigits.length > 1) {
+    const spread = spreadOtpDigits(onlyDigits);
+    if (!spread) return { digits: prev, nextFocus: null };
+    const nextEmpty = spread.findIndex((d) => !d);
+    return {
+      digits: spread,
+      nextFocus: nextEmpty === -1 ? BOX_COUNT - 1 : nextEmpty,
+    };
+  }
+
+  const digit = extractLastDigit(raw);
+  const next = prev.slice();
+  next[index] = digit;
+  return {
+    digits: next,
+    nextFocus: digit && index < BOX_COUNT - 1 ? index + 1 : null,
+  };
+}
+
 export default function OtpInput() {
   const [digits, setDigits] = useState<string[]>(() => Array(BOX_COUNT).fill(""));
   const refs = useRef<Array<HTMLInputElement | null>>([]);
@@ -29,24 +62,12 @@ export default function OtpInput() {
   };
 
   const handleChange = (index: number, raw: string) => {
-    const onlyDigits = raw.replace(/\D/g, "");
-    if (onlyDigits.length > 1) {
-      const spread = spreadOtpDigits(onlyDigits);
-      if (!spread) return;
-      setDigits(spread);
-      const nextEmpty = spread.findIndex((d) => !d);
-      focusBox(nextEmpty === -1 ? BOX_COUNT - 1 : nextEmpty);
-      return;
+    const update = applyOtpInput(digits, index, raw);
+    if (update.digits !== digits) {
+      setDigits(update.digits);
     }
-
-    const digit = extractLastDigit(raw);
-    setDigits((prev) => {
-      const next = prev.slice();
-      next[index] = digit;
-      return next;
-    });
-    if (digit && index < BOX_COUNT - 1) {
-      focusBox(index + 1);
+    if (update.nextFocus !== null) {
+      focusBox(update.nextFocus);
     }
   };
 
@@ -78,11 +99,11 @@ export default function OtpInput() {
             }}
             type="text"
             inputMode="numeric"
-            maxLength={1}
             autoComplete={i === 0 ? "one-time-code" : "off"}
             autoFocus={i === 0}
             aria-label={`Digit ${i + 1} of 6`}
             value={val}
+            onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={handlePaste}
