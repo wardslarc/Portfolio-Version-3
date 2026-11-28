@@ -463,6 +463,15 @@
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.045em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 12px;
+}
+
+.ink .admin-page-head h1 > .admin-badge {
+  order: 1;
+  align-self: center;
 }
 
 .ink .admin-page-head h1::after {
@@ -483,7 +492,8 @@
   align-content: start;
 }
 
-.ink .admin-card h2 {
+.ink .admin-card h2,
+.ink dialog.admin-dialog h2 {
   margin: 0;
   font-family: var(--font-bricolage), system-ui, sans-serif;
   font-size: 20px;
@@ -826,6 +836,11 @@
   padding: 0;
 }
 
+.ink .admin-card .admin-table-wrap {
+  box-shadow: none;
+  border-radius: 12px;
+}
+
 .ink .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -957,6 +972,8 @@
     scroll-padding-inline: 16px;
     gap: 4px;
     padding-bottom: 2px;
+    scrollbar-color: #F3F1EC33 transparent;
+    scrollbar-width: thin;
   }
 
   .ink .admin-nav a {
