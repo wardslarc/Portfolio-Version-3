@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { ViewTransition, type CSSProperties } from "react";
 import { formatEngagementMeta } from "@/lib/blog/format";
 import type { PublicPostSummary, TagIndexEntry } from "@/lib/blog/public";
 
@@ -110,17 +110,19 @@ export default function PostList({
                   fresh off the press!
                 </span>
                 {featured.cover ? (
-                  <div className="im">
-                    <Image
-                      className="k-sc-para"
-                      src={featured.cover.url}
-                      alt={featured.cover.alt || featured.title}
-                      width={featured.cover.width || 1600}
-                      height={featured.cover.height || 800}
-                      priority
-                      sizes="(max-width: 759px) calc(100vw - 72px), 640px"
-                    />
-                  </div>
+                  <ViewTransition name={`cover-${featured.slug}`} share="morph" default="none">
+                    <div className="im">
+                      <Image
+                        className="k-sc-para"
+                        src={featured.cover.url}
+                        alt={featured.cover.alt || featured.title}
+                        width={featured.cover.width || 1600}
+                        height={featured.cover.height || 800}
+                        priority
+                        sizes="(max-width: 759px) calc(100vw - 72px), 640px"
+                      />
+                    </div>
+                  </ViewTransition>
                 ) : null}
                 <div>
                   <p className="blog-meta">
@@ -174,15 +176,17 @@ export default function PostList({
                         />
                       ) : null}
                       {post.cover ? (
-                        <div className="im">
-                          <Image
-                            src={post.cover.url}
-                            alt={post.cover.alt || post.title}
-                            width={post.cover.width || 800}
-                            height={post.cover.height || 600}
-                            sizes="(max-width: 759px) calc(100vw - 80px), (max-width: 1023px) calc(50vw - 80px), 360px"
-                          />
-                        </div>
+                        <ViewTransition name={`cover-${post.slug}`} share="morph" default="none">
+                          <div className="im">
+                            <Image
+                              src={post.cover.url}
+                              alt={post.cover.alt || post.title}
+                              width={post.cover.width || 800}
+                              height={post.cover.height || 600}
+                              sizes="(max-width: 759px) calc(100vw - 80px), (max-width: 1023px) calc(50vw - 80px), 360px"
+                            />
+                          </div>
+                        </ViewTransition>
                       ) : null}
                       <p className="blog-meta">
                         <span>{formatPostDate(post.publishedAt)}</span>
