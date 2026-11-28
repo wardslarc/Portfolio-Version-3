@@ -123,7 +123,7 @@ export default function LoginClient({
           >
             {copied ? "Copied" : "Copy codes"}
             {copied ? (
-              <span className={`k-note ${styles.copiedPop}`} aria-live="polite">
+              <span className={`k-note ${styles.copiedPop}`} aria-hidden="true">
                 copied!
               </span>
             ) : null}
