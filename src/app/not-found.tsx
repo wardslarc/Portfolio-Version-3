@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import HomeHeader from "@/components/home/HomeHeader";
 import InkFooter from "@/components/ink/InkFooter";
@@ -8,6 +8,13 @@ import styles from "./not-found.module.css";
 
 export const metadata: Metadata = {
   title: `Page not found | ${site.name}`,
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F3F1EC" },
+    { media: "(prefers-color-scheme: dark)", color: "#16161A" },
+  ],
 };
 
 export default function NotFound() {
