@@ -255,7 +255,7 @@ export default function ChessAdminClient({
                 »
               </button>
             </div>
-            <span className="mono" style={{ color: "var(--muted)" }}>
+            <span className="mono admin-muted">
               Ply {boardState.clampedPly}/{totalPlies}
             </span>
           </div>
@@ -286,7 +286,7 @@ export default function ChessAdminClient({
                     return (
                       <tr
                         key={m.ply}
-                        style={isCurrent ? { background: "var(--surface)" } : undefined}
+                        className={isCurrent ? "is-current" : undefined}
                       >
                         <td data-label="Ply" className="mono">
                           <div>
@@ -301,7 +301,7 @@ export default function ChessAdminClient({
                             </button>
                           </div>
                         </td>
-                        <td data-label="SAN" className="mono" style={{ fontWeight: 600 }}>
+                        <td data-label="SAN" className="mono admin-strong">
                           {m.san}
                         </td>
                         <td data-label="From → To" className="mono">
@@ -311,7 +311,7 @@ export default function ChessAdminClient({
                         </td>
                         <td data-label="Location">{loc}</td>
                         <td data-label="Visitor" className="mono">{m.visitorPrefix}</td>
-                        <td data-label="Time" className="mono" style={{ color: "var(--muted)" }}>
+                        <td data-label="Time" className="mono admin-muted">
                           <DateTimeParts iso={m.playedAt} />
                         </td>
                         {canMutate ? (
@@ -360,9 +360,9 @@ export default function ChessAdminClient({
             </thead>
             <tbody>
               {games.map((g) => (
-                <tr key={g.number} style={g.number === game.number ? { background: "var(--surface)" } : undefined}>
+                <tr key={g.number} className={g.number === game.number ? "is-current" : undefined}>
                   <td>
-                    <Link href={`/admin/chess?game=${g.number}`} style={{ fontWeight: 600 }}>
+                    <Link href={`/admin/chess?game=${g.number}`} className="admin-strong">
                       Game {g.number}
                     </Link>
                   </td>
@@ -372,7 +372,7 @@ export default function ChessAdminClient({
                   <td className="mono">{g.result ?? "—"}</td>
                   <td className="mono">{g.moveCount}</td>
                   <td className="mono">{g.visitorCount}</td>
-                  <td className="mono" style={{ color: "var(--muted)" }}>
+                  <td className="mono admin-muted">
                     {formatDate(g.startedAt)}
                   </td>
                 </tr>

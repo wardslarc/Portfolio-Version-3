@@ -159,7 +159,7 @@ export default function MessagesClient({
                         {!m.readAt ? <span className="admin-unread-dot" aria-label="Unread" /> : null}
                         {m.name}
                       </span>
-                      <span className="mono" style={{ color: "var(--faint)", fontSize: "0.75rem" }}>
+                      <span className="admin-meta faint">
                         {new Date(m.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                       </span>
                     </div>
@@ -176,18 +176,16 @@ export default function MessagesClient({
                 href={buildUrl({ filter, q, page: Math.max(1, page - 1) })}
                 className="admin-btn sm"
                 aria-disabled={page <= 1}
-                style={page <= 1 ? { pointerEvents: "none", opacity: 0.5 } : undefined}
               >
                 ← Prev
               </Link>
-              <span className="mono" style={{ color: "var(--muted)" }}>
+              <span className="mono admin-muted">
                 Page {page} of {totalPages}
               </span>
               <Link
                 href={buildUrl({ filter, q, page: Math.min(totalPages, page + 1) })}
                 className="admin-btn sm"
                 aria-disabled={page >= totalPages}
-                style={page >= totalPages ? { pointerEvents: "none", opacity: 0.5 } : undefined}
               >
                 Next →
               </Link>
@@ -201,7 +199,7 @@ export default function MessagesClient({
               <div className="admin-row-actions" style={{ justifyContent: "space-between" }}>
                 <div>
                   <h2>{selected.name}</h2>
-                  <div className="mono" style={{ color: "var(--muted)" }}>
+                  <div className="mono admin-muted">
                     {selected.email}
                   </div>
                 </div>
@@ -210,23 +208,16 @@ export default function MessagesClient({
                 </span>
               </div>
 
-              <div className="mono" style={{ color: "var(--faint)", fontSize: "0.75rem" }}>
+              <div className="admin-meta faint">
                 {formatDate(selected.createdAt)}
                 {selected.archivedAt ? " · Archived" : ""}
               </div>
 
-              <div
-                style={{
-                  whiteSpace: "pre-wrap",
-                  paddingTop: "12px",
-                  borderTop: "1px solid var(--line)",
-                  lineHeight: 1.6,
-                }}
-              >
+              <div className="admin-msg-body">
                 {selected.message}
               </div>
 
-              <div className="admin-row-actions" style={{ paddingTop: "12px", borderTop: "1px solid var(--line)" }}>
+              <div className="admin-row-actions admin-msg-actions">
                 <a
                   href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: Portfolio message`)}`}
                   className="admin-btn sm primary"

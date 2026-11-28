@@ -147,7 +147,7 @@ export default function AdminsClient({
               <tbody>
                 {admins.map((a) => (
                   <tr key={a.id}>
-                    <td data-label="Name" style={{ fontWeight: 500 }}>
+                    <td data-label="Name" className="admin-strong">
                       <span>
                         {a.name}
                         {a.id === currentAdminId ? (
@@ -186,12 +186,12 @@ export default function AdminsClient({
                         <option value="viewer">{ROLE_LABELS.viewer}</option>
                       </select>
                     </td>
-                    <td data-label="Last sign-in" className="mono" style={{ color: "var(--muted)" }}>
+                    <td data-label="Last sign-in" className="mono admin-muted">
                       {formatDate(a.lastSignInAt)}
                     </td>
                     <td data-label="Actions">
                       {a.id === currentAdminId ? (
-                        <span className="mono" style={{ color: "var(--muted)" }}>
+                        <span className="mono admin-muted">
                           —
                         </span>
                       ) : (
@@ -218,7 +218,7 @@ export default function AdminsClient({
 
           {invites.length > 0 ? (
             <>
-              <h3 style={{ margin: "8px 0 0", fontSize: "0.9375rem" }}>Pending invites</h3>
+              <h3 className="admin-subhead">Pending invites</h3>
               <div className="admin-table-wrap">
                 <table className="admin-table stack-mobile">
                   <thead>
@@ -234,7 +234,7 @@ export default function AdminsClient({
                       <tr key={inv.email}>
                         <td data-label="Email" className="mono">{inv.email}</td>
                         <td data-label="Role" className="mono">{ROLE_LABELS[inv.role]}</td>
-                        <td data-label="Expires" className="mono" style={{ color: "var(--muted)" }}>
+                        <td data-label="Expires" className="mono admin-muted">
                           {formatDate(inv.expiresAt)}
                         </td>
                         <td data-label="Actions">
@@ -396,7 +396,8 @@ export default function AdminsClient({
                 <tr key={s.id}>
                   <td
                     data-label="Device"
-                    style={{ maxWidth: "340px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    className="admin-ellipsis"
+                    style={{ maxWidth: "340px" }}
                   >
                     <span>
                       {s.userAgent}
@@ -408,7 +409,7 @@ export default function AdminsClient({
                     </span>
                   </td>
                   <td data-label="Location">{[s.city, s.country].filter(Boolean).join(", ") || "—"}</td>
-                  <td data-label="Last seen" className="mono" style={{ color: "var(--muted)" }}>
+                  <td data-label="Last seen" className="mono admin-muted">
                     {formatDate(s.lastSeenAt)}
                   </td>
                   <td data-label="Action">
@@ -452,7 +453,7 @@ export default function AdminsClient({
               <tbody>
                 {audit.map((e) => (
                   <tr key={e.id}>
-                    <td className="mono" style={{ color: "var(--muted)" }}>
+                    <td className="mono admin-muted">
                       {formatDate(e.at)}
                     </td>
                     <td>{e.adminName}</td>

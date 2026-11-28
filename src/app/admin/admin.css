@@ -691,7 +691,7 @@
   text-decoration: underline;
 }
 
-.admin-manage-row {
+.ink .admin-manage-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -700,13 +700,13 @@
   border-top: 1px solid var(--line);
 }
 
-.admin-manage-row:first-of-type {
+.ink .admin-manage-row:first-of-type {
   padding-top: 4px;
   border-top: 0;
 }
 
-.admin-manage-title {
-  font-weight: 500;
+.ink .admin-manage-title {
+  font-weight: 600;
   font-size: 0.9375rem;
 }
 
@@ -820,6 +820,41 @@
 
 .ink .admin-muted {
   color: var(--muted);
+}
+
+.ink .admin-ink {
+  color: var(--ink);
+}
+
+.ink .admin-strong {
+  font-weight: 600;
+}
+
+.ink .admin-subhead {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ink .admin-msg-body {
+  white-space: pre-wrap;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  line-height: 1.6;
+}
+
+.ink .admin-msg-actions {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.ink .admin-btn[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.ink .admin-table tr.is-current {
+  background: color-mix(in srgb, var(--k-chip) 55%, transparent);
 }
 
 .ink .admin-bars {
@@ -1021,11 +1056,11 @@
   }
 }
 
-.admin-board {
+.ink .admin-board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   aspect-ratio: 1;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--k-line);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -1728,7 +1763,7 @@
   background: var(--surface);
 }
 
-.admin-up {
+.ink .admin-up {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr) auto;
   gap: 10px;
@@ -1736,44 +1771,47 @@
   font-size: 0.8125rem;
 }
 
-.admin-up img {
+.ink .admin-up img {
   width: 40px;
   height: 40px;
   object-fit: cover;
   border-radius: 6px;
 }
 
-.admin-up .nm {
+.ink .admin-up .nm {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.admin-up .pg {
-  height: 4px;
-  border-radius: 2px;
-  background: var(--line);
+.ink .admin-up .pg {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--k-chip);
+  border: 1px solid var(--k-line);
   margin-top: 5px;
   overflow: hidden;
 }
 
-.admin-up .pg i {
+.ink .admin-up .pg i {
   display: block;
   height: 100%;
-  background: var(--accent);
+  background: #E8492A;
   transition: width 0.15s;
 }
 
-.admin-up .st {
+.ink .admin-up .st {
   color: var(--faint);
   white-space: nowrap;
+  font-family: var(--f-mono);
+  font-size: 12px;
 }
 
-.admin-up .st.ok {
+.ink .admin-up .st.ok {
   color: var(--ok);
 }
 
-.admin-up .st.err {
+.ink .admin-up .st.err {
   color: var(--danger);
 }
 
@@ -2094,7 +2132,7 @@
 }
 
 /* Media library */
-.admin-usage {
+.ink .admin-usage {
   display: flex;
   gap: 16px;
   align-items: center;
@@ -2103,75 +2141,83 @@
   color: var(--muted);
 }
 
-.admin-usage .bar {
+.ink .admin-usage .bar {
   flex: 1 1 200px;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--surface);
+  height: 12px;
+  border-radius: 999px;
+  background: var(--k-chip);
   overflow: hidden;
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--k-line);
 }
 
-.admin-usage .bar i {
+.ink .admin-usage .bar i {
   display: block;
   height: 100%;
-  background: var(--accent);
+  background: #E8492A;
+  border-radius: 999px;
 }
 
-.admin-mgrid {
+.ink .admin-mgrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
-.admin-mitem {
-  border: 1px solid var(--line);
-  border-radius: 12px;
+.ink .admin-mitem {
+  border: 1.5px solid var(--k-line);
+  border-radius: 14px;
   overflow: hidden;
-  background: var(--bg);
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--k-shadow);
   display: flex;
   flex-direction: column;
+  transition: translate 0.2s, box-shadow 0.2s;
 }
 
-.admin-mitem .im {
+.ink .admin-mitem:hover {
+  translate: -2px -2px;
+  box-shadow: 6px 6px 0 var(--k-shadow);
+}
+
+.ink .admin-mitem .im {
   aspect-ratio: 4 / 3;
-  background: var(--surface);
+  background: var(--k-chip);
   position: relative;
 }
 
-.admin-mitem .im img {
+.ink .admin-mitem .im img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.admin-mitem .mi {
+.ink .admin-mitem .mi {
   padding: 10px 12px;
   font-size: 0.8125rem;
 }
 
-.admin-mitem .mi b {
+.ink .admin-mitem .mi b {
   display: block;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.admin-mitem .mi span {
-  color: var(--faint);
+.ink .admin-mitem .mi span {
+  color: var(--muted);
+  font-family: var(--f-mono);
+  font-size: 12px;
 }
 
-.admin-mitem .ma {
+.ink .admin-mitem .ma {
   display: flex;
   gap: 6px;
   padding: 0 12px 12px;
   margin-top: auto;
 }
 
-.admin-mitem .ma .admin-btn {
-  min-height: 40px;
+.ink .admin-mitem .ma .admin-btn {
   padding: 0 10px;
-  font-size: 0.8125rem;
   flex: 1;
 }

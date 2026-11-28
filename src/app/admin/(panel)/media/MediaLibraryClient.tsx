@@ -222,7 +222,7 @@ export default function MediaLibraryClient({
 
       <div className="admin-usage">
         <span>
-          <b style={{ color: "var(--ink)" }}>
+          <b className="admin-ink">
             {totalCount} {totalCount === 1 ? "image" : "images"}
           </b>{" "}
           · {formatBytes(totalBytes)} in the blob store
