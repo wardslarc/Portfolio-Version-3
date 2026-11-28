@@ -1,6 +1,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { trackDistance } from "./math";
+import { scalePx, trackDistance } from "./math";
+import { readU } from "./refresh";
 
 /**
  * Scrubbed horizontal translation, progress bar fill, and card drift for the
@@ -52,7 +53,11 @@ export function trackMotion(root: HTMLElement): () => void {
     tl.fromTo(
       card,
       { "--drift-y": "0px" },
-      { "--drift-y": `${drift}px`, duration: 1, ease: "none" },
+      {
+        "--drift-y": () => `${scalePx(drift, readU(root))}px`,
+        duration: 1,
+        ease: "none",
+      },
       0,
     );
   }

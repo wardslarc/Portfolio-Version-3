@@ -1,11 +1,11 @@
 .section {
   height: auto;
-  padding: 120px 24px 0;
+  padding: calc(7.5 * var(--u)) calc(1.5 * var(--u)) 0;
 }
 
 .stage {
   display: grid;
-  gap: 48px;
+  gap: calc(3 * var(--u));
   justify-items: center;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -18,12 +18,12 @@
 .splitLeft,
 .splitRight {
   position: static;
-  width: min(80vw, 300px);
+  width: min(80vw, calc(18.75 * var(--u)));
   aspect-ratio: 3 / 4;
-  padding: 12px;
-  border: 1.5px solid var(--home-ink);
-  border-radius: 20px;
-  box-shadow: 10px 10px 0 var(--home-ink);
+  padding: calc(0.75 * var(--u));
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
+  border-radius: calc(1.25 * var(--u));
+  box-shadow: calc(0.625 * var(--u)) calc(0.625 * var(--u)) 0 var(--home-ink);
   overflow: hidden;
   translate: var(--split-x, 0%) 0;
 }
@@ -41,8 +41,8 @@
 }
 
 .cardAsset {
-  border-radius: 10px;
-  font-size: 12px;
+  border-radius: calc(0.625 * var(--u));
+  font-size: max(12px, calc(0.75 * var(--u)));
   color: var(--home-muted);
 }
 
@@ -74,10 +74,10 @@
 
 .splitNote {
   display: block;
-  font-size: 26px;
+  font-size: max(12px, calc(1.625 * var(--u)));
   letter-spacing: 0;
   color: var(--home-coral-text);
-  margin-top: 18px;
+  margin-top: calc(1.125 * var(--u));
   line-height: 1.1;
 }
 
@@ -87,7 +87,7 @@
   clip-path: none;
   width: 100vw;
   margin-inline: calc(50% - 50vw);
-  padding: 120px 24px;
+  padding: calc(7.5 * var(--u)) calc(1.5 * var(--u));
   background: var(--home-ink);
   color: var(--home-paper);
   display: grid;
@@ -108,6 +108,16 @@
   color: var(--home-coral-night);
 }
 
+@media (min-width: 760px) {
+  .heading {
+    font-size: max(44px, calc(6.66 * var(--u)));
+  }
+
+  .overlayText {
+    font-size: max(64px, calc(10.8 * var(--u)));
+  }
+}
+
 @media (min-width: 760px) and (prefers-reduced-motion: reduce) {
   .stage {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -116,20 +126,20 @@
       "overlay overlay overlay";
     align-items: center;
     justify-items: center;
-    gap: 48px 32px;
-    max-width: 1240px;
+    gap: calc(3 * var(--u)) calc(2 * var(--u));
+    max-width: calc(77.5 * var(--u));
     margin: 0 auto;
   }
 
   .splitLeft,
   .splitRight {
-    width: min(100%, 300px);
+    width: min(100%, calc(18.75 * var(--u)));
   }
 }
 
 @media (min-width: 760px) and (prefers-reduced-motion: no-preference) {
   .section {
-    height: calc(var(--stage-h) + 1400px);
+    height: calc(var(--stage-h) * 2.5);
     padding: 0;
   }
 
@@ -147,14 +157,14 @@
     position: absolute;
     left: 3%;
     top: 16%;
-    width: min(27vw, 380px);
+    width: min(27vw, calc(23.75 * var(--u)));
   }
 
   .splitRight {
     position: absolute;
     right: 3%;
     top: 12%;
-    width: min(27vw, 380px);
+    width: min(27vw, calc(23.75 * var(--u)));
   }
 
   .overlay {
@@ -163,7 +173,7 @@
     z-index: 3;
     width: auto;
     margin-inline: 0;
-    padding: 24px;
+    padding: calc(1.5 * var(--u));
     clip-path: circle(150% at 72% 50%);
   }
 }

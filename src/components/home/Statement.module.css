@@ -1,9 +1,9 @@
 .section {
-  padding: 160px 24px;
+  padding: calc(10 * var(--u)) calc(1.5 * var(--u));
 }
 
 .paragraph {
-  max-width: 1100px;
+  max-width: calc(68.75 * var(--u));
   margin: 0 auto;
   font-family: var(--font-bricolage), sans-serif;
   font-weight: 700;
@@ -11,6 +11,12 @@
   line-height: 1.12;
   letter-spacing: -0.03em;
   color: var(--home-ink);
+}
+
+@media (min-width: 760px) {
+  .paragraph {
+    font-size: max(30px, calc(3.75 * var(--u)));
+  }
 }
 
 .closing {

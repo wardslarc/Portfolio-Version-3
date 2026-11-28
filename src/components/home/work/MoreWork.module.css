@@ -1,9 +1,9 @@
 .sandSection {
-  padding: 40px 24px 140px;
+  padding: calc(2.5 * var(--u)) calc(1.5 * var(--u)) calc(8.75 * var(--u));
 }
 
 .sandInner {
-  max-width: 1240px;
+  max-width: calc(77.5 * var(--u));
   margin: 0 auto;
 }
 
@@ -11,40 +11,40 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 1.5px solid var(--home-ink);
+  border-top: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
 }
 
 .row {
-  padding: 18px 0;
-  border-bottom: 1px solid var(--home-rule);
+  padding: calc(1.125 * var(--u)) 0;
+  border-bottom: max(1px, calc(0.0625 * var(--u))) solid var(--home-rule);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
-  gap: 6px 24px;
+  gap: calc(0.375 * var(--u)) calc(1.5 * var(--u));
 }
 
 .rowLink {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: max(44px, calc(2.75 * var(--u)));
   width: 100%;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 6px 24px;
+  gap: calc(0.375 * var(--u)) calc(1.5 * var(--u));
   color: inherit;
 }
 
 .rowTitle {
   font-family: var(--font-bricolage), sans-serif;
   font-weight: 700;
-  font-size: 22px;
+  font-size: max(15px, calc(1.375 * var(--u)));
   letter-spacing: -0.02em;
   color: var(--home-ink);
 }
 
 .rowMeta {
-  font-size: 12px;
+  font-size: max(12px, calc(0.75 * var(--u)));
   color: var(--home-muted);
   white-space: nowrap;
 }
@@ -53,21 +53,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 24px;
-  min-height: 46px;
-  padding: 12px 22px;
+  margin-top: calc(1.5 * var(--u));
+  min-height: max(44px, calc(2.875 * var(--u)));
+  padding: calc(0.75 * var(--u)) calc(1.375 * var(--u));
   background: var(--home-card);
   color: var(--home-ink);
-  font-size: 14px;
+  font-size: max(12px, calc(0.875 * var(--u)));
 }
 
 .expWrap {
   margin-top: 0;
-  scroll-margin-top: 80px;
+  scroll-margin-top: calc(5 * var(--u));
 }
 
 .subHeading {
-  margin: 110px 0 28px;
+  margin: calc(6.875 * var(--u)) 0 calc(1.75 * var(--u));
   font-family: var(--font-bricolage), sans-serif;
   font-weight: 800;
   font-size: clamp(40px, 5vw, 64px);
@@ -76,22 +76,28 @@
   color: var(--home-ink);
 }
 
+@media (min-width: 760px) {
+  .subHeading {
+    font-size: max(40px, calc(4 * var(--u)));
+  }
+}
+
 .headingAccent {
   color: var(--home-coral-text);
 }
 
 .expStrip {
-  border: 1.5px solid var(--home-ink);
-  border-radius: 18px;
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
+  border-radius: calc(1.125 * var(--u));
   overflow: hidden;
   background: var(--home-card);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(15.625 * var(--u))), 1fr));
 }
 
 .expCell {
-  padding: 24px;
-  border-right: 1px solid var(--home-rule);
+  padding: calc(1.5 * var(--u));
+  border-right: max(1px, calc(0.0625 * var(--u))) solid var(--home-rule);
 }
 
 .expCell:last-child {
@@ -111,20 +117,20 @@
 
 .expWhen {
   margin: 0;
-  font-size: 12px;
+  font-size: max(12px, calc(0.75 * var(--u)));
   color: var(--home-muted);
 }
 
 .expRole {
-  margin: 8px 0 0;
+  margin: calc(0.5 * var(--u)) 0 0;
   font-family: var(--font-bricolage), sans-serif;
   font-weight: 700;
-  font-size: 20px;
+  font-size: max(15px, calc(1.25 * var(--u)));
   color: var(--home-ink);
 }
 
 .expOrg {
-  margin: 4px 0 0;
-  font-size: 15px;
+  margin: calc(0.25 * var(--u)) 0 0;
+  font-size: max(15px, calc(0.9375 * var(--u)));
   color: var(--home-muted);
 }

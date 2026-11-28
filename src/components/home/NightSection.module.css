@@ -1,15 +1,15 @@
 .section {
-  padding: 80px 24px 150px;
+  padding: calc(5 * var(--u)) calc(1.5 * var(--u)) calc(9.375 * var(--u));
 }
 
 .inner {
-  max-width: 1240px;
+  max-width: calc(77.5 * var(--u));
   margin: 0 auto;
 }
 
 .headRow {
   display: flex;
-  gap: 24px 48px;
+  gap: calc(1.5 * var(--u)) calc(3 * var(--u));
   align-items: flex-end;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -25,14 +25,20 @@
   color: var(--home-paper);
 }
 
+@media (min-width: 760px) {
+  .heading {
+    font-size: max(48px, calc(6.25 * var(--u)));
+  }
+}
+
 .headingAccent {
   color: var(--home-coral-night);
 }
 
 .blurb {
   margin: 0;
-  max-width: 420px;
-  font-size: 17px;
+  max-width: calc(26.25 * var(--u));
+  font-size: max(15px, calc(1.0625 * var(--u)));
   line-height: 1.6;
   color: rgb(243 241 236 / 0.8);
 }
@@ -43,18 +49,18 @@
 }
 
 .gallery {
-  margin-top: 80px;
+  margin-top: calc(5 * var(--u));
   display: flex;
-  gap: 28px;
+  gap: calc(1.75 * var(--u));
   flex-wrap: wrap;
   align-items: flex-start;
 }
 
 .col {
-  flex: 1 1 260px;
+  flex: 1 1 calc(16.25 * var(--u));
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: calc(1.75 * var(--u));
   margin-top: var(--col-offset, 0px);
 }
 
@@ -65,10 +71,10 @@
 }
 
 .frame {
-  border: 1px solid var(--home-frame-border);
-  border-radius: 16px;
+  border: max(1px, calc(0.0625 * var(--u))) solid var(--home-frame-border);
+  border-radius: calc(1 * var(--u));
   background: var(--home-frame);
-  padding: 12px;
+  padding: calc(0.75 * var(--u));
   margin: 0;
   transition: transform 0.4s;
 }
@@ -78,14 +84,14 @@
 }
 
 .artImage {
-  border-radius: 10px;
+  border-radius: calc(0.625 * var(--u));
   background: var(--home-frame-image);
   overflow: hidden;
   position: relative;
 }
 
 .artAsset {
-  font-size: 11px;
+  font-size: max(11px, calc(0.6875 * var(--u)));
   color: var(--home-muted-dark);
 }
 
@@ -93,9 +99,9 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
-  padding: 10px 4px 2px;
-  font-size: 12px;
+  gap: calc(0.75 * var(--u));
+  padding: calc(0.625 * var(--u)) calc(0.25 * var(--u)) calc(0.125 * var(--u));
+  font-size: max(12px, calc(0.75 * var(--u)));
   color: var(--home-muted-dark);
 }
 
@@ -104,10 +110,10 @@
 }
 
 .chessFrame {
-  margin-top: 120px;
-  border: 1.5px solid var(--home-night-rule);
-  border-radius: 20px;
-  padding: 24px;
+  margin-top: calc(7.5 * var(--u));
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-night-rule);
+  border-radius: calc(1.25 * var(--u));
+  padding: calc(1.5 * var(--u));
   background: var(--home-frame);
   color: var(--home-paper);
 
@@ -130,24 +136,24 @@
 }
 
 .chessNote {
-  margin: 0 0 12px;
-  font-size: 26px;
+  margin: 0 0 calc(0.75 * var(--u));
+  font-size: max(12px, calc(1.625 * var(--u)));
   color: var(--home-coral-night);
 }
 
 .chessFrame :global(.cx-grid) {
-  grid-template-columns: minmax(0, 320px) 220px;
+  grid-template-columns: minmax(0, calc(20 * var(--u))) calc(13.75 * var(--u));
 }
 
 .chessFrame :global(.cx-boardcol) {
-  max-width: 320px;
+  max-width: calc(20 * var(--u));
 }
 
 @media (min-width: 1024px) {
   .chessFrame :global(#chess) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 32px;
+    gap: calc(2 * var(--u));
     align-items: start;
   }
 

@@ -1,29 +1,29 @@
 .panel {
   background: var(--home-ink);
   color: var(--home-paper);
-  padding: 140px 24px 120px;
-  margin-top: -60px;
+  padding: calc(8.75 * var(--u)) calc(1.5 * var(--u)) calc(7.5 * var(--u));
+  margin-top: calc(-3.75 * var(--u));
   position: relative;
   z-index: 2;
-  clip-path: inset(0% 0% 0% 0% round 40px 40px 0px 0px);
+  clip-path: inset(0% 0% 0% 0% round calc(2.5 * var(--u)) calc(2.5 * var(--u)) 0px 0px);
 }
 
 .inner {
-  max-width: 1240px;
+  max-width: calc(77.5 * var(--u));
   margin: 0 auto;
 }
 
 .footer {
-  max-width: 1240px;
-  margin: 100px auto 0;
-  padding-top: 24px;
-  border-top: 1px solid var(--home-night-rule);
+  max-width: calc(77.5 * var(--u));
+  margin: calc(6.25 * var(--u)) auto 0;
+  padding-top: calc(1.5 * var(--u));
+  border-top: max(1px, calc(0.0625 * var(--u))) solid var(--home-night-rule);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: calc(0.75 * var(--u));
   font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: max(12px, calc(0.75 * var(--u)));
   color: var(--home-muted-dark);
 }

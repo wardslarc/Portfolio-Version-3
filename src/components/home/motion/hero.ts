@@ -1,4 +1,6 @@
 import gsap from "gsap";
+import { scalePx } from "./math";
+import { readU } from "./refresh";
 
 /** Scrubbed hero shrink + onigiri stroke draw over the pinned hero stage. */
 export function heroPinnedMotion(root: HTMLElement): void {
@@ -37,7 +39,11 @@ export function heroPinnedMotion(root: HTMLElement): void {
     tl.fromTo(
       card,
       { clipPath: "inset(0% round 0px)" },
-      { clipPath: "inset(0% round 36px)", duration: 1, ease: "none" },
+      {
+        clipPath: () => `inset(0% round ${scalePx(36, readU(root))}px)`,
+        duration: 1,
+        ease: "none",
+      },
       0,
     );
   }

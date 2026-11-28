@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { fanTarget } from "./math";
+import { readU } from "./refresh";
 
 /** Spreads the 5 sketchbook cards from a stacked pile into a fan. */
 export function fanMotion(root: HTMLElement, step: number): void {
@@ -9,18 +10,21 @@ export function fanMotion(root: HTMLElement, step: number): void {
 
   for (const card of cards) {
     const i = Number(card.dataset.i ?? 0);
-    const target = fanTarget(i, step);
+    const { rotation } = fanTarget(i, step);
     gsap.fromTo(
       card,
       { x: 0, y: 0, rotation: 0 },
       {
-        ...target,
+        x: () => fanTarget(i, step, readU(root)).x,
+        y: () => fanTarget(i, step, readU(root)).y,
+        rotation,
         ease: "none",
         scrollTrigger: {
           trigger: section,
           start: "top 60%",
           end: "top 15%",
           scrub: true,
+          invalidateOnRefresh: true,
         },
       },
     );

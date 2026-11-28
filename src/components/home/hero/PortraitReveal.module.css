@@ -8,11 +8,11 @@
   width: 100%;
   aspect-ratio: 4 / 5;
   padding: 0;
-  border: 1.5px solid var(--home-ink);
-  border-radius: 20px;
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
+  border-radius: calc(1.25 * var(--u));
   overflow: hidden;
   background: var(--home-card);
-  box-shadow: 10px 10px 0 var(--home-ink);
+  box-shadow: calc(0.625 * var(--u)) calc(0.625 * var(--u)) 0 var(--home-ink);
   transform: rotate(2deg);
   cursor: crosshair;
   text-align: left;
@@ -33,26 +33,26 @@
 .sketchNote1,
 .sketchNote2 {
   position: absolute;
-  font-size: 24px;
+  font-size: max(12px, calc(1.5 * var(--u)));
   line-height: 1;
   color: var(--home-coral-text);
   pointer-events: none;
 }
 
 .sketchNote1 {
-  left: 22px;
-  top: 20px;
+  left: calc(1.375 * var(--u));
+  top: calc(1.25 * var(--u));
 }
 
 .sketchNote2 {
-  right: 22px;
-  bottom: 26px;
+  right: calc(1.375 * var(--u));
+  bottom: calc(1.625 * var(--u));
 }
 
 .photoLayer {
   position: absolute;
   inset: 0;
-  --r: 120px;
+  --r: calc(7.5 * var(--u));
   --mx: -400px;
   --my: -400px;
   mask-image: radial-gradient(
@@ -68,7 +68,7 @@
 }
 
 .frame[aria-pressed="true"] .photoLayer {
-  --r: 1000px;
+  --r: calc(62.5 * var(--u));
   --mx: 50%;
   --my: 50%;
 }
@@ -80,8 +80,8 @@
 }
 
 .caption {
-  margin: 20px 0 0;
-  font-size: 24px;
+  margin: calc(1.25 * var(--u)) 0 0;
+  font-size: max(12px, calc(1.5 * var(--u)));
   line-height: 1.2;
   color: var(--home-muted);
   text-align: center;
@@ -103,13 +103,13 @@
 
 @media (min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .frame {
-    width: min(100%, calc((var(--stage-h) - 280px) * 0.8));
+    width: min(100%, calc(24.375 * var(--u)));
     margin-inline: auto;
   }
 
   @media (max-height: 759.98px) {
     .caption {
-      margin-top: 12px;
+      margin-top: calc(0.75 * var(--u));
     }
   }
 }

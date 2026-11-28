@@ -23,35 +23,35 @@
   background-color: var(--home-paper);
   color: var(--home-ink);
   overflow: hidden;
-  padding: 92px 24px 32px;
+  padding: calc(5.75 * var(--u)) calc(1.5 * var(--u)) calc(2 * var(--u));
   background-image:
-    linear-gradient(var(--home-grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--home-grid-line) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u)))),
+    linear-gradient(90deg, var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u))));
+  background-size: calc(2 * var(--u)) calc(2 * var(--u));
 }
 
 .inner {
-  max-width: 1240px;
+  max-width: calc(77.5 * var(--u));
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 56px;
+  gap: calc(3.5 * var(--u));
   align-items: center;
 }
 
 .textCol {
-  flex: 999 1 520px;
+  flex: 999 1 calc(32.5 * var(--u));
   min-width: 0;
 }
 
 .portraitCol {
-  flex: 1 1 300px;
-  max-width: 390px;
+  flex: 1 1 calc(18.75 * var(--u));
+  max-width: calc(24.375 * var(--u));
 }
 
 .heroNote {
   margin: 0;
-  font-size: 30px;
+  font-size: max(12px, calc(1.875 * var(--u)));
   color: var(--home-coral-text);
   rotate: -3deg;
   display: inline-block;
@@ -64,7 +64,7 @@
   line-height: 0.9;
   letter-spacing: -0.045em;
   color: var(--home-ink);
-  margin: 12px 0 0;
+  margin: calc(0.75 * var(--u)) 0 0;
 }
 
 .h1Line {
@@ -81,45 +81,45 @@
 .underline {
   position: absolute;
   left: 0;
-  bottom: -6px;
+  bottom: calc(-0.375 * var(--u));
   width: 100%;
-  height: 22px;
+  height: calc(1.375 * var(--u));
   pointer-events: none;
 }
 
 .paragraph {
-  font-size: 19px;
+  font-size: max(15px, calc(1.1875 * var(--u)));
   line-height: 1.55;
   color: var(--home-muted);
-  max-width: 540px;
-  margin: 32px 0 0;
+  max-width: calc(33.75 * var(--u));
+  margin: calc(2 * var(--u)) 0 0;
 }
 
 .ctas {
   display: flex;
-  gap: 12px;
-  margin-top: 36px;
+  gap: calc(0.75 * var(--u));
+  margin-top: calc(2.25 * var(--u));
   flex-wrap: wrap;
 }
 
 .btnPrimary {
   background: var(--home-ink);
   color: var(--home-paper);
-  padding: 15px 24px;
-  font-size: 16px;
+  padding: calc(0.9375 * var(--u)) calc(1.5 * var(--u));
+  font-size: max(12px, calc(1 * var(--u)));
 }
 
 .btnSecondary {
   background: var(--home-card);
   color: var(--home-ink);
-  padding: 15px 24px;
-  font-size: 16px;
+  padding: calc(0.9375 * var(--u)) calc(1.5 * var(--u));
+  font-size: max(12px, calc(1 * var(--u)));
 }
 
 .band {
   grid-area: band;
   position: relative;
-  padding: 48px 0;
+  padding: calc(3 * var(--u)) 0;
   background: var(--home-ink);
   overflow: hidden;
   display: flex;
@@ -130,7 +130,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: calc(0.25 * var(--u));
 }
 
 .mqRow {
@@ -146,7 +146,7 @@
 }
 
 .mqItem {
-  padding-right: 60px;
+  padding-right: calc(3.75 * var(--u));
 }
 
 .mqStar {
@@ -155,22 +155,32 @@
 
 .mqOutline {
   color: transparent;
-  -webkit-text-stroke: 2px var(--home-paper);
+  -webkit-text-stroke: calc(0.125 * var(--u)) var(--home-paper);
 }
 
 .onigiri {
   grid-area: band;
   place-self: center;
-  width: min(46vw, 420px);
-  height: min(46vw, 420px);
+  width: min(46vw, calc(26.25 * var(--u)));
+  height: min(46vw, calc(26.25 * var(--u)));
   z-index: 2;
   pointer-events: none;
   rotate: -8deg;
 }
 
+@media (min-width: 760px) {
+  .h1 {
+    font-size: max(44px, calc(7.56 * var(--u)));
+  }
+
+  .mqRow {
+    font-size: max(72px, calc(11.7 * var(--u)));
+  }
+}
+
 @media (min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .section {
-    height: calc(var(--stage-h) + 1000px);
+    height: calc(var(--stage-h) * 2);
     margin-top: calc(-1 * var(--header-h));
   }
 
@@ -198,8 +208,8 @@
     display: block;
     position: absolute;
     inset: 0;
-    border-radius: 36px;
-    box-shadow: 0 50px 90px rgb(0 0 0);
+    border-radius: calc(2.25 * var(--u));
+    box-shadow: 0 calc(3.125 * var(--u)) calc(5.625 * var(--u)) rgb(0 0 0);
     opacity: 0;
     pointer-events: none;
   }
@@ -212,14 +222,6 @@
 
   .inner {
     width: 100%;
-  }
-
-  .h1 {
-    font-size: clamp(
-      44px,
-      min(8.4vw, calc((var(--stage-h) - 360px) * 0.37)),
-      124px
-    );
   }
 
   .onigiri {
@@ -238,19 +240,19 @@
 
   @media (max-height: 759.98px) {
     .card {
-      padding: 84px 24px 20px;
+      padding: calc(5.25 * var(--u)) calc(1.5 * var(--u)) calc(1.25 * var(--u));
     }
 
     .inner {
-      gap: 40px;
+      gap: calc(2.5 * var(--u));
     }
 
     .paragraph {
-      margin-top: 20px;
+      margin-top: calc(1.25 * var(--u));
     }
 
     .ctas {
-      margin-top: 24px;
+      margin-top: calc(1.5 * var(--u));
     }
   }
 }
@@ -259,7 +261,7 @@
   @keyframes up {
     from {
       opacity: 0;
-      transform: translateY(40px);
+      transform: translateY(calc(2.5 * var(--u)));
     }
     to {
       opacity: 1;

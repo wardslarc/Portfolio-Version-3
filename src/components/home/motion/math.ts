@@ -1,3 +1,8 @@
+/** Scales a 1440px design pixel value proportionally to the current `--u` unit. */
+export function scalePx(px: number, u: number): number {
+  return px === 0 ? 0 : (px * u) / 16;
+}
+
 /** Horizontal scroll distance for the work track (never negative). */
 export function trackDistance(trackWidth: number, viewportWidth: number): number {
   return Math.max(0, trackWidth - viewportWidth);
@@ -7,10 +12,11 @@ export function trackDistance(trackWidth: number, viewportWidth: number): number
 export function fanTarget(
   i: number,
   step: number,
+  u = 16,
 ): { x: number; y: number; rotation: number } {
   return {
-    x: i === 0 ? 0 : i * step,
-    y: Math.abs(i) * 28,
+    x: i === 0 ? 0 : scalePx(i * step, u),
+    y: scalePx(Math.abs(i) * 28, u),
     rotation: i === 0 ? 0 : i * 9,
   };
 }

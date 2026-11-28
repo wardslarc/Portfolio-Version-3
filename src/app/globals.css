@@ -1,6 +1,12 @@
 /* Layout: one narrow reading column (~680px) under a slim sticky header. Order follows a recruiter's
    quick scan: who + how to reach -> best projects -> experience -> skills -> contact.
    One accent, used only for links and state. */
+@property --u {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 16px;
+}
+
 :root {
   --bg: #fafaf9;
   --surface: #f2f2f0;

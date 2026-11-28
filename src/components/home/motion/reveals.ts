@@ -1,4 +1,6 @@
 import gsap from "gsap";
+import { scalePx } from "./math";
+import { readU } from "./refresh";
 
 /** Fades statement word spans from 20% to 100% opacity as they cross the viewport. */
 export function wordsMotion(root: HTMLElement): void {
@@ -35,7 +37,7 @@ export function revealMotion(
   for (const el of reveals) {
     gsap.fromTo(
       el,
-      moveY ? { opacity: 0, y: 56 } : { opacity: 0 },
+      moveY ? { opacity: 0, y: () => scalePx(56, readU(root)) } : { opacity: 0 },
       {
         ...(moveY ? { opacity: 1, y: 0 } : { opacity: 1 }),
         ease: "none",
@@ -44,6 +46,7 @@ export function revealMotion(
           start: "top bottom",
           end: "top 70%",
           scrub: true,
+          ...(moveY ? { invalidateOnRefresh: true } : {}),
         },
       },
     );

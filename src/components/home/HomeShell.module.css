@@ -28,9 +28,10 @@
 
   --home-bg: #F3F1EC;
   --home-fg: #16161A;
-  --header-h: 74px;
-  --stage-h: min(100vh, 900px);
-  --stage-h: min(100svh, 900px);
+  --u: 16px;
+  --header-h: calc(4.625 * var(--u));
+  --stage-h: 100vh;
+  --stage-h: 100svh;
 
   --accent: #E8492A;
 
@@ -39,9 +40,16 @@
   overflow-x: clip;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   background-image:
-    linear-gradient(var(--home-grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--home-grid-line) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u)))),
+    linear-gradient(90deg, var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u))));
+  background-size: calc(2 * var(--u)) calc(2 * var(--u));
+}
+
+@media (min-width: 760px) {
+  .root {
+    --u: clamp(calc(1024px / 90), min(100vw / 90, 100vh / 44), calc(2560px / 90));
+    --u: clamp(calc(1024px / 90), min(100vw / 90, 100svh / 44), calc(2560px / 90));
+  }
 }
 
 .root :global([data-home-theme="paper"]) {
@@ -72,8 +80,8 @@
 .root :global(textarea:focus),
 .root :global(button:focus-visible),
 .root :global(a:focus-visible) {
-  outline: 2px solid var(--home-coral);
-  outline-offset: 3px;
+  outline: calc(0.125 * var(--u)) solid var(--home-coral);
+  outline-offset: calc(0.1875 * var(--u));
 }
 
 .main {
@@ -92,19 +100,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 44px;
+  gap: calc(0.5 * var(--u));
+  min-height: max(44px, calc(2.75 * var(--u)));
   font-family: inherit;
   font-weight: 600;
   border-radius: 999px;
-  border: 1.5px solid var(--home-ink);
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .btn:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 5px 5px 0 currentColor;
+  transform: translate(calc(-0.1875 * var(--u)), calc(-0.1875 * var(--u)));
+  box-shadow: calc(0.3125 * var(--u)) calc(0.3125 * var(--u)) 0 currentColor;
 }
 
 .serif {
