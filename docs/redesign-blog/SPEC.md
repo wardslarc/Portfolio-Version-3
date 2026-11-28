@@ -19,7 +19,7 @@ Behavior, data, URLs, SEO and security stay exactly as they are.
 | BD4 | The sign-in screens are **always dark** (dark grid page, paper card), whatever theme is stored. |
 | BD5 | **No Lenis, no GSAP, no pins** off the homepage. Motion is CSS: load-in keyframes, scroll-driven animations (`animation-timeline: view()`/`scroll()`) as progressive enhancement, and the View Transitions API. Browsers without scroll-driven animations show everything in its final state (no fallback script). |
 | BD6 | **Reduced motion = calm tier** (same rule as homepage D25): with `prefers-reduced-motion: reduce`, every animation becomes an opacity fade or is removed; nothing moves, slides, drops, shakes, grows or circles. |
-| BD7 | The blog list's cover **morphs** into the post's cover with React `<ViewTransition>` (Next 16.4.6 supports it without config). The theme toggle switches with a **circle reveal** from the toggle button. |
+| BD7 | The theme toggle switches with a **circle reveal** from the toggle button. ~~Cover morph list → post~~: dropped in R3 (2026-11-28) because the blog's pages stream in behind `<Suspense>`, so React's shared-element pair never forms (see `REVIEW-R3.md` R3.2). |
 | BD8 | The invite page gets a small password-length bar (visual only, `aria-hidden`). Validation stays on the server. |
 
 ## 3. What must not change
@@ -293,18 +293,22 @@ moves 32px over 8s, linear, infinite).
 
 ### 9.3 On scroll (inside `@supports (animation-timeline: view())` only)
 
-`animation-timeline: view()` with `linear` timing and these ranges:
+`animation-timeline: view()` with `linear` timing. Ranges are **lengths** (changed in R3.1), so a reveal finishes after
+a fixed scroll distance whatever the element's height:
 
 | Element | Animation | Range |
 |---|---|---|
-| Section labels, h2s in prose, paragraphs-level blocks you choose (quote, code, like row), footer heading and line | `fadeUp` | entry 0% → entry 90% |
-| Featured card, list cards, prose figures/images, bio card | `settle` | entry 0% → entry 100% (list cards in a row: 0/15/30% starts) |
-| Tape on those cards | `slap` | entry 60% → entry 100% |
-| Featured "fresh off the press!", blockquote “ | `pop` | entry 30% → entry 100% |
-| h2 highlight | `underline` | entry 40% → entry 100% |
-| Footer band | `grow` | entry 0% → entry 70% |
+| Section labels, prose h2/blockquote/pre, like row, footer heading and line | `fadeUp` | entry 0px → entry 160px |
+| List cards, prose figures/images, bio card | `settle` | entry 0px → entry 260px (cards in a row: start 0/40/80px, end 260/300/340px) |
+| Tape on those cards | `slap` | entry 160px → entry 260px |
+| Blockquote “ | `pop` | entry 80px → entry 220px |
+| h2 highlight | `underline` | entry 60px → entry 200px |
+| Footer band | `grow` | entry 0px → entry 320px |
 | Featured and post cover image (inside its frame, scaled 1.16) | `parallax`, `animation-fill-mode: both` | cover |
 | Reading progress bar (post) | `progress`, `animation-timeline: scroll(root)`, fill both | whole page |
+
+The **featured card** is first-screen content, so it uses a time-based load-in instead (R3.1): `settle` .9s at .55s,
+its tape `slap` at 1.2s, its chip `pop` at 1.35s.
 
 Don't put `sc-*` on paragraphs one by one in the prose (it's server HTML); use selectors like
 `.blog-prose > h2`, `.blog-prose > blockquote`, `.blog-prose > pre`, `.blog-prose img`.
@@ -327,21 +331,16 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
 If `startViewTransition` is missing, throws, or reduced motion is on: switch instantly. `applyTheme` is the existing
 logic (set `data-theme`, write `cde-theme`, ignore storage errors). Navigations must not get the circle.
 
-### 9.5 Cover morph (BD7)
+### 9.5 Cover morph — dropped
 
-Read `node_modules/next/dist/docs/01-app/02-guides/view-transitions.md` first. Wrap the cover image box in
-`PostList` (featured and cards) and in `ArticleView` in `<ViewTransition name={\`cover-${slug}\`}>` (same name on both
-sides; only when the post has a cover). Only the shared cover should animate; set the boundary so enter/exit/update
-do nothing else (`default="none"` with a `share` animation, or what the guide recommends). Check: navigating `/` →
-`/blog` → post → back shows no flash, and the homepage's GSAP checks (no leaked ScrollTriggers, no `lenis` class off
-`/`) still pass.
+Removed in R3 (see BD7). Don't add `<ViewTransition>` to blog components.
 
 ### 9.6 Calm tier (BD6)
 
 Under `@media (prefers-reduced-motion: reduce)`: every `lineUp`, `fadeUp`, `drop`, `settle`, `slap`, `pop`,
 `write`, `cardIn` becomes `fade` (same delay/timeline); `draw`, `underline` (show the full highlight), `grow`,
 `parallax`, `drift`, `shake`, `stamp` (just appear) and the progress bar are removed; the theme switches instantly;
-the cover morph is skipped (`::view-transition-group(*) { animation: none }` inside the media query).
+(the cover morph was dropped, BD7).
 
 ### 9.7 Activity (cacheComponents)
 

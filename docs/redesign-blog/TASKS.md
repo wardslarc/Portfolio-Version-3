@@ -129,7 +129,7 @@ motion classes and `--rot`/`--r0`/`animation-delay` styles), `src/app/blog/[slug
 - With reduced motion: only fades; nothing moves (check each item in §9.6).
 - After every animation ends, card hover (straighten + bigger shadow) still works.
 
-## K08 Cover morph
+## K08 Cover morph (dropped in R3: see REVIEW-R3 R3.2 and SPEC BD7)
 
 **Files:** `src/components/blog/PostList.tsx`, `src/components/blog/ArticleView.tsx`, `src/styles/ink.css`.
 **How:** SPEC §9.5. Read the Next view-transitions guide first.
