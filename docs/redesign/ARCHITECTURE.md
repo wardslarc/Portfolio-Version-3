@@ -66,7 +66,7 @@ src/components/
     NightSection.tsx (+ .module.css) NEW [S] "Hall of sketches.", gallery, chess frame, id="night"
     Sketchbook.tsx (+ .module.css)  NEW [S]  fan of 5 cards, id="sketchbook"
     contact/
-      ContactPanel.tsx (+ .module.css) NEW [C] heading, copy, email button, signature, form
+      ContactPanel.tsx (+ .module.css) NEW [C] heading, copy, email button, form
       useContactForm.ts             NEW      logic moved verbatim from Contact.tsx (D13)
       validate.ts                   NEW      validate() moved from Contact.tsx
       validate.test.ts              NEW
@@ -524,7 +524,6 @@ Both strings need the same structure, so GSAP can interpolate them.
 |---|---|---|---|
 | `portraitPhoto` | `/carls-dale-escalo-portrait.jpg` (**exists**) | — | Hero |
 | `portraitSketch` | `/images/portrait-sketch.png` | `PortraitSketch` SVG | Hero |
-| `signature` | `/images/signature.svg` | Hero: onigiri drawing. Contact: Caveat "— Carls" plus `[your real signature]` | Hero, contact |
 | `deskPhoto` | `/images/desk.jpg` | `[Photo: you at your desk / code on screen]` | Split left |
 | `favoriteDrawing` | `/images/favorite-drawing.jpg` | `[Your favorite drawing]` | Split right |
 | `workRmk`, `workBilyo`, `workRelato`, `workTicketing` | `/images/work/{rmk-learning-hub,bilyo,relato,it-ticketing}.jpg` | `[Screenshot: RMK Learning Hub]`, `[Screenshot: Bilyo]`, `[Screenshot: Relato on a phone]`, `[Screenshot: Ticketing dashboard]` | Track |

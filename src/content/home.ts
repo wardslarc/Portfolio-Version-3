@@ -19,11 +19,6 @@ export const assets = {
     alt: "Line structure sketch of Carls Dale Escalo",
     label: "[Portrait sketch]",
   },
-  signature: {
-    src: null,
-    alt: "Handwritten signature of Carls",
-    label: "[your real signature]",
-  },
   deskPhoto: {
     src: null,
     alt: "Carls at his desk with code on screen",
@@ -366,8 +361,6 @@ export const sketchbook = {
 export const contact = {
   heading: ["Let's build", "something."] as const,
   copy: "Freelance builds, internal tools, or a full-time role. Tell me what you're working on and I'll reply by email.",
-  signature: "— Carls",
-  signatureNote: "[your real signature]",
   labels: {
     name: "Name",
     email: "Email",

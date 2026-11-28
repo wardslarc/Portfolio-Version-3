@@ -64,20 +64,6 @@
   color: var(--home-coral-night);
 }
 
-.signature {
-  margin-top: calc(2.5 * var(--u));
-  font-size: max(24px, calc(2.75 * var(--u)));
-  rotate: -4deg;
-  display: inline-block;
-  color: var(--home-coral-night);
-}
-
-.signatureNote {
-  font-weight: 400;
-  font-size: max(11px, calc(0.6875 * var(--u)));
-  color: var(--home-muted-dark);
-}
-
 .form {
   flex: 1 1 calc(23.75 * var(--u));
   display: flex;

@@ -23,7 +23,7 @@ at 1920 wide the composition is the 1440 design scaled up, not the same size wit
 | Stays as is | `vw`, `%`, `em`, unitless and degree values; px inside `(max-width: 759.98px)` blocks |
 | Sizes that use `vw` (`clamp(MINpx, Nvw, MAXpx)` fonts) | base rule unchanged (mobile); at ≥ 760px `max(MINpx, calc(<1440 value / 16> * var(--u)))` |
 | Inline px from `src/content/home.ts` | `calc(N * var(--u))` strings; `%` stays |
-| 11px texts (`.artAsset`, `.cardAsset`, `.signatureNote`) | `max(11px, calc(0.6875 * var(--u)))` |
+| 11px texts (`.artAsset`, `.cardAsset`) | `max(11px, calc(0.6875 * var(--u)))` |
 | JS radii | hero shrink end radius 2.25u; contact rise 6u → 2.5u |
 | Hairlines | `max(1px, calc(<X/16> * var(--u)))`, for example `1.5px` → `max(1px, calc(0.09375 * var(--u)))` |
 | Font floors | body and paragraph text `max(15px, …)`; labels, captions, mono, nav and buttons `max(12px, …)`; headings keep their `clamp` floor (h1 44px) or `max(24px, …)` |
@@ -211,7 +211,6 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Contact h2 "Let's build / *something.*" | Bricolage 800 | `clamp(56px, 9vw, 132px)` | .86 | -.05em | paper; "something." Instrument italic coral-night | 248 |
 | Contact copy | Geist | 18px | 1.6 | — | muted-dark; max-width 440px | 249 |
 | Email button | Geist Mono 500 | 16px | — | — | paper; label Caveat 700 22px coral-night, margin-left 10px | 250 |
-| Signature "— Carls" | Caveat 700 | 44px | — | — | coral-night, `rotate(-4deg)`, inline-block; placeholder note in Geist Mono 11px 400 muted-dark | 251 |
 | Form labels | Geist 500 | 14px | — | — | ink | 254–256 |
 | Inputs | Geist | 15px (textarea 15px/1.5) | — | — | ink | 254–256 |
 | Submit "Send it →" | Geist 600 | 16px | — | — | ink on coral | 257 |
@@ -286,7 +285,6 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Contact columns | `gap: 64px`; left `flex: 999 1 460px`; form `flex: 1 1 380px` | 246–253 |
 | Contact copy margin | `28px 0` | 249 |
 | Email button | `min-height: 52px; padding: 12px 22px` | 250 |
-| Signature margin-top | 40px | 251 |
 | Form | `gap: 16px; padding: 28px`; label `gap: 6px` | 253–254 |
 | Inputs | `min-height: 46px; padding: 0 14px`; textarea `padding: 12px 14px; rows: 4; resize: vertical` | 254–256 |
 | Submit | `min-height: 50px` | 257 |

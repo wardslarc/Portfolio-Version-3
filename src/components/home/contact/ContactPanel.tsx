@@ -38,13 +38,6 @@ export default function ContactPanel() {
             {copied}
           </span>
         </div>
-
-        <div className={`${shellStyles.note} ${styles.signature}`}>
-          {contact.signature}{" "}
-          <small className={`${shellStyles.mono} ${styles.signatureNote}`}>
-            {contact.signatureNote}
-          </small>
-        </div>
       </div>
 
       <form className={styles.form} data-anim="reveal" onSubmit={onSubmit} noValidate>
