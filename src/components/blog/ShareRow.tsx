@@ -57,6 +57,7 @@ export default function ShareRow({ url, title }: { url: string; title: string })
 
   return (
     <div className="blog-share">
+      <span className="blog-share-label">Share</span>
       <button
         type="button"
         className="k-pill k-lift blog-copy-btn"

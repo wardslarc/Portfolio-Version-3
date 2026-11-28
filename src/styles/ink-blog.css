@@ -912,6 +912,14 @@
   gap: 10px;
 }
 
+.ink .blog-share-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--k-muted);
+}
+
 .ink .blog-copy-btn {
   position: relative;
 }
