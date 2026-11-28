@@ -196,14 +196,18 @@
 
 @media (min-width: 760px) {
   .heading {
-    font-size: max(56px, calc(6.3 * var(--u)));
+    font-size: max(56px, calc(5.4 * var(--u)));
   }
 }
 
 @media (min-width: 760px) and (prefers-reduced-motion: no-preference) {
   .section {
     height: calc(
-      var(--stage-h) + var(--hz-extra, max(0px, calc(192.5 * var(--u) + 12vw - 100vw)))
+      var(--stage-h) +
+        var(
+          --hz-extra,
+          max(0px, calc(192.5 * var(--u) + 2 * max(var(--gutter), calc((100vw - var(--wrap)) / 2)) - 100vw))
+        )
     );
   }
 
@@ -221,7 +225,7 @@
     flex-direction: row;
     align-items: center;
     gap: calc(4 * var(--u));
-    padding: calc(2.5 * var(--u)) 6vw 0;
+    padding: calc(2.5 * var(--u)) max(var(--gutter), calc((100% - var(--wrap)) / 2)) 0;
     width: max-content;
   }
 
@@ -240,8 +244,8 @@
   .rail {
     display: block;
     position: absolute;
-    left: 6vw;
-    right: 6vw;
+    left: max(var(--gutter), calc((100% - var(--wrap)) / 2));
+    right: max(var(--gutter), calc((100% - var(--wrap)) / 2));
     bottom: calc(2.25 * var(--u));
     height: calc(0.1875 * var(--u));
     background: var(--home-track-rail);
@@ -258,7 +262,7 @@
   .stage {
     position: static;
     height: auto;
-    padding: calc(7.5 * var(--u)) calc(1.5 * var(--u));
+    padding: calc(7.5 * var(--u)) var(--gutter);
   }
 
   .track {
@@ -266,7 +270,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: calc(4 * var(--u)) calc(3.5 * var(--u));
     align-items: start;
-    max-width: calc(77.5 * var(--u));
+    max-width: var(--wrap);
     width: auto;
     margin: 0 auto;
     padding: 0;

@@ -1,6 +1,6 @@
 .section {
   height: auto;
-  padding: calc(7.5 * var(--u)) calc(1.5 * var(--u)) 0;
+  padding: calc(7.5 * var(--u)) var(--gutter) 0;
 }
 
 .stage {
@@ -87,7 +87,7 @@
   clip-path: none;
   width: 100vw;
   margin-inline: calc(50% - 50vw);
-  padding: calc(7.5 * var(--u)) calc(1.5 * var(--u));
+  padding: calc(7.5 * var(--u)) var(--gutter);
   background: var(--home-ink);
   color: var(--home-paper);
   display: grid;
@@ -127,7 +127,7 @@
     align-items: center;
     justify-items: center;
     gap: calc(3 * var(--u)) calc(2 * var(--u));
-    max-width: calc(77.5 * var(--u));
+    max-width: var(--wrap);
     margin: 0 auto;
   }
 

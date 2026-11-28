@@ -9,7 +9,7 @@
 }
 
 .nav {
-  max-width: calc(77.5 * var(--u));
+  max-width: var(--nav-max, calc(77.5 * var(--u)));
   margin: 0 auto;
   padding: calc(0.875 * var(--u)) calc(1.5 * var(--u));
   display: flex;

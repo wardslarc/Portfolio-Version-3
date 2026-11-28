@@ -1,7 +1,7 @@
 .panel {
   background: var(--home-ink);
   color: var(--home-paper);
-  padding: calc(8.75 * var(--u)) calc(1.5 * var(--u)) calc(7.5 * var(--u));
+  padding: calc(8.75 * var(--u)) var(--gutter) calc(7.5 * var(--u));
   margin-top: calc(-3.75 * var(--u));
   position: relative;
   z-index: 2;
@@ -9,12 +9,12 @@
 }
 
 .inner {
-  max-width: calc(77.5 * var(--u));
+  max-width: var(--wrap);
   margin: 0 auto;
 }
 
 .footer {
-  max-width: calc(77.5 * var(--u));
+  max-width: var(--wrap);
   margin: calc(6.25 * var(--u)) auto 0;
   padding-top: calc(1.5 * var(--u));
   border-top: max(1px, calc(0.0625 * var(--u))) solid var(--home-night-rule);

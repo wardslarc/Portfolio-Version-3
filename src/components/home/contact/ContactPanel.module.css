@@ -21,7 +21,7 @@
 
 @media (min-width: 760px) {
   .heading {
-    font-size: max(56px, calc(8.1 * var(--u)));
+    font-size: max(56px, calc(7 * var(--u)));
   }
 }
 

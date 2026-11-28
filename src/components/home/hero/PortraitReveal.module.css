@@ -101,9 +101,20 @@
   }
 }
 
+@media (min-width: 760px) {
+  .sketchNote1,
+  .sketchNote2 {
+    font-size: max(12px, calc(1.375 * var(--u)));
+  }
+
+  .caption {
+    font-size: max(12px, calc(1.375 * var(--u)));
+  }
+}
+
 @media (min-width: 1024px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .frame {
-    width: min(100%, calc(24.375 * var(--u)));
+    width: min(100%, calc(20.625 * var(--u)));
     margin-inline: auto;
   }
 

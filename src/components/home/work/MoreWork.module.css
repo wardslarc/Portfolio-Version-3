@@ -1,9 +1,9 @@
 .sandSection {
-  padding: calc(2.5 * var(--u)) calc(1.5 * var(--u)) calc(8.75 * var(--u));
+  padding: calc(2.5 * var(--u)) var(--gutter) calc(8.75 * var(--u));
 }
 
 .sandInner {
-  max-width: calc(77.5 * var(--u));
+  max-width: var(--wrap);
   margin: 0 auto;
 }
 

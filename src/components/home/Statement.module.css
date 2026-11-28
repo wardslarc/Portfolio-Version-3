@@ -1,5 +1,5 @@
 .section {
-  padding: calc(10 * var(--u)) calc(1.5 * var(--u));
+  padding: calc(10 * var(--u)) var(--gutter);
 }
 
 .paragraph {

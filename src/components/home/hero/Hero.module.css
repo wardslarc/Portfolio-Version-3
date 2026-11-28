@@ -23,7 +23,7 @@
   background-color: var(--home-paper);
   color: var(--home-ink);
   overflow: hidden;
-  padding: calc(5.75 * var(--u)) calc(1.5 * var(--u)) calc(2 * var(--u));
+  padding: calc(5.75 * var(--u)) var(--gutter) calc(2 * var(--u));
   background-image:
     linear-gradient(var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u)))),
     linear-gradient(90deg, var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u))));
@@ -31,7 +31,7 @@
 }
 
 .inner {
-  max-width: calc(77.5 * var(--u));
+  max-width: var(--wrap);
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -169,8 +169,29 @@
 }
 
 @media (min-width: 760px) {
+  .inner {
+    gap: calc(6 * var(--u));
+  }
+
+  .portraitCol {
+    max-width: calc(20.625 * var(--u));
+  }
+
+  .heroNote {
+    font-size: max(12px, calc(1.625 * var(--u)));
+  }
+
   .h1 {
-    font-size: max(44px, calc(7.56 * var(--u)));
+    font-size: max(44px, calc(6.5 * var(--u)));
+  }
+
+  .paragraph {
+    font-size: max(15px, calc(1.125 * var(--u)));
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    padding: calc(0.8125 * var(--u)) calc(1.375 * var(--u));
   }
 
   .mqRow {
@@ -218,6 +239,9 @@
     height: 100%;
     display: flex;
     align-items: center;
+    --hero-clear: max(6vh, calc(2 * var(--u)));
+    --hero-clear: max(6svh, calc(2 * var(--u)));
+    padding: calc(var(--header-h) + var(--hero-clear)) var(--gutter) var(--hero-clear);
   }
 
   .inner {
@@ -239,10 +263,6 @@
   }
 
   @media (max-height: 759.98px) {
-    .card {
-      padding: calc(5.25 * var(--u)) calc(1.5 * var(--u)) calc(1.25 * var(--u));
-    }
-
     .inner {
       gap: calc(2.5 * var(--u));
     }
