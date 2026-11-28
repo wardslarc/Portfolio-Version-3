@@ -206,7 +206,7 @@
       var(--stage-h) +
         var(
           --hz-extra,
-          max(0px, calc(192.5 * var(--u) + 2 * max(var(--gutter), calc((100vw - var(--wrap)) / 2)) - 100vw))
+          max(0px, calc(157.25 * var(--u) + 2 * max(var(--gutter), calc((100vw - var(--wrap)) / 2)) - 100vw))
         )
     );
   }

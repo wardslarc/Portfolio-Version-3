@@ -44,11 +44,6 @@ export const assets = {
     alt: "Relato on a phone screenshot",
     label: "[Screenshot: Relato on a phone]",
   },
-  workTicketing: {
-    src: null,
-    alt: "IT Ticketing System dashboard screenshot",
-    label: "[Screenshot: Ticketing dashboard]",
-  },
   art01: {
     src: null,
     alt: "Portrait study drawing from @daleonigiri",
@@ -236,26 +231,6 @@ export const work = {
       tape: null,
       note: null,
       asset: assets.workRelato,
-    },
-    {
-      title: "IT Ticketing System",
-      displayTitle: "IT Ticketing System",
-      kicker: "04 — Citimax Group",
-      status: "● internal",
-      statusTone: "muted",
-      description:
-        "Affiliates file and track tickets in one place, wired to the Google Sheets API so task logs update themselves.",
-      rotate: "1.5deg",
-      drift: 50,
-      tape: null,
-      note: {
-        text: "no more manual logs",
-        top: "calc(-1.375 * var(--u))",
-        right: "calc(-1 * var(--u))",
-        rotate: "6deg",
-        fontSize: "calc(1.625 * var(--u))",
-      },
-      asset: assets.workTicketing,
     },
   ] satisfies WorkCardConfig[],
 } as const;

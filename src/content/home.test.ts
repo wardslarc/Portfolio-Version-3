@@ -4,7 +4,7 @@ import { featuredProjects, moreProjects } from "./projects";
 
 describe("home content", () => {
   it("matches every work.cards entry to featuredProjects", () => {
-    expect(work.cards).toHaveLength(4);
+    expect(work.cards).toHaveLength(3);
     const featuredTitles = new Set(featuredProjects.map((p) => p.title));
     for (const card of work.cards) {
       expect(featuredTitles.has(card.title)).toBe(true);
