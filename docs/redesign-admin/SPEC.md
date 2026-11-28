@@ -32,7 +32,7 @@ exactly as they are.
 |---|---|
 | AD1 | The panel **follows the stored theme** (`cde-theme`, OS fallback), like the blog. `ThemeToggle` (`src/components/ink/ThemeToggle.tsx`, unchanged) sits in the sidebar footer beside "Sign out", and in the mobile top bar row. |
 | AD2 | The **sidebar is always ink**: `#16161A` in light, `#0F0F12` with a `#F3F1EC33` right border in dark. Paper text, coral active pill. This is the "by night" half; the desk (main area) is graph paper in light. |
-| AD3 | **Calm personality.** Tilt, tape and Caveat notes only on: the four Overview stat cards (tilt + tape on the first), the sidebar note, the empty-state note. Tables, forms, the editor, dialogs, charts and the chess board stay straight. Working cards get a small `4px 4px 0` shadow; stat cards `8px 8px 0`. |
+| AD3 | **Calm personality.** Tilt, tape and Caveat notes only on: the five Overview stat cards (tilt + tape on the first), the sidebar note, the empty-state note. Tables, forms, the editor, dialogs, charts and the chess board stay straight. Working cards get a small `4px 4px 0` shadow; stat cards `8px 8px 0`. |
 | AD4 | **Token bridge, no renames.** Class names, component structure and props stay. Inside `.admin-shell` the legacy variables are remapped to ink values (§5), so existing inline `var(--muted)` etc. pick up the new palette for free. |
 | AD5 | **Motion is CSS only and small**: page heading fade-up, stat cards drop in, toast slaps in, dialog fades up. No scroll-driven animation, no GSAP/Lenis, no view transitions besides the theme circle that `ThemeToggle` already does. Reduced motion = calm tier (fade or nothing). |
 | AD6 | The **chess board** uses the homepage night colors in both themes (`--sq-l #E9E6DF`, `--sq-d #8E8A80`, coral highlights), so it looks like the board visitors see. |
@@ -155,8 +155,8 @@ centered muted text, plus a decorative Caveat line via `::after { content: "all 
 
 ### 7.3 Stat cards (Overview only) — mockup top row
 
-The four `.admin-card` links in `.admin-stats-grid` on `/admin`: shadow `8px 8px 0`, tilt via `rotate: var(--rot)`
-cycling `-.8deg, .6deg, -.4deg, .8deg` (`:nth-child`), hover `rotate: 0deg` + `12px 14px 0`, `.45s
+The five `.admin-card` links in `.admin-stats-grid` on `/admin`: shadow `8px 8px 0`, tilt via `rotate: var(--rot)`
+cycling `-.8deg, .6deg, -.4deg, .8deg` (`:nth-child(4n+1)` … `(4n+4)`, so the fifth repeats the first), grid gap 24px, hover `rotate: 0deg` + `12px 14px 0`, `.45s
 cubic-bezier(.2,.7,.2,1)`. First card gets a tape strip (`<span className="k-tape admin-tape" aria-hidden />`, 96×26px,
 left 22px, rotate -4deg). `.admin-stat-label` Geist Mono 12px uppercase .06em muted; `.admin-stat-val` Bricolage 800
 44px (the "Blog (7d)" value keeps its smaller size, now via a class, §8); `.admin-stat-delta.up/.down` mono 12px ok /
@@ -270,7 +270,7 @@ empty alt):
 | Element | Animation |
 |---|---|
 | `.admin-page-head` | `k-fadeUp .6s cubic-bezier(.2,.7,.2,1) backwards` |
-| Overview stat cards | `k-drop .7s cubic-bezier(.2,.9,.25,1.25) backwards`, delays .1, .18, .26, .34s; set `--r0` 6deg and `--rot` per card so the drop ends on the tilt (homepage R2.1 lesson: animate `rotate`/`translate`, never `transform`, on a tilted element) |
+| Overview stat cards | `k-drop .7s cubic-bezier(.2,.9,.25,1.25) backwards`, delays `.1s + .08s × index` (.1, .18, .26, .34, .42s); set `--r0` 6deg and `--rot` per card so the drop ends on the tilt (homepage R2.1 lesson: animate `rotate`/`translate`, never `transform`, on a tilted element) |
 | `.admin-toast.on` | `k-slap .45s` on show; hide = opacity .2s |
 | `dialog.admin-dialog[open]` | `k-fadeUp .35s` |
 | Buttons, cards, tiles | hover transitions from §7 |

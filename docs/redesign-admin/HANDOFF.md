@@ -9,7 +9,9 @@ Paste into a new chat: **"Read `docs/redesign-admin/HANDOFF.md`, then continue."
 - Claude evaluated the panel (SPEC §2), wrote `SPEC.md` (decisions AD1–AD7, proposed, waiting on Carls), `TASKS.md`
   (A01–A06, gates R1–R3) and `mockup.html` (artifact https://claude.ai/artifact/GEyYirQ462r2eTUKgk6ZnU, slug
   `7b6c98e1-6e7d-40f7-b5c6-a7a3639e32a5`).
-- **Next:** Carls approves the mockup/decisions → Gemini runs B1 (A01, A02) → Claude does R1.
+- B1 (A01, A02) done by Gemini; **R1 passed with fixes R1.1–R1.4** (`REVIEW-R1.md`), which Gemini does first in B2.
+- **Next:** Gemini runs R1 fixes + B2 (A03, A04, A05) → Claude does R2.
+- Local sign-in: `.env.local` has no Resend key, so Carls signs in with a **backup code** (each works once).
 - Gemini codes everything; Claude only reviews (same split as the homepage and blog phases).
 
 ## Review set-up (the panel needs a real sign-in)
