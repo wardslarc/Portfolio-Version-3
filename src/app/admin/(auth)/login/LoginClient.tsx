@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState, type CSSProperties } from "react";
+import AuthShell from "@/components/admin-auth/AuthShell";
+import styles from "@/components/admin-auth/AuthShell.module.css";
+import OtpInput from "@/components/admin-auth/OtpInput";
+import { useShake } from "@/components/admin-auth/useShake";
 import {
   cancelChallengeAction,
   loginStepOneAction,
@@ -15,6 +19,8 @@ type LoginIntent =
   | { kind: "code"; formData: FormData }
   | { kind: "resend" }
   | { kind: "cancel" };
+
+const TICKET_ROTS = ["-1.5deg", "1deg", "0.5deg", "-1deg", "1.5deg"] as const;
 
 export default function LoginClient({
   initialState,
@@ -51,9 +57,11 @@ export default function LoginClient({
   const [backupMode, setBackupMode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeState = state;
   const displayError = activeState.step !== "backup_codes" ? activeState.error : null;
+  const shakeClass = useShake(displayError, activeState);
   const credPending = pending && pendingKind === "credentials";
   const codePending = pending && pendingKind === "code";
   const resendPending = pending && pendingKind === "resend";
@@ -67,166 +75,213 @@ export default function LoginClient({
     return () => clearInterval(id);
   }, [activeState.step, secondsLeft]);
 
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    };
+  }, []);
+
   if (activeState.step === "backup_codes") {
     return (
-      <div className="admin-auth-wrap">
-        <div className="admin-auth-card">
-          <h1>Save your backup codes</h1>
-          <p className="admin-auth-sub">
-            Each code works once if you lose access to your email. They will not be shown again.
-          </p>
-          <div className="admin-backup-grid" aria-label="Backup codes">
-            {activeState.codes.map((c) => (
-              <span key={c}>{c}</span>
-            ))}
-          </div>
-          <div className="admin-row-actions">
-            <button
-              type="button"
-              className="admin-btn"
-              onClick={async () => {
-                await navigator.clipboard.writeText(activeState.codes.join("\n"));
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              }}
+      <AuthShell
+        kicker="First sign-in · one time only"
+        title={["Save your", "backup codes."]}
+        lede="Each code works once if you lose access to your email. They will not be shown again."
+        note="keep these somewhere safe ✎"
+        notePlacement="bottom"
+        twoTapes
+        back={false}
+      >
+        <div className={styles.tickets} aria-label="Backup codes">
+          {activeState.codes.map((c, i) => (
+            <span
+              key={c}
+              className={`${styles.ticket} k-in-drop`}
+              style={
+                {
+                  "--rot": TICKET_ROTS[i % TICKET_ROTS.length],
+                  "--r0": i % 2 ? "-10deg" : "10deg",
+                  animationDelay: `${(0.9 + i * 0.07).toFixed(2)}s`,
+                } as CSSProperties
+              }
             >
-              {copied ? "Copied" : "Copy codes"}
-            </button>
-            <Link href="/admin" className="admin-btn primary">
-              Continue to Admin
-            </Link>
-          </div>
+              {c}
+            </span>
+          ))}
         </div>
-      </div>
+        <div className={styles.row}>
+          <button
+            type="button"
+            className={styles.small}
+            style={{ position: "relative" }}
+            onClick={async () => {
+              await navigator.clipboard.writeText(activeState.codes.join("\n"));
+              setCopied(true);
+              if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+              copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+            }}
+          >
+            {copied ? "Copied" : "Copy codes"}
+            {copied ? (
+              <span className={`k-note ${styles.copiedPop}`} aria-live="polite">
+                copied!
+              </span>
+            ) : null}
+          </button>
+          <Link href="/admin" className={styles.go} style={{ flex: 1, textDecoration: "none" }}>
+            Continue to Admin <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </AuthShell>
     );
   }
 
   if (activeState.step === "code") {
     const notice = activeState.notice ?? null;
     return (
-      <div className="admin-auth-wrap">
-        <div className="admin-auth-card">
-          <h1>Verify sign-in</h1>
-          <p className="admin-auth-sub">
-            {backupMode
-              ? "Enter one of your 8-character backup codes."
-              : `Enter the 6-digit code sent to ${activeState.maskedEmail}.`}
-          </p>
+      <AuthShell
+        kicker="Step 2 of 2 · two-factor"
+        title={["Verify", "sign-in."]}
+        lede={
+          backupMode
+            ? "Enter one of your 8-character backup codes."
+            : `Enter the 6-digit code sent to ${activeState.maskedEmail}.`
+        }
+        note="check your inbox ✎"
+        shakeClass={shakeClass}
+      >
+        {displayError ? (
+          <div className={`${styles.alert} ${styles.err} k-in-pop`} role="alert">
+            {displayError}
+          </div>
+        ) : null}
+        {notice ? (
+          <div className={`${styles.alert} ${styles.ok} k-in-pop`} role="status">
+            {notice}
+          </div>
+        ) : null}
 
-          {displayError ? <div className="admin-alert error" role="alert">{displayError}</div> : null}
-          {notice ? <div className="admin-alert ok" role="status">{notice}</div> : null}
-
-          <form action={(formData) => run({ kind: "code", formData })} className="admin-form">
-            <div className="admin-field">
-              <label htmlFor="admin-code">{backupMode ? "Backup code" : "6-digit code"}</label>
+        <form action={(formData) => run({ kind: "code", formData })} className={styles.form}>
+          {backupMode ? (
+            <div className={styles.field}>
+              <label htmlFor="admin-code">Backup code</label>
               <input
                 id="admin-code"
                 name="code"
-                className="admin-input mono"
+                className={`${styles.monoIn} k-in-pop`}
                 autoComplete="one-time-code"
-                inputMode={backupMode ? "text" : "numeric"}
-                placeholder={backupMode ? "XXXX-XXXX" : "000000"}
+                inputMode="text"
+                placeholder="XXXX-XXXX"
                 required
                 autoFocus
               />
             </div>
+          ) : (
+            <OtpInput />
+          )}
 
-            <label className="admin-check">
-              <input type="checkbox" name="trustDevice" />
-              Trust this device for 30 days
-            </label>
+          <label className={styles.tick}>
+            <input type="checkbox" name="trustDevice" />
+            Trust this device for 30 days
+          </label>
 
-            <button type="submit" className="admin-btn primary" disabled={codePending}>
-              {codePending ? "Verifying…" : "Verify & sign in"}
+          <button type="submit" className={styles.go} disabled={codePending}>
+            {codePending ? "Verifying…" : "Verify & sign in"}{" "}
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <div className={styles.row}>
+          <button
+            type="button"
+            className={styles.small}
+            onClick={() => setBackupMode((v) => !v)}
+          >
+            {backupMode ? "Use email code" : "Use backup code"}
+          </button>
+
+          <form action={() => run({ kind: "resend" })}>
+            <button
+              type="submit"
+              className={styles.small}
+              disabled={resendPending || secondsLeft > 0}
+            >
+              {secondsLeft > 0
+                ? `Resend (${secondsLeft}s)`
+                : resendPending
+                  ? "Sending…"
+                  : "Resend code"}
             </button>
           </form>
 
-          <div className="admin-row-actions">
-            <button
-              type="button"
-              className="admin-btn sm"
-              onClick={() => setBackupMode((v) => !v)}
-            >
-              {backupMode ? "Use email code" : "Use backup code"}
+          <form
+            action={() => {
+              setBackupMode(false);
+              run({ kind: "cancel" });
+            }}
+          >
+            <button type="submit" className={styles.small}>
+              Back
             </button>
-
-            <form action={() => run({ kind: "resend" })}>
-              <button
-                type="submit"
-                className="admin-btn sm"
-                disabled={resendPending || secondsLeft > 0}
-              >
-                {secondsLeft > 0 ? `Resend (${secondsLeft}s)` : resendPending ? "Sending…" : "Resend code"}
-              </button>
-            </form>
-
-            <form
-              action={() => {
-                setBackupMode(false);
-                run({ kind: "cancel" });
-              }}
-            >
-              <button type="submit" className="admin-btn sm">
-                Back
-              </button>
-            </form>
-          </div>
+          </form>
         </div>
-      </div>
+      </AuthShell>
     );
   }
 
   return (
-    <div className="admin-auth-wrap">
-      <div className="admin-auth-card">
-        <div>
-          <h1>Admin sign-in</h1>
-          <p className="admin-auth-sub">Portfolio control panel</p>
+    <AuthShell
+      kicker="Portfolio control panel"
+      title={["Admin", "sign-in."]}
+      lede="Posts, messages, media and the chess board live behind this door."
+      note="staff only ✎"
+      shakeClass={shakeClass}
+    >
+      {invitedNotice ? (
+        <div className={`${styles.alert} ${styles.ok} k-in-pop`} role="status">
+          Account created. Sign in with your email and password.
         </div>
+      ) : null}
 
-        {invitedNotice ? (
-          <div className="admin-alert ok" role="status">
-            Account created. Sign in with your email and password.
-          </div>
-        ) : null}
+      {displayError ? (
+        <div className={`${styles.alert} ${styles.err} k-in-pop`} role="alert">
+          {displayError}
+        </div>
+      ) : null}
 
-        {displayError ? (
-          <div className="admin-alert error" role="alert">
-            {displayError}
-          </div>
-        ) : null}
-
-        <form action={(formData) => run({ kind: "credentials", formData })} className="admin-form">
-          <div className="admin-field">
-            <label htmlFor="admin-email">Email</label>
-            <input
-              id="admin-email"
-              name="email"
-              type="email"
-              className="admin-input"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoFocus
-            />
-          </div>
-          <div className="admin-field">
-            <label htmlFor="admin-password">Password</label>
-            <input
-              id="admin-password"
-              name="password"
-              type="password"
-              className="admin-input"
-              autoComplete="current-password"
-              required
-            />
-          </div>
-          <button type="submit" className="admin-btn primary" disabled={credPending}>
-            {credPending ? "Checking…" : "Continue"}
-          </button>
-        </form>
-      </div>
-    </div>
+      <form action={(formData) => run({ kind: "credentials", formData })} className={styles.form}>
+        <div className={styles.field}>
+          <label htmlFor="admin-email">Email</label>
+          <input
+            id="admin-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoFocus
+          />
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="admin-password">Password</label>
+          <input
+            id="admin-password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className={styles.go}
+          style={{ marginTop: "4px" }}
+          disabled={credPending}
+        >
+          {credPending ? "Checking…" : "Continue"} <span aria-hidden="true">→</span>
+        </button>
+      </form>
+    </AuthShell>
   );
 }
