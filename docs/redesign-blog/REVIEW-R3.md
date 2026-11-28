@@ -1,4 +1,4 @@
-# Review gate R3 (B3: K07–K08): 2 fixes
+# Review gate R3 (B3: K07–K08): **passed** (after 2 fixes)
 
 Reviewed 2026-11-28 by Claude, from `0d09a57` (R2 gate) to `73bd0ab`. Commits: K07 `ca34298`, K08 `73bd0ab`.
 Gemini had no browser; Claude did the browser pass (headless Chrome, production build).
@@ -64,3 +64,16 @@ and the morph-only CSS in `ink.css` (`::view-transition-group(.morph)`, `::view-
 reduced-motion rule. SPEC BD7 is updated to match.
 **Check:** `grep -rn "ViewTransition\|\.morph\|k-via-blur" src` finds nothing; the theme toggle still circles in
 Chrome; list → post → back navigates normally.
+
+## Fixes re-checked (2026-11-28)
+
+- R3.1 `48c702d`: `/blog` featured card loads with opacity `1` and rotate `-0.6deg` (0deg at 375) without scrolling,
+  via `k-settle` (time-based). Post bio card at 375×800: opacity .22 → .72 → 1.00 at 0 / 130 / 260px after entering
+  (`entry 0px → entry 260px`).
+- R3.2 `2d862f6`: no `ViewTransition`, `.morph` or `k-via-blur` left in `src`; the theme toggle still switches with the
+  view transition and stores the theme.
+- Lint clean, 145/145 tests, build passes with `/` still `○`.
+- For Carls's device check: in headless Chrome the featured card's tilted top border renders in stair-steps when motion
+  is on (the cover parallax puts the card on its own layer; software rendering skips anti-aliasing). It's smooth with
+  reduced motion. Check it on a real screen; if it looks jagged there too, it's a one-line fix (`outline: 1px solid
+  transparent` or `backface-visibility: hidden` on `.k-card`).

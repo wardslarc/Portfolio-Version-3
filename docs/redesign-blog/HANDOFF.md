@@ -8,10 +8,10 @@ Paste into a new chat: **"Read `docs/redesign-blog/HANDOFF.md`, then continue."*
   same branch, `redesign/ink-by-night`.
 - Carls approved the mockups (canvas https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS, slug
   `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`; sources copied to `mockups/`). Decisions BD1–BD8 are in `SPEC.md` §2.
-- B1 + **R1 passed**, B2 + **R2 passed**, pushed. B3 done (K07 `ca34298`, K08 `73bd0ab`). **R3 found 2 fixes**
-  (`REVIEW-R3.md`): R3.1 first-screen featured card loads faded (scroll ranges → time-based load-in + length ranges);
-  R3.2 cover morph never fires under Suspense → removed (SPEC BD7 updated). Gemini is doing them. Then Claude re-checks,
-  marks R3 passed, pushes and gives the B4 prompt. Carls still has to eyeball the admin preview (end of REVIEW-R2).
+- B1–B3 done; **R1, R2, R3 passed** and pushed (R3 fixes `48c702d`, `2d862f6`; cover morph dropped, SPEC BD7).
+  **Now:** Carls runs Gemini on **B4** (K09 sign-in screens ⚑, K10 cleanup). Then Claude runs **R4**: the sign-in
+  security review + final checks. Carls has to do the live sign-in steps (his credentials), eyeball the admin preview
+  (REVIEW-R2 end), and check the featured card border on a real screen (REVIEW-R3 end).
 - **Don't click Like/Share/Copy link on the live post in reviews:** they write real engagement rows (R2 recorded one
   share by accident). Stub `fetch` first, as R3 of the homepage did for the contact form.
 - Gemini has no browser in Antigravity, so Claude does the visual pass at every gate.
