@@ -1,4 +1,4 @@
-# Review gate R4 (B4: K09–K10): security passed; 6 fixes done, 1 more (R4.7), then Carls's live checks
+# Review gate R4 (B4: K09–K10): **passed** (after 7 fixes); Carls's live checks remain
 
 Reviewed 2026-11-28 by Claude, from `11fb770` (R3 gate) to `1c7cc88`. Commits: K09 `f331685`, K10 `1c7cc88`.
 
@@ -98,6 +98,10 @@ empty or the value has 3+ digits.
 **Check:** unit tests: `applyOtpInput(["1","2","5","4","",""], 2, "57")` → digits `["1","2","7","4","",""]`, focus 3;
 `applyOtpInput(["1","2","5","4","",""], 2, "75")` → same; `applyOtpInput(["","","","","",""], 0, "123456")` → all six,
 focus 5; `applyOtpInput(["","","","","",""], 0, "12")` → `["1","2","","","",""]`, focus 2.
+
+R4.7 `c97c928`: re-checked. `applyOtpInput` replaces a filled box's digit on 2-digit input ("57", "75", "55") and
+spreads only into an empty box or on 3+ digits; the four listed cases are unit-tested; lint clean, 154/154 tests,
+build passes, `/` `○`; only `OtpInput.tsx` and its test changed.
 
 ## After the fixes: Carls's live checks (needs his admin account)
 
