@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Onigiri from "@/components/home/Onigiri";
+import ThemeToggle from "@/components/ink/ThemeToggle";
 import { signOutAction } from "@/lib/admin/auth-actions";
 import { ROLE_LABELS, type AdminRole } from "@/lib/admin/permissions";
 
@@ -42,7 +44,8 @@ export default function AdminShellNav({
       <div className="admin-brand">
         <div>
           <Link href="/admin" className="admin-brand-title">
-            Admin
+            <Onigiri variant="logo" className="admin-brand-logo" />
+            <span>Admin</span>
           </Link>
           <div className="admin-brand-sub">carlsdaleescalo.com</div>
         </div>
@@ -50,6 +53,10 @@ export default function AdminShellNav({
           Site ↗
         </Link>
       </div>
+
+      <span className="admin-sidebar-note" aria-hidden="true">
+        control panel ✎
+      </span>
 
       <nav className="admin-nav" ref={navRef}>
         {links.map((item) => {
@@ -77,11 +84,14 @@ export default function AdminShellNav({
           <div className="admin-user-name">{adminName}</div>
           <div className="admin-user-role">Signed in as · {ROLE_LABELS[adminRole]}</div>
         </div>
-        <form action={signOutAction}>
-          <button type="submit" className="admin-btn sm">
-            Sign out
-          </button>
-        </form>
+        <div className="admin-row-actions">
+          <ThemeToggle className="admin-theme-toggle" />
+          <form action={signOutAction}>
+            <button type="submit" className="admin-btn sm">
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
     </aside>
   );
