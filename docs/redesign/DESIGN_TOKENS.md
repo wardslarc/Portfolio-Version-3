@@ -21,6 +21,10 @@ at 1920 wide the composition is the 1440 design scaled up, not the same size wit
 | Resulting `--u` | 11.38px (≤ 1024 wide) · 14.22px at 1280 · **16px at 1440** · 21.14px at 1903 · 21.33px at 1920 · 28.44px (≥ 2560 wide). The height term `100svh / 44` only wins when width ÷ height > 2.05 (for example 2560×1080: 24.55px). |
 | Conversion | `X px` → `calc(X / 16 * var(--u))`, written as the multiplier: `124px` → `calc(7.75 * var(--u))`, `32px` → `calc(2 * var(--u))`, `1240px` → `calc(77.5 * var(--u))`. X is what the current CSS **computes at 1440×900** (a `clamp(…vw…)` resolves to its 1440 value first). |
 | Stays as is | `vw`, `%`, `em`, unitless and degree values; px inside `(max-width: 759.98px)` blocks |
+| Sizes that use `vw` (`clamp(MINpx, Nvw, MAXpx)` fonts) | base rule unchanged (mobile); at ≥ 760px `max(MINpx, calc(<1440 value / 16> * var(--u)))` |
+| Inline px from `src/content/home.ts` | `calc(N * var(--u))` strings; `%` stays |
+| 11px texts (`.artAsset`, `.cardAsset`, `.signatureNote`) | `max(11px, calc(0.6875 * var(--u)))` |
+| JS radii | hero shrink end radius 2.25u; contact rise 6u → 2.5u |
 | Hairlines | `max(1px, calc(<X/16> * var(--u)))`, for example `1.5px` → `max(1px, calc(0.09375 * var(--u)))` |
 | Font floors | body and paragraph text `max(15px, …)`; labels, captions, mono, nav and buttons `max(12px, …)`; headings keep their `clamp` floor (h1 44px) or `max(24px, …)` |
 | Content max width | `calc(77.5 * var(--u))` (was 1240px) |

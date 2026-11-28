@@ -706,8 +706,10 @@ timings or media queries.
 
 **Depends on:** T16.
 **Files:** `src/app/globals.css` (add **only** the `@property --u` block; this overrides ground rule 4 for that one
-block), every `*.module.css` under `src/components/home/`, `src/components/home/motion/{track,gallery,fan,reveals,refresh}.ts`,
-`math.ts` and `math.test.ts`.
+block), every `*.module.css` under `src/components/home/`, `src/components/home/motion/{track,gallery,fan,reveals,refresh,hero,contact}.ts`,
+`math.ts` and `math.test.ts`; in `src/content/home.ts` **only** the px strings that feed inline styles (card `tape`,
+`note.top/left/right/fontSize`, `--note-top`/`--note-top-narrow`, gallery `--col-offset`, sketchbook `--y`), plus
+`WorkTrack.tsx`, `NightSection.tsx` and `Sketchbook.tsx` only if a value's type has to change for that.
 
 **Steps**
 1. **Stage height.** In `HomeShell.module.css`, `--stage-h: 100vh;` then `--stage-h: 100svh;`. Remove the 900px cap.
@@ -722,7 +724,16 @@ block), every `*.module.css` under `src/components/home/`, `src/components/home/
    max-width, min-width, top/left/right/bottom, radii, borders, box-shadows, outline widths and offsets,
    `background-size`, `--header-h`, `--note-top`/`--note-top-narrow`, the portrait mask radius and `--r`, and the
    `min-height: 44px` on buttons (keep that one as `max(44px, …)` so tap targets never shrink). Leave px inside
-   `(max-width: 759.98px)` blocks. Apply the hairline floor and the font floors from §0. Replace the six
+   `(max-width: 759.98px)` blocks. Apply the hairline floor and the font floors from §0.
+   - **Values with `vw` in them** (the ten `clamp(MINpx, Nvw, MAXpx)` font sizes, and any other px/vw mix that sets a
+     size): keep the existing declaration as the base rule (mobile stays identical) and add the u version inside an
+     `@media (min-width: 760px)` block, `max(MINpx, calc(<1440 value / 16> * var(--u)))`. Example `.h1`: base
+     `clamp(…)` unchanged; ≥ 760px `max(44px, calc(7.56 * var(--u)))`. Plain `vw` values that aren't font sizes
+     (`6vw` track padding, `46vw` onigiri) stay as they are.
+   - **Inline-style px values from `src/content/home.ts`**: write them as `calc(N * var(--u))` strings (for example
+     `"-22px"` → `"calc(-1.375 * var(--u))"`); `%` values stay. u is 16px on mobile, so mobile is unchanged.
+   - **The three 11px texts** (`.artAsset`, `.cardAsset`, `.signatureNote`) use `max(11px, calc(0.6875 * var(--u)))`:
+     they stay 11px at 1440, and 11px is their floor. Replace the six
    `max-width: 1240px` containers with `calc(77.5 * var(--u))`.
 4. **Hero.** Section `height: calc(var(--stage-h) * 2)`. h1 and portrait width per DESIGN_TOKENS §3.1 (the
    stage-height formulas go). Keep the `(max-height: 759.98px)` block, converted to u.
@@ -737,6 +748,8 @@ block), every `*.module.css` under `src/components/home/`, `src/components/home/
    - fan (`fanTarget(i, step)` x and y scaled: pass the scaled step and scale y, or give `fanTarget` a `u` argument;
      update its tests)
    - the generic reveal's 56px slide
+   - the hero shrink's `clip-path` end radius (36px → 2.25u) and the contact rise's radii (96px → 6u, 40px → 2.5u),
+     so they stay equal to the CSS radii they match (`.shadow` 36px, the contact panel 40px)
    Keep the existing `trackDistance`, `fanTarget` and `parallaxRange` tests passing (u = 16 is the old behavior).
 8. **Resize.** In `refresh.ts`, add a window `resize` listener, debounced 200ms, that calls `ScrollTrigger.refresh()`
    only if `innerWidth` or `innerHeight` changed since the last refresh. Remove it in the cleanup.
@@ -758,7 +771,8 @@ block), every `*.module.css` under `src/components/home/`, `src/components/home/
 - **Unchanged elsewhere:** at 390 × 844 the homepage is pixel-identical to before T17 (u = 16px). `/blog`, a post,
   `/admin/login` and the 404 look exactly as before (their header is the shared `HomeHeader`, which now renders with
   the registered 16px default). Reduced motion at 1440 and 1920 still shows the D26 desktop layout, scaled.
-- **Readability:** at 1024 × 768 no text on `/` computes under 12px, and paragraph text is at least 15px.
+- **Readability:** at 1024 × 768 no text on `/` computes under 12px except the three 11px placeholder/signature
+  texts (11px), and paragraph text is at least 15px.
 - **Resize:** resizing the window from 1440 × 900 to 1920 × 1080 while in the middle of the track re-measures the pin
   (no dead scroll, no jump) within about 200ms.
 - No horizontal overflow at any size; `npm run lint`, `npm test` and `npm run build` pass.
