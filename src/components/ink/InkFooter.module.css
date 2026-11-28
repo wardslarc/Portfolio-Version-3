@@ -29,6 +29,10 @@
 }
 
 .serif {
+  font-family: var(--font-instrument), serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
   color: #FF6A47;
 }
 

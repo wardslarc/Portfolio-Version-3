@@ -8,7 +8,7 @@ export default function InkFooter() {
       <div className="k-wrap">
         <h2 className={styles.heading}>
           Let&rsquo;s build{" "}
-          <span className={`k-serif ${styles.serif}`}>something.</span>
+          <span className={styles.serif}>something.</span>
         </h2>
         <div className={styles.ctaRow}>
           <p className={styles.lead}>
