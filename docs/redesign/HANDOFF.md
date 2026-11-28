@@ -10,8 +10,8 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
 - **B2 done and R2 passed** (`docs/redesign/REVIEW-R2.md`): T10 `5638623`, T11 `7f39462`, T12 `46b518b`, T13
   `a6c2817`, fixes R2.1 `2191d25` and R2.2 `a5f95ab`. Everything is pushed to `origin/redesign/ink-by-night`.
 - **B3 done and R3 passed** (`docs/redesign/REVIEW-R3.md`, no fixes): T14 `b702e27`, T15 `df22609`. Pushed.
-- **Now:** **T16 final review** (Claude). Gemini has no open task. Ask Carls before the real contact submit and the
-  rate-limit check (live DB). Also check the clipboard `copied!` path in a real browser (headless denies clipboard).
+- **Now:** **T16 final review** (Claude). Gemini has no open task. The real contact submit and rate limit were
+  verified (REVIEW-R3.md; 3 "R3 review test" messages in the live DB to delete). Also check the clipboard `copied!` path in a real browser (headless denies clipboard).
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.

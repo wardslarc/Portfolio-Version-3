@@ -36,8 +36,11 @@ Commits: T14 `b702e27`, T15 `df22609`. **No open fixes. Gemini has nothing to do
 
 ## Not verified here (moved to T16)
 
-- A **real** submit, the stored message appearing in `/admin/messages`, and the 4th-message rate limit. These write
-  to the live DB, so they wait for Carls's OK.
+- ~~Real submit and rate limit~~ **Verified 2026-11-28 with Carls's OK**: real form clicks against the local production
+  build and the live DB. A filled honeypot showed success and stored nothing. Messages 1–3 were stored (ids
+  `6b0a209d…a447`, `…a448`, `…a449`, name "R3 review test", safe to delete). The 4th showed "You've sent a few
+  messages already. Please wait a few minutes, or email me directly." (`emailed: false` is expected locally:
+  `.env.local` has no Resend key.)
 - The clipboard success path (`copied!`): headless Chrome denies clipboard access, so only the fallback ran
   ("Selected. Press Ctrl+C to copy.", which works). Check it in a real browser during T16.
 - Lighthouse Accessibility ≥ 95 and the accessibility-tree view of the honeypot (DevTools). Both go to T16.
