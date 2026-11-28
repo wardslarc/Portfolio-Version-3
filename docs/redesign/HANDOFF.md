@@ -19,6 +19,7 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
   `/admin/login` (and invite, which shares its layout), not the admin panel. Mockups (design canvas):
   https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS (slug `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`). After Carls
   approves them, write `docs/redesign-blog/` (spec and tasks) for Gemini.
+- **2026-11-28: spec written.** That phase continues in `docs/redesign-blog/HANDOFF.md`.
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.
