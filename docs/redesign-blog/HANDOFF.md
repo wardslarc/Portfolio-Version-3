@@ -8,8 +8,9 @@ Paste into a new chat: **"Read `docs/redesign-blog/HANDOFF.md`, then continue."*
   same branch, `redesign/ink-by-night`.
 - Carls approved the mockups (canvas https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS, slug
   `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`; sources copied to `mockups/`). Decisions BD1–BD8 are in `SPEC.md` §2.
-- `SPEC.md` and `TASKS.md` are written. **Now:** Carls runs Gemini on **B1** (K01–K03) with the batch prompt at the end
-  of `TASKS.md`. When Gemini reports, Claude runs **R1**.
+- `SPEC.md` and `TASKS.md` are written. B1 done (K01 `ec4ab9a`, K02 `cc12d6e`, K03 `71d5bd7`). **R1 found 2 fixes**
+  (`REVIEW-R1.md`); Gemini is doing them. Then Claude re-checks only R1.1/R1.2, marks R1 passed, pushes, and gives the
+  B2 prompt.
 
 ## How Claude reviews (same method as the homepage, see `docs/redesign/HANDOFF.md` "How Claude reviews" and "Gotchas")
 
