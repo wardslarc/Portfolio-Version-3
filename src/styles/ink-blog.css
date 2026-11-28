@@ -1106,20 +1106,20 @@
   .ink .blog-prose > h2 {
     animation: k-fadeUp linear backwards, k-underline linear backwards;
     animation-timeline: view(), view();
-    animation-range: entry 0% entry 90%, entry 40% entry 100%;
+    animation-range: entry 0px entry 160px, entry 60px entry 200px;
   }
 
   .ink .blog-prose > blockquote,
   .ink .blog-prose > pre {
     animation: k-fadeUp linear backwards;
     animation-timeline: view();
-    animation-range: entry 0% entry 90%;
+    animation-range: entry 0px entry 160px;
   }
 
   .ink .blog-prose > blockquote::before {
     animation: k-pop linear backwards;
     animation-timeline: view();
-    animation-range: entry 40% entry 100%;
+    animation-range: entry 80px entry 220px;
   }
 
   .ink .blog-prose > figure,
@@ -1127,7 +1127,7 @@
   .ink .blog-prose > p > img {
     animation: k-settle linear backwards;
     animation-timeline: view();
-    animation-range: entry 0% entry 100%;
+    animation-range: entry 0px entry 260px;
   }
 }
 
@@ -1143,7 +1143,7 @@
   .ink .blog-prose > h2 {
     animation: k-fade linear backwards;
     animation-timeline: view();
-    animation-range: entry 0% entry 90%;
+    animation-range: entry 0px entry 160px;
     background-size: 100% 6px;
   }
 

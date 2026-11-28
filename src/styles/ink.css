@@ -400,6 +400,14 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
   animation: k-slap 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
+.ink .k-in-settle {
+  animation: k-settle 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.ink .k-in-pop {
+  animation: k-pop 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
 .ink .k-in-draw path {
   stroke-dasharray: 1;
   stroke-dashoffset: 0;
@@ -430,45 +438,45 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
   .ink .k-sc-up {
     animation: k-fadeUp linear backwards;
     animation-timeline: view();
-    animation-range: entry 0% entry 90%;
+    animation-range: entry 0px entry 160px;
   }
 
   .ink .k-sc-settle {
     animation: k-settle linear backwards;
     animation-timeline: view();
-    animation-range: entry 0% entry 100%;
+    animation-range: entry 0px entry 260px;
   }
 
   .ink .k-sc-settle.k-s2 {
-    animation-range: entry 15% entry 100%;
+    animation-range: entry 40px entry 300px;
   }
 
   .ink .k-sc-settle.k-s3 {
-    animation-range: entry 30% entry 100%;
+    animation-range: entry 80px entry 340px;
   }
 
   .ink .k-sc-slap {
     animation: k-slap linear backwards;
     animation-timeline: view();
-    animation-range: entry 60% entry 100%;
+    animation-range: entry 160px entry 260px;
   }
 
   .ink .k-sc-pop {
     animation: k-pop linear backwards;
     animation-timeline: view();
-    animation-range: entry 30% entry 100%;
+    animation-range: entry 80px entry 220px;
   }
 
   .ink .k-sc-grow {
     animation: k-grow linear backwards;
     animation-timeline: view();
-    animation-range: entry 0% entry 70%;
+    animation-range: entry 0px entry 320px;
   }
 
   .ink .k-sc-under {
     animation: k-underline linear backwards;
     animation-timeline: view();
-    animation-range: entry 40% entry 100%;
+    animation-range: entry 60px entry 200px;
   }
 
   .ink .k-sc-para {
@@ -490,6 +498,8 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
   .ink .k-in-up,
   .ink .k-in-drop,
   .ink .k-in-slap,
+  .ink .k-in-settle,
+  .ink .k-in-pop,
   .ink .k-in-write,
   .ink .k-sc-up,
   .ink .k-sc-settle,

@@ -102,11 +102,20 @@ export default function PostList({
                 </span>
               </div>
               <Link
-                className={`blog-feat k-card k-sc-settle${featured.cover ? "" : " no-cover"}`}
+                className={`blog-feat k-card k-in-settle${featured.cover ? "" : " no-cover"}`}
                 href={`/blog/${featured.slug}`}
+                style={{ animationDelay: "0.55s" }}
               >
-                <span className="k-tape blog-feat-tape k-sc-slap" aria-hidden="true" />
-                <span className="k-note k-note-chip blog-feat-note k-sc-pop" aria-hidden="true">
+                <span
+                  className="k-tape blog-feat-tape k-in-slap"
+                  aria-hidden="true"
+                  style={{ animationDelay: "1.2s" }}
+                />
+                <span
+                  className="k-note k-note-chip blog-feat-note k-in-pop"
+                  aria-hidden="true"
+                  style={{ animationDelay: "1.35s" }}
+                >
                   fresh off the press!
                 </span>
                 {featured.cover ? (
