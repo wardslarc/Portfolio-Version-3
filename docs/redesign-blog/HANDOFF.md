@@ -8,10 +8,9 @@ Paste into a new chat: **"Read `docs/redesign-blog/HANDOFF.md`, then continue."*
   same branch, `redesign/ink-by-night`.
 - Carls approved the mockups (canvas https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS, slug
   `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`; sources copied to `mockups/`). Decisions BD1–BD8 are in `SPEC.md` §2.
-- B1–B3 done, R1–R3 passed and pushed. B4 done (K09 `f331685`, K10 `1c7cc88`). **R4: security review passed, 6 fixes**
-  (`REVIEW-R4.md`: OTP `maxLength` (spec error), backup copied! aria, missing card drop-in, dark body background on
-  sign-in, old-style loading/invalid-invite states, top-bar link wrap). Gemini is doing them. Then Claude re-checks, and
-  Carls does the live checks listed at the end of REVIEW-R4 (his admin account). After that: final summary, merge.
+- B1–B4 done; R1–R3 passed and pushed. R4: security passed, fixes R4.1–R4.6 verified; **R4.7** (OTP two-digit
+  overwrite) open with Gemini. Then Claude re-checks R4.7, marks R4 passed, pushes, and Carls does the live checks at
+  the end of `REVIEW-R4.md`. Then final summary and merge to `main`.
 - **Don't click Like/Share/Copy link on the live post in reviews:** they write real engagement rows (R2 recorded one
   share by accident). Stub `fetch` first, as R3 of the homepage did for the contact form.
 - Gemini has no browser in Antigravity, so Claude does the visual pass at every gate.

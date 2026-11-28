@@ -1,4 +1,4 @@
-# Review gate R4 (B4: K09–K10): 6 fixes, then Carls's live checks
+# Review gate R4 (B4: K09–K10): security passed; 6 fixes done, 1 more (R4.7), then Carls's live checks
 
 Reviewed 2026-11-28 by Claude, from `11fb770` (R3 gate) to `1c7cc88`. Commits: K09 `f331685`, K10 `1c7cc88`.
 
@@ -73,6 +73,31 @@ invite…" in the card. Note text: `staff only ✎` for all of them. No new copy
 
 At 375×800 the top-bar link breaks onto two lines beside the logo. **Fix:** below 760px give it
 `white-space: nowrap; font-size: 12px`. **Check:** one line at 375 and 320.
+
+## Fixes re-checked (2026-11-28)
+
+Commits: R4.1 `9c88a14`, R4.2 `f131a3d`, R4.3 `3e34699`, R4.4 `e017fda`, R4.5 `4949410`, R4.6 `325205a`.
+`git diff 776b475..HEAD -- src/lib src/app/api next.config.ts` is empty; lint clean; 152/152 tests; build passes, `/` `○`.
+
+- R4.2: the Copy codes pop is `aria-hidden="true"`.
+- R4.3: the card animates `authCardIn` and settles at `1deg` (1440) / `0deg` (375, 320); reduced motion: no movement.
+- R4.4: body background on `/admin/login` is `rgb(22, 22, 26)` with `cde-theme` unset and dark; `/blog` stays paper.
+- R4.5: `/admin/invite/not-a-real-token` shows the dark shell ("Invite invalid / *or expired.*", today's sentence and
+  today's "Go to sign-in" link) after the "Checking invite…" shell.
+- R4.6: the back link is one line (44px tall) at 375 and 320.
+- R4.1: `maxLength` is gone and focus selects the digit, but one case is still wrong → R4.7.
+
+### R4.7 Typing into a filled box can wipe the code
+
+`applyOtpInput` (`OtpInput.tsx`) treats **any** input with more than one digit as a paste/autofill and spreads it from
+box 1. If the auto-selection is lost (clicking into a focused box collapses the selection in Chrome and Safari), typing
+"7" into a box holding "5" gives "57", which overwrites boxes 1–2 and clears the rest.
+**Fix:** when the box already had a digit and the new value has exactly 2 digits, treat it as a replacement: keep the
+digit that isn't the old one (if both are the same, keep that digit) and move focus right. Spread only when the box was
+empty or the value has 3+ digits.
+**Check:** unit tests: `applyOtpInput(["1","2","5","4","",""], 2, "57")` → digits `["1","2","7","4","",""]`, focus 3;
+`applyOtpInput(["1","2","5","4","",""], 2, "75")` → same; `applyOtpInput(["","","","","",""], 0, "123456")` → all six,
+focus 5; `applyOtpInput(["","","","","",""], 0, "12")` → `["1","2","","","",""]`, focus 2.
 
 ## After the fixes: Carls's live checks (needs his admin account)
 
