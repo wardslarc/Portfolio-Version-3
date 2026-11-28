@@ -785,7 +785,7 @@
 /* Syntax highlight tokens (always dark-theme values on dark pre panel) */
 .ink .blog-prose .hljs-comment,
 .ink .blog-prose .hljs-quote {
-  color: #73737b;
+  color: #A0A0A8;
   font-style: italic;
 }
 
