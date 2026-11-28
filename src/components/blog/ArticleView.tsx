@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ViewTransition, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import { site } from "@/content/site";
 import type { TocItem } from "@/lib/blog/markdown";
 import type { PostCover } from "@/lib/blog/posts";
@@ -170,19 +170,17 @@ export default function ArticleView({
               style={{ animationDelay: "1.12s" }}
               aria-hidden="true"
             />
-            <ViewTransition name={`cover-${post.slug || "preview"}`} share="morph" default="none">
-              <div className="blog-cov-frame">
-                <Image
-                  className="k-sc-para"
-                  src={post.cover.url}
-                  alt={post.cover.alt || post.title}
-                  width={post.cover.width || 1600}
-                  height={post.cover.height || 900}
-                  priority
-                  sizes="(max-width: 759px) calc(100vw - 56px), 952px"
-                />
-              </div>
-            </ViewTransition>
+            <div className="blog-cov-frame">
+              <Image
+                className="k-sc-para"
+                src={post.cover.url}
+                alt={post.cover.alt || post.title}
+                width={post.cover.width || 1600}
+                height={post.cover.height || 900}
+                priority
+                sizes="(max-width: 759px) calc(100vw - 56px), 952px"
+              />
+            </div>
           </figure>
         ) : null}
 

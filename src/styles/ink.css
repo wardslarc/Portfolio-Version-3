@@ -250,25 +250,6 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
   animation: k-circle 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-/* Cover morph view transition (SPEC §9.5) */
-::view-transition {
-  pointer-events: none;
-}
-
-::view-transition-group(.morph) {
-  animation-duration: 400ms;
-}
-
-::view-transition-image-pair(.morph) {
-  animation-name: k-via-blur;
-}
-
-@keyframes k-via-blur {
-  30% {
-    filter: blur(3px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html:active-view-transition-type(theme)::view-transition-new(root) {
     animation: none;
