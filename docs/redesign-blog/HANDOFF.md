@@ -8,9 +8,10 @@ Paste into a new chat: **"Read `docs/redesign-blog/HANDOFF.md`, then continue."*
   same branch, `redesign/ink-by-night`.
 - Carls approved the mockups (canvas https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS, slug
   `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`; sources copied to `mockups/`). Decisions BD1–BD8 are in `SPEC.md` §2.
-- B1 done and **R1 passed** (`REVIEW-R1.md`): K01 `ec4ab9a`, K02 `cc12d6e`, K03 `71d5bd7`, fixes R1.1 `c0733f6`,
-  R1.2 `43e8fb1`. Pushed. **Now:** Carls runs Gemini on **B2** (K04–K06). Then Claude runs **R2** from the R1 gate commit.
-  Remember the K06 note at the end of REVIEW-R1 (InkScope page layout inside the admin preview).
+- B1 done and **R1 passed** (`REVIEW-R1.md`), pushed. B2 done (K04 `20e49d2`, K05 `232f788`, K06 `f99b28d`).
+  **R2 found 3 fixes** (`REVIEW-R2.md`); Gemini is doing them. Then Claude re-checks R2.1–R2.3, marks R2 passed, pushes
+  and gives the B3 prompt. Carls still has to eyeball the admin preview (end of REVIEW-R2; can wait until R4).
+- Gemini has no browser in Antigravity, so Claude does the visual pass at every gate.
 
 ## How Claude reviews (same method as the homepage, see `docs/redesign/HANDOFF.md` "How Claude reviews" and "Gotchas")
 
