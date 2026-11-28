@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import InkScope from "@/components/ink/InkScope";
 import {
   deletePostAction,
   publishPostAction,
@@ -732,9 +733,13 @@ export default function EditorClient({
                 </div>
               </div>
 
-              <div className="admin-pv blog-prose">
-                <h1 className="pv-title">{title || "Untitled post"}</h1>
-                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+              <div className="admin-pv">
+                <InkScope contained>
+                  <div className="blog-prose">
+                    <h1 className="pv-title">{title || "Untitled post"}</h1>
+                    <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                  </div>
+                </InkScope>
               </div>
             </div>
 

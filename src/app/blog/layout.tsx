@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import Header from "@/components/Header";
-import BlogFooter from "@/components/blog/BlogFooter";
+import HomeHeader from "@/components/home/HomeHeader";
+import InkFooter from "@/components/ink/InkFooter";
+import InkScope from "@/components/ink/InkScope";
 
 export const metadata: Metadata = {
   alternates: {
@@ -11,17 +12,22 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F3F1EC" },
+    { media: "(prefers-color-scheme: dark)", color: "#16161A" },
+  ],
+};
+
 export default function BlogLayout({ children }: { children: ReactNode }) {
   return (
-    <>
+    <InkScope>
       <a className="skip" href="#main">
         Skip to content
       </a>
-      <Header variant="blog" />
-      <main id="main" className="wrap blog-main">
-        {children}
-      </main>
-      <BlogFooter />
-    </>
+      <HomeHeader variant="site" />
+      <main id="main">{children}</main>
+      <InkFooter />
+    </InkScope>
   );
 }

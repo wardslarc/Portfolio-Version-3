@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import AuthShell from "@/components/admin-auth/AuthShell";
+import styles from "@/components/admin-auth/AuthShell.module.css";
 import {
   ADMIN_INVITES_COLLECTION,
   ensureAdminIndexes,
@@ -19,12 +21,13 @@ async function InviteContent({ params }: { params: Promise<{ token: string }> })
 
   if (!isMongoConfigured()) {
     return (
-      <div className="admin-auth-wrap">
-        <div className="admin-auth-card">
-          <h1>Database not configured</h1>
-          <p className="admin-auth-sub">Set MONGODB_URI before accepting invites.</p>
-        </div>
-      </div>
+      <AuthShell
+        kicker="Portfolio control panel"
+        title={["Database not", "configured."]}
+        note="staff only ✎"
+      >
+        <p style={{ margin: 0 }}>Set MONGODB_URI before accepting invites.</p>
+      </AuthShell>
     );
   }
 
@@ -39,15 +42,16 @@ async function InviteContent({ params }: { params: Promise<{ token: string }> })
 
   if (!invite) {
     return (
-      <div className="admin-auth-wrap">
-        <div className="admin-auth-card">
-          <h1>Invite invalid or expired</h1>
-          <p className="admin-auth-sub">Ask an Owner to send a new invite link.</p>
-          <Link href="/admin/login" className="admin-btn">
-            Go to sign-in
-          </Link>
-        </div>
-      </div>
+      <AuthShell
+        kicker="Portfolio control panel"
+        title={["Invite invalid", "or expired."]}
+        note="staff only ✎"
+      >
+        <p style={{ margin: 0 }}>Ask an Owner to send a new invite link.</p>
+        <Link href="/admin/login" className={styles.go} style={{ textDecoration: "none" }}>
+          Go to sign-in <span aria-hidden="true">→</span>
+        </Link>
+      </AuthShell>
     );
   }
 
@@ -60,7 +64,17 @@ export default function AdminInvitePage({
   params: Promise<{ token: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="admin-auth-wrap"><div className="admin-auth-card">Checking invite…</div></div>}>
+    <Suspense
+      fallback={
+        <AuthShell
+          kicker="Portfolio control panel"
+          title={["Accept admin", "invite."]}
+          note="staff only ✎"
+        >
+          <p style={{ margin: 0 }}>Checking invite…</p>
+        </AuthShell>
+      }
+    >
       <InviteContent params={params} />
     </Suspense>
   );

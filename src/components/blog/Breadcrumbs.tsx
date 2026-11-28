@@ -7,7 +7,7 @@ export interface BreadcrumbItem {
 
 export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <nav className="blog-crumb" aria-label="Breadcrumb">
+    <nav className="blog-crumb k-in-fade" aria-label="Breadcrumb" style={{ animationDelay: "0.05s" }}>
       <ol>
         {items.map((item, idx) => {
           const isLast = idx === items.length - 1;

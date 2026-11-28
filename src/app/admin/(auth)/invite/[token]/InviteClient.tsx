@@ -1,6 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import AuthShell from "@/components/admin-auth/AuthShell";
+import styles from "@/components/admin-auth/AuthShell.module.css";
+import { useShake } from "@/components/admin-auth/useShake";
 import { acceptInviteAction, type InviteActionState } from "@/lib/admin/auth-actions";
 import type { AdminRole } from "@/lib/admin/permissions";
 
@@ -16,66 +19,82 @@ export default function InviteClient({
   role: AdminRole;
 }) {
   const [state, action, pending] = useActionState(acceptInviteAction, initial);
+  const [pwLen, setPwLen] = useState(0);
+  const shakeClass = useShake(state.error, state);
+  const pct = Math.min(100, Math.round((pwLen / 12) * 100));
 
   return (
-    <div className="admin-auth-wrap">
-      <div className="admin-auth-card">
-        <div>
-          <h1>Accept admin invite</h1>
-          <p className="admin-auth-sub">
-            {email} · <span className="mono">{role}</span>
-          </p>
+    <AuthShell
+      kicker={`${email} · ${role}`}
+      title={["Accept admin", "invite."]}
+      lede="Pick your name and a password to create your account."
+      note="welcome aboard!"
+      shakeClass={shakeClass}
+    >
+      {state.error ? (
+        <div className={`${styles.alert} ${styles.err} k-in-pop`} role="alert">
+          {state.error}
         </div>
+      ) : null}
 
-        {state.error ? (
-          <div className="admin-alert error" role="alert">
-            {state.error}
-          </div>
-        ) : null}
-
-        <form action={action} className="admin-form">
-          <input type="hidden" name="token" value={token} />
-          <div className="admin-field">
-            <label htmlFor="invite-name">Your name</label>
-            <input
-              id="invite-name"
-              name="name"
-              className="admin-input"
-              autoComplete="name"
-              maxLength={80}
-              required
-              autoFocus
+      <form action={action} className={styles.form}>
+        <input type="hidden" name="token" value={token} />
+        <div className={styles.field}>
+          <label htmlFor="invite-name">Your name</label>
+          <input
+            id="invite-name"
+            name="name"
+            autoComplete="name"
+            maxLength={80}
+            required
+            autoFocus
+          />
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="invite-pw">Password (min 12 characters)</label>
+          <input
+            id="invite-pw"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={12}
+            required
+            onChange={(e) => setPwLen(e.target.value.length)}
+          />
+          <div className={styles.meterTrack} aria-hidden="true">
+            <div
+              className={styles.meterFill}
+              style={{
+                width: `${pct}%`,
+                backgroundColor: pwLen >= 12 ? "#1F7A4D" : "#E8492A",
+              }}
             />
           </div>
-          <div className="admin-field">
-            <label htmlFor="invite-pw">Password (min 12 characters)</label>
-            <input
-              id="invite-pw"
-              name="password"
-              type="password"
-              className="admin-input"
-              autoComplete="new-password"
-              minLength={12}
-              required
-            />
-          </div>
-          <div className="admin-field">
-            <label htmlFor="invite-pw2">Confirm password</label>
-            <input
-              id="invite-pw2"
-              name="confirmPassword"
-              type="password"
-              className="admin-input"
-              autoComplete="new-password"
-              minLength={12}
-              required
-            />
-          </div>
-          <button type="submit" className="admin-btn primary" disabled={pending}>
-            {pending ? "Creating account…" : "Create account"}
-          </button>
-        </form>
-      </div>
-    </div>
+          <span className={styles.meterText} aria-hidden="true">
+            {pwLen >= 12 ? "long enough ✓" : `${pwLen} / 12 characters`}
+          </span>
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="invite-pw2">Confirm password</label>
+          <input
+            id="invite-pw2"
+            name="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            minLength={12}
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          className={styles.go}
+          style={{ marginTop: "4px" }}
+          disabled={pending}
+        >
+          {pending ? "Creating account…" : "Create account"}{" "}
+          <span aria-hidden="true">→</span>
+        </button>
+      </form>
+    </AuthShell>
   );
 }

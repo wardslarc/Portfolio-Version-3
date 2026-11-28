@@ -50,15 +50,6 @@ export const featuredProjects: FeaturedProject[] = [
     tags: ["Android", "AI", "Google Play"],
     href: "https://play.google.com/store/apps/details?id=com.escalo.resumo",
   },
-  {
-    title: "IT Ticketing System",
-    badge: "Internal · Citimax Group",
-    status: "internal",
-    summary: "Citimax affiliates file and track support tickets in one place.",
-    impact:
-      "I connected it to the Google Sheets API so task logs update automatically instead of by hand.",
-    tags: ["React", "TypeScript", "Firebase", "Tailwind"],
-  },
 ];
 
 export const moreProjects: MoreProject[] = [

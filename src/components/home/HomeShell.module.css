@@ -1,0 +1,136 @@
+.root {
+  --home-paper: #F3F1EC;
+  --home-sand: #E6E0D2;
+  --home-card: #FBFAF7;
+  --home-ink: #16161A;
+  --home-muted: #4A463F;
+  --home-muted-dark: #C9C5BB;
+  --home-coral: #E8492A;
+  --home-coral-text: #B8361A;
+  --home-coral-night: #FF6A47;
+
+  --home-grid-line: rgb(128 128 128 / .1);
+  --home-placeholder: #E9E6DF;
+  --home-placeholder-2: #DCD8CF;
+  --home-fan-mid: #E8492A33;
+  --home-tape: #E8492A99;
+  --home-green: #1F7A4D;
+  --home-photo-layer: #2A2824;
+  --home-track-rail: #16161A22;
+  --home-rule: #16161A33;
+  --home-frame-border: #F3F1EC26;
+  --home-frame: #1F1F25;
+  --home-frame-image: #2B2B33;
+  --home-night-rule: #F3F1EC33;
+  --home-board-dark: #8E8A80;
+  --home-menu-rule: rgb(128 128 128 / .3);
+  --home-fan-shadow: rgb(0 0 0 / .18);
+
+  --home-bg: #F3F1EC;
+  --home-fg: #16161A;
+  --u: 16px;
+  --gutter: calc(1.5 * var(--u));
+  --wrap: calc(77.5 * var(--u));
+  --nav-max: calc(var(--wrap) + 2 * var(--gutter));
+  /* nav padding + the 44px-floored button + border, so the hero pull-up matches the real header (D24, D27) */
+  --header-h: calc(1.75 * var(--u) + max(44px, calc(2.75 * var(--u))) + max(1px, calc(0.09375 * var(--u))));
+  --stage-h: 100vh;
+  --stage-h: 100svh;
+
+  --accent: #E8492A;
+
+  background-color: var(--home-bg);
+  color: var(--home-fg);
+  overflow-x: clip;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background-image:
+    linear-gradient(var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u)))),
+    linear-gradient(90deg, var(--home-grid-line) max(1px, calc(0.0625 * var(--u))), transparent max(1px, calc(0.0625 * var(--u))));
+  background-size: calc(2 * var(--u)) calc(2 * var(--u));
+}
+
+@media (min-width: 760px) {
+  .root {
+    --u: max(calc(1024px / 90), calc(8px + min(clamp(1024px, 100vw, 2560px) / 180, 100vh / 112.5)));
+    --u: max(calc(1024px / 90), calc(8px + min(clamp(1024px, 100vw, 2560px) / 180, 100svh / 112.5)));
+  }
+}
+
+.root :global([data-home-theme="paper"]) {
+  background: var(--home-paper);
+  color: var(--home-ink);
+}
+
+.root :global([data-home-theme="sand"]) {
+  background: var(--home-sand);
+  color: var(--home-ink);
+}
+
+.root :global([data-home-theme="dark"]) {
+  background: var(--home-ink);
+  color: var(--home-paper);
+}
+
+.root[data-motion="on"] :global([data-home-theme]) {
+  background: transparent;
+  color: inherit;
+}
+
+.root a {
+  text-decoration: none;
+}
+
+.root :global(input:focus),
+.root :global(textarea:focus),
+.root :global(button:focus-visible),
+.root :global(a:focus-visible) {
+  outline: calc(0.125 * var(--u)) solid var(--home-coral);
+  outline-offset: calc(0.1875 * var(--u));
+}
+
+.main {
+  display: block;
+  gap: 0;
+  padding: 0;
+}
+
+.ln {
+  display: block;
+  overflow: clip;
+  padding-bottom: 0.08em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(0.5 * var(--u));
+  min-height: max(44px, calc(2.75 * var(--u)));
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 999px;
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: translate(calc(-0.1875 * var(--u)), calc(-0.1875 * var(--u)));
+  box-shadow: calc(0.3125 * var(--u)) calc(0.3125 * var(--u)) 0 currentColor;
+}
+
+.serif {
+  font-family: var(--font-instrument), serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.note {
+  font-family: var(--font-caveat), cursive;
+  font-weight: 700;
+}
+
+.mono {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}

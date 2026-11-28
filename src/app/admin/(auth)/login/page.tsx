@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import AuthShell from "@/components/admin-auth/AuthShell";
 import {
   ADMINS_COLLECTION,
   ADMIN_CHALLENGES_COLLECTION,
@@ -65,7 +66,17 @@ export default function AdminLoginPage({
   searchParams: Promise<{ invited?: string }>;
 }) {
   return (
-    <Suspense fallback={<div className="admin-auth-wrap"><div className="admin-auth-card">Loading…</div></div>}>
+    <Suspense
+      fallback={
+        <AuthShell
+          kicker="Portfolio control panel"
+          title={["Admin", "sign-in."]}
+          note="staff only ✎"
+        >
+          <p style={{ margin: 0 }}>Loading…</p>
+        </AuthShell>
+      }
+    >
       <LoginContent searchParams={searchParams} />
     </Suspense>
   );

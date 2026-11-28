@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin sign-in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&amp;family=Caveat:wght@500;700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;family=Instrument+Serif:ital@0;1&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#F3F1EC}a:hover{color:#FF6A47}
+.lg{container-type:inline-size;container-name:page;min-height:100vh;box-sizing:border-box;display:flex;flex-direction:column;background:#16161A;color:#F3F1EC;font-family:Geist,system-ui,sans-serif;background-image:linear-gradient(rgb(243 241 236 / .05) 1px,transparent 1px),linear-gradient(90deg,rgb(243 241 236 / .05) 1px,transparent 1px);background-size:32px 32px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 48px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:18px;letter-spacing:-.02em;white-space:nowrap}
+.back{display:inline-flex;align-items:center;min-height:44px;font-family:"Geist Mono",monospace;font-size:13px;text-decoration:none}
+.stage{flex:1;display:flex;align-items:center;justify-content:center;gap:96px;padding:40px 48px 72px;flex-wrap:wrap}
+.say{max-width:420px}
+.big{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:clamp(52px,7cqi,104px);line-height:.88;letter-spacing:-.05em}
+.serif{font-family:"Instrument Serif",serif;font-style:italic;font-weight:400;letter-spacing:-.02em;color:#FF6A47}
+.note{font-family:Caveat,cursive;font-weight:700}
+.card{position:relative;width:100%;max-width:420px;box-sizing:border-box;padding:32px;background:#F3F1EC;color:#16161A;border-radius:20px;box-shadow:10px 10px 0 #E8492A;rotate:1deg}
+.tape{position:absolute;width:110px;height:28px;background:#E8492A99}
+.field{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:14px}
+.field input{min-height:46px;padding:0 14px;border:1.5px solid #16161A;border-radius:12px;background:#FBFAF7;font-family:Geist,sans-serif;font-size:15px;color:#16161A}
+.field input:focus{outline:3px solid #E8492A;outline-offset:2px}
+.go{min-height:50px;border:1.5px solid #16161A;border-radius:999px;background:#E8492A;color:#16161A;font-family:Geist,sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.go:hover{transform:translate(-3px,-3px);box-shadow:5px 5px 0 #16161A}
+.ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.ln>span{display:block}
+@keyframes lineUp{from{translate:0 105%}to{translate:0 0}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;translate:0 24px}to{opacity:1;translate:0 0}}
+@keyframes slap{0%{opacity:0;scale:1.5}60%{opacity:1;scale:.94}100%{opacity:1;scale:1}}
+@keyframes cardIn{from{opacity:0;translate:0 -140px;rotate:-9deg}to{opacity:1;translate:0 0;rotate:1deg}}
+@keyframes write{from{clip-path:inset(-20% 100% -20% 0)}to{clip-path:inset(-20% 0 -20% 0)}}
+@keyframes drift{from{background-position:0 0,0 0}to{background-position:0 32px,32px 0}}
+@keyframes shakeA{0%,100%{translate:0 0}20%{translate:-10px 0}40%{translate:9px 0}60%{translate:-6px 0}80%{translate:4px 0}}
+@keyframes shakeB{0%,100%{translate:0 0}20%{translate:-10px 0}40%{translate:9px 0}60%{translate:-6px 0}80%{translate:4px 0}}
+.lg{animation:drift 8s linear infinite}
+.in-fade{animation:fade .6s ease-out backwards}
+.in-line{animation:lineUp .9s cubic-bezier(.2,.7,.2,1) backwards}
+.in-up{animation:fadeUp .8s cubic-bezier(.2,.7,.2,1) backwards}
+.in-card{animation:cardIn .9s cubic-bezier(.2,.9,.25,1.2) backwards}
+.in-slap{animation:slap .45s cubic-bezier(.2,.7,.2,1) backwards}
+.in-write{animation:write .9s steps(14,end) backwards}
+.shakeA{animation:shakeA .45s cubic-bezier(.3,.7,.4,1)}
+.shakeB{animation:shakeB .45s cubic-bezier(.3,.7,.4,1)}
+.go span{display:inline-block;transition:translate .2s}
+.go:hover span{translate:4px 0}
+.err-in{animation:fadeUp .3s ease-out}
+.calm.lg{animation:none}
+.calm .in-line,.calm .in-up,.calm .in-card,.calm .in-slap,.calm .in-write{animation-name:fade !important}
+.calm .shakeA,.calm .shakeB{animation:none}
+@media (prefers-reduced-motion: reduce){
+.lg{animation:none}
+.in-line,.in-up,.in-card,.in-slap,.in-write{animation-name:fade !important}
+.shakeA,.shakeB{animation:none}
+}
+@container page (max-width: 759px){
+.top{padding:16px 20px}
+.stage{gap:32px;padding:16px 20px 48px;align-items:flex-start}
+.say{max-width:none}
+.card{rotate:0deg;padding:24px;box-shadow:6px 6px 0 #E8492A}
+}
+</style>
+</helmet>
+<div class="lg {{calmClass}}">
+  <div class="top">
+    <a class="logo" href="/">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 4c2 0 3.5 1.2 4.6 3.2L28 21c1.6 3.2-.4 7-4 7H8c-3.6 0-5.6-3.8-4-7l7.4-13.8C12.5 5.2 14 4 16 4z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"></path><rect x="12" y="19" width="8" height="9" rx="1" fill="currentColor"></rect></svg>
+      carls.dale.escalo
+    </a>
+    <a class="back" href="/">← back to the site</a>
+  </div>
+
+  <main class="stage">
+    <div class="say">
+      <div class="in-fade" style="animation-delay: .05s; font-family: 'Geist Mono', monospace; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #C9C5BB">Portfolio control panel</div>
+      <h1 class="big" style="margin-top: 14px"><span class="ln"><span class="in-line" style="animation-delay: .15s">Admin</span></span><span class="ln"><span class="in-line serif" style="animation-delay: .27s">sign-in.</span></span></h1>
+      <p class="in-up" style="animation-delay: .5s; margin: 24px 0 0; font-size: 18px; line-height: 1.6; color: #C9C5BB">Posts, messages, media and the chess board live behind this door.</p>
+    </div>
+
+    <form class="card in-card {{shakeCls}}" style="display: flex; flex-direction: column; gap: 16px; animation-delay: .3s" onSubmit="{{submit}}" noValidate="{{ true }}">
+      <span class="tape in-slap" style="left: 40px; top: -14px; rotate: -4deg; animation-delay: 1.05s"></span>
+      <span class="note in-write" style="position: absolute; right: -14px; top: -30px; rotate: 6deg; font-size: 26px; color: #FF6A47; animation-delay: 1.3s">staff only ✎</span>
+      <div class="field">
+        <label for="a-email">Email</label>
+        <input id="a-email" name="email" type="email" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="a-pass">Password</label>
+        <input id="a-pass" name="password" type="password" autocomplete="current-password">
+      </div>
+      <button class="go" type="submit" style="margin-top: 4px">Continue <span aria-hidden="true">→</span></button>
+      <sc-if value="{{sent}}" hint-placeholder-val="{{ false }}"><a href="Verify.dc.html" style="font-family: Caveat, cursive; font-weight: 700; font-size: 24px; color: #B8361A; text-align: center">code sent — go to step 2 →</a></sc-if>
+      <span aria-live="polite" style="min-height: 1.4em; font-size: 14px; color: #B8361A"><sc-if value="{{showErr}}" hint-placeholder-val="{{ false }}"><span class="err-in" style="display: inline-block">Invalid email or password.</span></sc-if></span>
+    </form>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"motion":{"editor":"enum","options":["full","calm"],"default":"full"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tries: 0, sent: false };
+  }
+  renderVals() {
+    const tries = this.state.tries;
+    return {
+      calmClass: (this.props.motion ?? 'full') === 'calm' ? 'calm' : '',
+      shakeCls: tries === 0 ? '' : (tries % 2 ? 'shakeA' : 'shakeB'),
+      showErr: tries > 0,
+      sent: this.state.sent,
+      submit: (e) => {
+        e.preventDefault();
+        const f = e.currentTarget;
+        if (f.email.value && f.password.value) { this.setState({ tries: 0, sent: true }); return; }
+        this.setState({ tries: tries + 1 });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -57,12 +57,21 @@ export default function ShareRow({ url, title }: { url: string; title: string })
 
   return (
     <div className="blog-share">
-      <span>Share</span>
-      <button type="button" className="blog-btn sm" onClick={handleCopy}>
+      <span className="blog-share-label">Share</span>
+      <button
+        type="button"
+        className="k-pill k-lift blog-copy-btn"
+        onClick={handleCopy}
+      >
         {copied ? "Link copied" : "Copy link"}
+        {copied ? (
+          <span className="k-note blog-copied" aria-hidden="true">
+            copied!
+          </span>
+        ) : null}
       </button>
       <a
-        className="blog-btn sm"
+        className="k-pill k-lift"
         href={xUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -71,7 +80,7 @@ export default function ShareRow({ url, title }: { url: string; title: string })
         Post on X
       </a>
       <a
-        className="blog-btn sm"
+        className="k-pill k-lift"
         href={linkedInUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -80,7 +89,7 @@ export default function ShareRow({ url, title }: { url: string; title: string })
         LinkedIn
       </a>
       {canNativeShare ? (
-        <button type="button" className="blog-btn sm" onClick={() => void handleNativeShare()}>
+        <button type="button" className="k-pill k-lift" onClick={() => void handleNativeShare()}>
           Share…
         </button>
       ) : null}

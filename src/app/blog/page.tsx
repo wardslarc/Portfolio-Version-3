@@ -126,18 +126,62 @@ export default function BlogIndexPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd).replace(/</g, "\\u003c") }}
       />
-      <section className="blog-hero">
-        <p className="section-label" style={{ marginBottom: "16px" }}>
-          Blog
-        </p>
-        <h1>Notes from building things</h1>
-        <p>
-          Write-ups on the systems behind this site and the tools I build at work: what I tried,
-          what broke, what I&apos;d do again.
-        </p>
+      <section className="blog-hero k-grid">
+        <div className="k-wrap">
+          <p className="k-kicker k-in-fade" style={{ animationDelay: "0.05s" }}>
+            Blog
+          </p>
+          <h1 className="blog-hero-h1">
+            <span className="k-ln">
+              <span className="k-in-line" style={{ animationDelay: "0.15s" }}>
+                Notes from
+              </span>
+            </span>
+            <span className="k-ln">
+              <span className="k-in-line" style={{ animationDelay: "0.27s" }}>
+                building{" "}
+                <span className="k-serif blog-scrib">
+                  things.
+                  <svg className="k-in-draw" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">
+                    <path
+                      d="M3 13c40-9 95-11 194-4"
+                      pathLength={1}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={4}
+                      strokeLinecap="round"
+                      style={{ animationDelay: "0.95s" }}
+                    />
+                  </svg>
+                </span>
+              </span>
+            </span>
+          </h1>
+          <div className="blog-hero-row">
+            <p className="blog-hero-lede k-in-up" style={{ animationDelay: "0.5s" }}>
+              Write-ups on the systems behind this site and the tools I build at work: what I
+              tried, what broke, what I&apos;d do again.
+            </p>
+            <span
+              className="k-note blog-hero-note k-in-write"
+              style={{ animationDelay: "1.2s" }}
+              aria-hidden="true"
+            >
+              plain English, promise ✎
+            </span>
+          </div>
+        </div>
       </section>
 
-      <Suspense fallback={<div className="blog-empty">Loading posts…</div>}>
+      <Suspense
+        fallback={
+          <div className="k-wrap">
+            <div className="blog-empty">
+              <p>Loading posts…</p>
+            </div>
+          </div>
+        }
+      >
         <BlogIndexContent searchParams={searchParams} />
       </Suspense>
     </>

@@ -1,13 +1,27 @@
-import About from "@/components/About";
-import ChessSection from "@/components/ChessSection";
-import Contact from "@/components/Contact";
-import { Experience, Skills } from "@/components/Experience";
-import Header from "@/components/Header";
-import Intro from "@/components/Intro";
-import Work from "@/components/Work";
-import Writing from "@/components/Writing";
+import type { Viewport } from "next";
+import ContactPanel from "@/components/home/contact/ContactPanel";
+import contactShellStyles from "@/components/home/contact/ContactShell.module.css";
+import CopyrightYear from "@/components/home/CopyrightYear";
+import { homeFontVariables } from "@/components/home/fonts";
+import Hero from "@/components/home/hero/Hero";
+import HomeHeader from "@/components/home/HomeHeader";
+import HomeShell from "@/components/home/HomeShell";
+import shellStyles from "@/components/home/HomeShell.module.css";
+import HomeThemeScope from "@/components/home/HomeThemeScope";
+import NightSection from "@/components/home/NightSection";
+import Sketchbook from "@/components/home/Sketchbook";
+import SplitScene from "@/components/home/SplitScene";
+import Statement from "@/components/home/Statement";
+import ExperienceStrip from "@/components/home/work/ExperienceStrip";
+import LatestPosts from "@/components/home/work/LatestPosts";
+import MoreWork from "@/components/home/work/MoreWork";
+import moreWorkStyles from "@/components/home/work/MoreWork.module.css";
+import WorkTrack from "@/components/home/work/WorkTrack";
 import { skills } from "@/content/experience";
+import { contact } from "@/content/home";
 import { site } from "@/content/site";
+
+export const viewport: Viewport = { themeColor: "#F3F1EC" };
 
 const personId = `${site.url}/#person`;
 
@@ -58,15 +72,10 @@ const structuredData = {
   ],
 };
 
-// Cached so the page can stay prerendered; it's recomputed when the cache revalidates.
-async function CopyrightYear() {
-  "use cache";
-  return <>{new Date().getFullYear()}</>;
-}
-
 export default function Home() {
   return (
     <>
+      <HomeThemeScope />
       <a className="skip" href="#main">
         Skip to content
       </a>
@@ -75,23 +84,37 @@ export default function Home() {
         // Static, build-time JSON; "<" is escaped so it can't close the script tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
-      <Header />
-      <main id="main" className="wrap">
-        <Intro />
-        <About />
-        <Work />
-        <Writing />
-        <Experience />
-        <Skills />
-        <ChessSection />
-        <Contact />
-      </main>
-      <footer className="site-footer">
-        <div className="wrap">
-          <span>© <CopyrightYear /> {site.name}</span>
-          <span>Built with Next.js and MongoDB · Hosted on Vercel</span>
+      <HomeShell fontClassName={homeFontVariables}>
+        <HomeHeader />
+        <main id="main" className={shellStyles.main}>
+          <Hero />
+          <Statement />
+          <WorkTrack />
+          <section data-home-theme="sand" className={moreWorkStyles.sandSection}>
+            <div className={moreWorkStyles.sandInner}>
+              <MoreWork />
+              <ExperienceStrip />
+              <LatestPosts />
+            </div>
+          </section>
+          <SplitScene />
+          <NightSection />
+          <Sketchbook />
+        </main>
+        <div data-anim="contact-grow" className={contactShellStyles.panel}>
+          <div className={contactShellStyles.inner}>
+            <section id="contact" aria-labelledby="contact-h">
+              <ContactPanel />
+            </section>
+          </div>
+          <footer className={contactShellStyles.footer}>
+            <span>
+              © <CopyrightYear /> {site.name} · {contact.footerPlace}
+            </span>
+            <span>{contact.footerRight}</span>
+          </footer>
         </div>
-      </footer>
+      </HomeShell>
     </>
   );
 }

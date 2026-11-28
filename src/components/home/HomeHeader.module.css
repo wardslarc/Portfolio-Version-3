@@ -1,0 +1,151 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--home-bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: max(1px, calc(0.09375 * var(--u))) solid currentColor;
+}
+
+.nav {
+  max-width: var(--nav-max, calc(77.5 * var(--u)));
+  margin: 0 auto;
+  padding: calc(0.875 * var(--u)) calc(1.5 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(1 * var(--u));
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(0.625 * var(--u));
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: max(12px, calc(1.125 * var(--u)));
+  letter-spacing: -0.02em;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.logoIcon {
+  width: calc(1.875 * var(--u));
+  height: calc(1.875 * var(--u));
+  flex-shrink: 0;
+}
+
+.desktopLinks {
+  display: flex;
+  align-items: center;
+  gap: calc(1.75 * var(--u));
+}
+
+.navLink {
+  font-weight: 500;
+  font-size: max(12px, calc(0.875 * var(--u)));
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navLink[aria-current="page"],
+.menuLink[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-color: var(--home-coral);
+  text-decoration-thickness: calc(0.125 * var(--u));
+  text-underline-offset: calc(0.375 * var(--u));
+}
+
+.themeBtn {
+  width: max(44px, calc(2.75 * var(--u)));
+  height: max(44px, calc(2.75 * var(--u)));
+  border-radius: 999px;
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--k-line, currentColor);
+  background: var(--k-surface, transparent);
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.themeBtn:hover {
+  transform: translate(calc(-0.1875 * var(--u)), calc(-0.1875 * var(--u)));
+  box-shadow: calc(0.3125 * var(--u)) calc(0.3125 * var(--u)) 0 currentColor;
+}
+
+.themeBtn svg {
+  width: calc(1.125 * var(--u));
+  height: calc(1.125 * var(--u));
+}
+
+.cta {
+  background: var(--home-coral);
+  color: var(--home-ink);
+  padding: calc(0.625 * var(--u)) calc(1.125 * var(--u));
+  font-size: max(12px, calc(0.875 * var(--u)));
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.menuBtn {
+  display: none;
+  width: max(44px, calc(2.75 * var(--u)));
+  height: max(44px, calc(2.75 * var(--u)));
+  place-items: center;
+  border: max(1px, calc(0.09375 * var(--u))) solid currentColor;
+  border-radius: calc(0.75 * var(--u));
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menu {
+  padding: calc(0.25 * var(--u)) calc(1.5 * var(--u)) calc(1.25 * var(--u));
+  display: flex;
+  flex-direction: column;
+}
+
+.menuLink {
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 700;
+  font-size: max(15px, calc(1.375 * var(--u)));
+  padding: calc(0.75 * var(--u)) 0;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: max(1px, calc(0.0625 * var(--u))) solid var(--home-menu-rule);
+}
+
+.menuLink:last-child {
+  border-bottom: 0;
+}
+
+.menuCta {
+  color: var(--home-coral);
+}
+
+.menuThemeRow {
+  padding-top: calc(0.75 * var(--u));
+}
+
+@media (max-width: 759.98px) {
+  .desktopLinks {
+    display: none;
+  }
+
+  .menuBtn {
+    display: inline-grid;
+  }
+}
+
+@media (min-width: 760px) {
+  .menu {
+    display: none;
+  }
+}

@@ -1,0 +1,299 @@
+.section {
+  height: auto;
+}
+
+.stage {
+  position: static;
+  height: auto;
+  padding: calc(5 * var(--u)) 0;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(4 * var(--u));
+  width: auto;
+  padding: 0 calc(1.25 * var(--u));
+}
+
+.track > * {
+  width: min(100%, calc(31.25 * var(--u)));
+}
+
+.label {
+  margin: 0;
+  font-size: max(12px, calc(0.8125 * var(--u)));
+  letter-spacing: 0.08em;
+  color: inherit;
+}
+
+.heading {
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: clamp(56px, 7vw, 104px);
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  color: var(--home-ink);
+  margin: calc(0.875 * var(--u)) 0 calc(1.125 * var(--u));
+}
+
+.headingAccent {
+  color: var(--home-coral-text);
+}
+
+.introCopy {
+  margin: 0;
+  font-size: max(15px, calc(1.0625 * var(--u)));
+  line-height: 1.6;
+  color: var(--home-muted);
+}
+
+.keepScrolling {
+  margin: calc(1.625 * var(--u)) 0 0;
+  font-size: max(12px, calc(1.875 * var(--u)));
+  color: var(--home-coral-text);
+}
+
+.card {
+  position: relative;
+  background: var(--home-card);
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
+  border-radius: calc(1.125 * var(--u));
+  box-shadow: calc(0.5 * var(--u)) calc(0.5 * var(--u)) 0 var(--home-ink);
+  rotate: var(--rotate, 0deg);
+  translate: 0 var(--drift-y, 0px);
+  transition: rotate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.45s;
+}
+
+.card:hover {
+  rotate: 0deg;
+  box-shadow: calc(0.75 * var(--u)) calc(0.875 * var(--u)) 0 var(--home-ink);
+}
+
+.tape {
+  position: absolute;
+  width: calc(6.875 * var(--u));
+  height: calc(1.75 * var(--u));
+  background: var(--home-tape);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.cardNote {
+  position: absolute;
+  top: var(--note-top);
+  background: var(--home-sand);
+  color: var(--home-coral-text);
+  padding: calc(0.125 * var(--u)) calc(0.625 * var(--u));
+  border-radius: calc(0.5 * var(--u));
+  line-height: 1.1;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@media (max-width: 759.98px) {
+  .cardNote {
+    top: var(--note-top-narrow, var(--note-top));
+  }
+}
+
+@media (min-width: 760px) and (max-width: 1023.98px) and (prefers-reduced-motion: reduce) {
+  .cardNote {
+    top: var(--note-top-narrow, var(--note-top));
+  }
+}
+
+.shot {
+  margin: calc(1 * var(--u)) calc(1 * var(--u)) 0;
+  aspect-ratio: 16 / 10;
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
+  border-radius: calc(0.75 * var(--u));
+  background: var(--home-placeholder);
+  overflow: hidden;
+  font-size: max(12px, calc(0.75 * var(--u)));
+  color: var(--home-muted);
+}
+
+.cardBody {
+  padding: calc(1.25 * var(--u)) calc(1.625 * var(--u)) calc(1.625 * var(--u));
+}
+
+.cardMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: calc(0.75 * var(--u));
+  font-size: max(12px, calc(0.75 * var(--u)));
+  color: var(--home-muted);
+}
+
+.status_green {
+  color: var(--home-green);
+}
+
+.status_coral {
+  color: var(--home-coral-text);
+}
+
+.status_muted {
+  color: inherit;
+}
+
+.cardTitle {
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: max(24px, calc(2 * var(--u)));
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--home-ink);
+  margin: calc(0.5 * var(--u)) 0 calc(0.375 * var(--u));
+}
+
+.cardLink {
+  color: inherit;
+}
+
+.cardDesc {
+  margin: 0;
+  font-size: max(15px, calc(0.9375 * var(--u)));
+  line-height: 1.55;
+  color: var(--home-muted);
+}
+
+.cardStack {
+  margin: calc(0.75 * var(--u)) 0 0;
+  font-size: max(12px, calc(0.75 * var(--u)));
+  color: var(--home-muted);
+}
+
+.endText {
+  margin: 0;
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: max(24px, calc(2.75 * var(--u)));
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--home-ink);
+}
+
+.endAccent {
+  color: var(--home-coral-text);
+}
+
+.rail {
+  display: none;
+}
+
+.bar {
+  width: 100%;
+  height: 100%;
+  background: var(--home-coral);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+@media (min-width: 760px) {
+  .heading {
+    font-size: max(56px, calc(5.4 * var(--u)));
+  }
+}
+
+@media (min-width: 760px) and (prefers-reduced-motion: no-preference) {
+  .section {
+    height: calc(
+      var(--stage-h) +
+        var(
+          --hz-extra,
+          max(0px, calc(157.25 * var(--u) + 2 * max(var(--gutter), calc((100vw - var(--wrap)) / 2)) - 100vw))
+        )
+    );
+  }
+
+  .stage {
+    position: sticky;
+    top: 0;
+    height: var(--stage-h);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 0;
+  }
+
+  .track {
+    flex-direction: row;
+    align-items: center;
+    gap: calc(4 * var(--u));
+    padding: calc(2.5 * var(--u)) max(var(--gutter), calc((100% - var(--wrap)) / 2)) 0;
+    width: max-content;
+  }
+
+  .intro {
+    width: calc(26.25 * var(--u));
+  }
+
+  .card {
+    width: calc(31.25 * var(--u));
+  }
+
+  .endPanel {
+    width: calc(21.25 * var(--u));
+  }
+
+  .rail {
+    display: block;
+    position: absolute;
+    left: max(var(--gutter), calc((100% - var(--wrap)) / 2));
+    right: max(var(--gutter), calc((100% - var(--wrap)) / 2));
+    bottom: calc(2.25 * var(--u));
+    height: calc(0.1875 * var(--u));
+    background: var(--home-track-rail);
+    border-radius: calc(0.1875 * var(--u));
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 760px) and (prefers-reduced-motion: reduce) {
+  .section {
+    height: auto;
+  }
+
+  .stage {
+    position: static;
+    height: auto;
+    padding: calc(7.5 * var(--u)) var(--gutter);
+  }
+
+  .track {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(4 * var(--u)) calc(3.5 * var(--u));
+    align-items: start;
+    max-width: var(--wrap);
+    width: auto;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .track > * {
+    width: auto;
+  }
+
+  .intro {
+    grid-column: 1 / -1;
+    max-width: calc(40 * var(--u));
+  }
+
+  .endPanel {
+    grid-column: 1 / -1;
+  }
+
+  .card:nth-of-type(even) {
+    margin-top: calc(2.5 * var(--u));
+  }
+
+  .rail {
+    display: none;
+  }
+}

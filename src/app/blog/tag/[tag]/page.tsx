@@ -152,24 +152,45 @@ export default async function BlogTagPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
-      <section className="blog-hero">
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Blog", href: "/blog" },
-            { label: tagInfo.name },
-          ]}
-        />
-        <p className="section-label" style={{ marginBottom: "16px" }}>
-          Tag
-        </p>
-        <h1>Posts about {tagInfo.name}</h1>
-        <p>
-          {tagInfo.count} {tagInfo.count === 1 ? "post" : "posts"} tagged {tagInfo.name}.
-        </p>
+      <section className="blog-hero k-grid">
+        <div className="k-wrap">
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Blog", href: "/blog" },
+              { label: tagInfo.name },
+            ]}
+          />
+          <p className="k-kicker k-in-fade" style={{ animationDelay: "0.05s" }}>
+            Tag
+          </p>
+          <h1 className="blog-hero-h1">
+            <span className="k-ln">
+              <span className="k-in-line" style={{ animationDelay: "0.15s" }}>
+                Posts about
+              </span>
+            </span>
+            <span className="k-ln">
+              <span className="k-in-line" style={{ animationDelay: "0.27s" }}>
+                <span className="k-serif">{tagInfo.name}.</span>
+              </span>
+            </span>
+          </h1>
+          <p className="blog-hero-lede k-in-up" style={{ animationDelay: "0.5s" }}>
+            {tagInfo.count} {tagInfo.count === 1 ? "post" : "posts"} tagged {tagInfo.name}.
+          </p>
+        </div>
       </section>
 
-      <Suspense fallback={<div className="blog-empty">Loading posts…</div>}>
+      <Suspense
+        fallback={
+          <div className="k-wrap">
+            <div className="blog-empty">
+              <p>Loading posts…</p>
+            </div>
+          </div>
+        }
+      >
         <TagPostsContent tagSlug={tagInfo.slug} searchParams={searchParams} />
       </Suspense>
     </>

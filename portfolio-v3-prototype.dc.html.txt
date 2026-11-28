@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Carls Dale Escalo — Code by day, ink by night</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@property --bg{syntax:'<color>';inherits:true;initial-value:#F3F1EC}@property --fg{syntax:'<color>';inherits:true;initial-value:#16161A}
+body{margin:0;background:#16161A}a{color:inherit;text-decoration:none}
+.root{background-color:var(--bg);color:var(--fg);transition:--bg .9s ease,--fg .9s ease;overflow-x:clip;font-family:Geist,system-ui,sans-serif}.live [data-bg]{background:transparent!important;color:inherit!important}
+.grid-bg{background-image:linear-gradient(rgb(128 128 128/.1) 1px,transparent 1px),linear-gradient(90deg,rgb(128 128 128/.1) 1px,transparent 1px);background-size:32px 32px}
+@keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}@keyframes draw{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}@keyframes mq{to{transform:translateX(-50%)}}@keyframes mqr{from{transform:translateX(-50%)}to{transform:none}}
+.in{opacity:0;animation:up .9s cubic-bezier(.2,.7,.2,1) forwards}.ink path{stroke-dasharray:1000;stroke-dashoffset:1000;animation:draw 1.8s ease forwards}.mq{animation:mq 28s linear infinite}.mqr{animation:mqr 32s linear infinite}
+.rv{opacity:var(--p,1);translate:0 calc((1 - var(--p,1)) * 56px)}.ln{display:block;overflow:clip;padding-bottom:.08em}.ln>span{display:inline-block;translate:0 calc((1 - var(--p,1)) * 110%)}
+.wd{opacity:calc(.2 + var(--p,1) * .8)}.par{translate:0 calc(var(--p,0) * var(--s,60px) * -1)}.drift{translate:0 calc(var(--p,0) * var(--s,0px))}
+.shrink{transform:scale(calc(1 - var(--p,0) * .4)) rotate(calc(var(--p,0) * -2deg));border-radius:calc(var(--p,0) * 36px);box-shadow:0 50px 90px rgb(0 0 0/calc(var(--p,0) * .7))}
+.sig{opacity:clamp(0,calc((var(--p,0) - .5) * 20),1)}.sig path{stroke-dasharray:1000;stroke-dashoffset:calc((1 - clamp(0,calc((var(--p,0) - .55) / .4),1)) * 1000)}
+.track{transform:translateX(calc(var(--p,0) * var(--tx,0px) * -1))}.bar{transform-origin:left;transform:scaleX(var(--p,0))}
+.split-l{translate:calc((1 - clamp(0,calc(var(--p,0) / .35),1)) * -130%) 0}.split-r{translate:calc((1 - clamp(0,calc(var(--p,0) / .35),1)) * 130%) 0}.split-o{clip-path:circle(calc(clamp(0,calc((var(--p,0) - .5) / .42),1) * 150%) at 72% 50%)}
+.fan{transform:translateX(calc(var(--i) * var(--p,1) * 140px)) translateY(calc(var(--y) * var(--p,1))) rotate(calc(var(--i) * var(--p,1) * 9deg))}
+.grow{clip-path:inset(calc((1 - var(--p,1)) * 9%) calc((1 - var(--p,1)) * 5%) 0 round calc((1 - var(--p,1)) * 56px + 40px) calc((1 - var(--p,1)) * 56px + 40px) 0 0)}
+.case{transition:rotate .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s}.case:hover{rotate:0deg!important;box-shadow:12px 14px 0 #16161A!important}
+.btn{transition:transform .2s,box-shadow .2s}.btn:hover{transform:translate(-3px,-3px);box-shadow:5px 5px 0 currentColor}.frame{transition:transform .4s}.frame:hover{transform:scale(1.03)}
+.nav-l{display:flex}.nav-m{display:none}@media(max-width:760px){.nav-l{display:none}.nav-m{display:inline-flex}.hz{height:auto!important}.hz-in{position:static!important;height:auto!important;padding:80px 0}.track{flex-direction:column;transform:none!important;width:auto!important;padding:0 20px!important}.track>*{width:auto!important;max-width:100%}}
+input:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid #E8492A;outline-offset:3px}
+.calm .in,.calm .mq,.calm .mqr,.calm .ink path{animation:none!important;opacity:1}.calm .ink path{stroke-dashoffset:0}
+</style>
+</helmet>
+<div class="root grid-bg">
+
+<header style="position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1.5px solid currentColor">
+<nav style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" style="display: flex; align-items: center; gap: 10px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: -.02em"><svg width="30" height="30" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="12" stroke-linejoin="round" aria-hidden="true"><path d="M100 22 C112 22 120 30 128 44 L176 128 C188 150 176 174 150 174 L50 174 C24 174 12 150 24 128 L72 44 C80 30 88 22 100 22 Z"></path><path d="M74 174 L74 128 L126 128 L126 174 Z" fill="currentColor"></path></svg>carls.dale</a>
+<div class="nav-l" style="align-items: center; gap: 28px; font-size: 14px; font-weight: 500">
+<a href="#work">On the clock</a><a href="#night">Off the clock</a><a href="https://www.carlsdaleescalo.com/blog">Blog</a>
+<a class="btn" href="#contact" style="padding: 10px 18px; border: 1.5px solid #16161A; border-radius: 999px; background: #E8492A; color: #16161A; font-weight: 600">Let's talk</a>
+</div>
+<button class="nav-m" type="button" onClick="{{toggleMenu}}" aria-label="Open menu" style="width: 44px; height: 44px; align-items: center; justify-content: center; border: 1.5px solid currentColor; border-radius: 12px; background: transparent; color: inherit; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"></path></svg></button>
+</nav>
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; padding: 4px 24px 20px; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">
+<a href="#work" onClick="{{toggleMenu}}" style="padding: 12px 0; border-bottom: 1px solid rgb(128 128 128/.3)">On the clock</a><a href="#night" onClick="{{toggleMenu}}" style="padding: 12px 0; border-bottom: 1px solid rgb(128 128 128/.3)">Off the clock</a><a href="#contact" onClick="{{toggleMenu}}" style="padding: 12px 0; color: #E8492A">Let's talk →</a>
+</div>
+</sc-if>
+</header>
+
+<div id="top" class="pin" style="position: relative; height: calc(min(100vh, 900px) + 1000px); background: #16161A">
+<div style="position: sticky; top: 0; height: min(100vh, 900px); overflow: hidden">
+<div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; color: #F3F1EC; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(72px, 13vw, 210px); line-height: .92; letter-spacing: -.045em">
+<div class="mq" style="display: flex; width: max-content; white-space: nowrap"><sc-for list="{{band}}" as="b" hint-placeholder-count="6"><span style="padding-right: 60px">CODE BY DAY <span style="color: #FF6A47">✦</span> INK BY <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400">night</span> <span style="color: #FF6A47">✦</span></span></sc-for></div>
+<div class="mqr" style="display: flex; width: max-content; white-space: nowrap; color: transparent; -webkit-text-stroke: 2px #F3F1EC"><sc-for list="{{band}}" as="b" hint-placeholder-count="6"><span style="padding-right: 60px">NEXT.JS · NODE · MYSQL · DOCKER · CLIP STUDIO · </span></sc-for></div>
+</div>
+<section class="shrink grid-bg" style="position: absolute; inset: 0; background-color: #F3F1EC; color: #16161A; padding: 92px 24px 32px; display: flex; align-items: center; overflow: hidden; z-index: 1">
+<div style="width: 100%; max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+<div style="flex: 999 1 520px; min-width: 0">
+<div class="in" style="animation-delay: .05s; font-family: Caveat, cursive; font-size: 30px; font-weight: 700; color: #B8361A; transform: rotate(-3deg); display: inline-block">hi, I'm Carls ↘</div>
+<h1 style="margin: 12px 0 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(52px, 8.4vw, 124px); line-height: .9; letter-spacing: -.045em">
+<span class="in" style="display: block; animation-delay: .15s">I build tools</span>
+<span class="in" style="display: block; animation-delay: .27s">teams <span style="position: relative; display: inline-block; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; letter-spacing: -.02em; color: #E8492A">actually<svg class="ink" viewBox="0 0 300 30" preserveAspectRatio="none" fill="none" stroke="#E8492A" stroke-width="5" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 0; bottom: -6px; width: 100%; height: 22px"><path pathLength="1000" d="M4 20 C60 8 120 26 180 14 S270 10 296 18" style="animation-delay: 1.1s"></path></svg></span></span>
+<span class="in" style="display: block; animation-delay: .39s">use.</span>
+</h1>
+<p class="in" style="animation-delay: .55s; margin: 32px 0 0; max-width: 540px; font-size: 19px; line-height: 1.55; color: #4A463F">Full-stack &amp; systems developer in Makati, Philippines. By day I ship internal platforms, SaaS and Android apps. By night I draw.</p>
+<div class="in" style="animation-delay: .7s; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px">
+<a class="btn" href="#work" style="padding: 15px 24px; border: 1.5px solid #16161A; border-radius: 999px; background: #16161A; color: #F3F1EC; font-weight: 600">See the work ↓</a>
+<a class="btn" href="https://www.carlsdaleescalo.com/" style="padding: 15px 24px; border: 1.5px solid #16161A; border-radius: 999px; background: #FBFAF7; font-weight: 600">Résumé (PDF)</a>
+<a class="btn" href="https://www.instagram.com/daleonigiri/" style="padding: 15px 24px; border: 1.5px solid #16161A; border-radius: 999px; background: #FBFAF7; font-weight: 600">@daleonigiri ✎</a>
+</div>
+</div>
+<div class="in" style="animation-delay: .4s; flex: 1 1 300px; max-width: 390px">
+<div onMouseMove="{{move}}" onMouseLeave="{{leave}}" role="img" aria-label="Portrait of Carls; hovering reveals his construction sketch underneath" style="position: relative; aspect-ratio: 4 / 5; border: 1.5px solid #16161A; border-radius: 20px; overflow: hidden; background: #FBFAF7; box-shadow: 10px 10px 0 #16161A; transform: rotate(2deg); cursor: crosshair">
+<svg viewBox="0 0 400 500" fill="none" stroke="#16161A" stroke-width="2" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%">
+<circle cx="200" cy="210" r="110" stroke-opacity=".35"></circle><path d="M200 90 C185 200 185 260 200 380" stroke="#E8492A"></path><path d="M92 205 C150 222 250 222 308 205" stroke="#E8492A"></path>
+<path d="M120 270 C150 300 175 330 200 345 C225 330 250 300 280 270" stroke-width="3"></path><path d="M150 230 q18 -10 34 0 M216 230 q18 -10 34 0 M188 280 q12 8 24 0 M175 312 q25 12 50 0" stroke-width="2.5"></path>
+<path d="M96 170 C110 90 170 70 220 82 C270 92 310 130 306 190 M120 120 C150 100 190 112 214 96 M150 110 C190 130 240 120 280 140" stroke-width="2.5" stroke-opacity=".7"></path>
+<path d="M60 500 C80 430 130 410 200 410 C270 410 320 430 340 500" stroke-opacity=".5"></path>
+</svg>
+<span style="position: absolute; left: 22px; top: 20px; font-family: Caveat, cursive; font-size: 24px; font-weight: 700; color: #B8361A">brow line</span>
+<span style="position: absolute; right: 22px; bottom: 26px; font-family: Caveat, cursive; font-size: 24px; font-weight: 700; color: #B8361A; transform: rotate(-4deg)">it's all structure.</span>
+<div style="position: absolute; inset: 0; background: #2A2824; display: flex; align-items: flex-end; padding: 22px; -webkit-mask-image: radial-gradient(circle 120px at {{mx}}px {{my}}px, transparent 98%, #000 100%); mask-image: radial-gradient(circle 120px at {{mx}}px {{my}}px, transparent 98%, #000 100%)">
+<span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #D8D4CB; background: #16161A; padding: 6px 10px; border-radius: 6px">[Your photo goes here]</span>
+</div>
+</div>
+<div style="margin-top: 20px; font-family: Caveat, cursive; font-size: 24px; font-weight: 700; color: #4A463F; text-align: center">↑ hover me — there's a sketch underneath</div>
+</div>
+</div>
+</section>
+<svg class="sig" viewBox="0 0 200 200" fill="none" stroke="#FF6A47" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position: absolute; left: 50%; top: 50%; width: min(46vw, 420px); height: min(46vw, 420px); transform: translate(-50%, -50%) rotate(-8deg); pointer-events: none; z-index: 2"><path pathLength="1000" d="M100 22 C112 22 120 30 128 44 L176 128 C188 150 176 174 150 174 L50 174 C24 174 12 150 24 128 L72 44 C80 30 88 22 100 22 Z"></path><path pathLength="1000" d="M74 174 L74 128 L126 128 L126 174"></path><path pathLength="1000" d="M80 92 q6 -8 12 0 M108 92 q6 -8 12 0 M92 106 q8 8 16 0"></path></svg>
+</div>
+</div>
+
+<section data-bg="#F3F1EC" data-fg="#16161A" style="background: #F3F1EC; color: #16161A; padding: 160px 24px">
+<p style="max-width: 1100px; margin: 0 auto; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: clamp(30px, 4.6vw, 60px); line-height: 1.12; letter-spacing: -.03em">
+<sc-for list="{{words}}" as="w" hint-placeholder-count="30"><span class="wd">{{w}} </span></sc-for><span class="wd" style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #E8492A">Then I go home and draw.</span>
+</p>
+</section>
+
+<section id="work" class="hz" data-bg="#E6E0D2" data-fg="#16161A" style="position: relative; height: 3200px; background: #E6E0D2; color: #16161A">
+<div class="hz-in" style="position: sticky; top: 0; height: min(100vh, 900px); overflow: hidden; display: flex; align-items: center">
+<div class="track" style="display: flex; gap: 64px; align-items: center; padding: 40px 6vw 0; width: max-content">
+<div style="width: 420px; flex: none">
+<div style="font-family: 'Geist Mono', monospace; font-size: 13px; letter-spacing: .08em">01 / SELECTED WORK</div>
+<h2 style="margin: 14px 0 18px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(56px, 7vw, 104px); line-height: .88; letter-spacing: -.045em">On the <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #B8361A">clock.</span></h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.6; color: #4A463F">Things running in production right now, built end to end, from the database to the server.</p>
+<div style="margin-top: 26px; font-family: Caveat, cursive; font-size: 30px; font-weight: 700; color: #B8361A">keep scrolling →</div>
+</div>
+
+<article class="case drift" style="--s: -50px; width: 500px; flex: none; position: relative; background: #FBFAF7; border: 1.5px solid #16161A; border-radius: 18px; box-shadow: 8px 8px 0 #16161A; rotate: -1.5deg">
+<span aria-hidden="true" style="position: absolute; top: -14px; left: 40px; width: 110px; height: 28px; background: #E8492A99; transform: rotate(-4deg)"></span>
+<div style="margin: 16px 16px 0; aspect-ratio: 16 / 10; border: 1.5px solid #16161A; border-radius: 12px; background: #E9E6DF; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">[Screenshot: RMK Learning Hub]</div>
+<div style="padding: 20px 26px 26px">
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F"><span>01 — Rustan Marketing</span><span style="color: #1F7A4D">● in production</span></div>
+<h3 style="margin: 8px 0 6px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.03em">RMK Learning Hub</h3>
+<p style="margin: 0; line-height: 1.55; color: #4A463F; font-size: 15px">The company LMS for assigned courses and progress tracking. Built from the ground up, used across the organization.</p>
+<p style="margin: 12px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">Next.js · Node.js · TypeScript · MySQL · Docker</p>
+</div>
+<div aria-hidden="true" style="position: absolute; right: -20px; top: 36%; transform: rotate(8deg); font-family: Caveat, cursive; font-size: 28px; font-weight: 700; color: #B8361A; background: #E6E0D2; padding: 2px 10px; border-radius: 8px">built from scratch!</div>
+</article>
+
+<article class="case drift" style="--s: 40px; width: 500px; flex: none; position: relative; background: #FBFAF7; border: 1.5px solid #16161A; border-radius: 18px; box-shadow: 8px 8px 0 #16161A; rotate: 1.2deg">
+<span aria-hidden="true" style="position: absolute; top: -14px; right: 50px; width: 110px; height: 28px; background: #E8492A99; transform: rotate(5deg)"></span>
+<div style="margin: 16px 16px 0; aspect-ratio: 16 / 10; border: 1.5px solid #16161A; border-radius: 12px; background: #E9E6DF; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">[Screenshot: Bilyo]</div>
+<div style="padding: 20px 26px 26px">
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F"><span>02 — Personal SaaS</span><span style="color: #B8361A">● live beta</span></div>
+<h3 style="margin: 8px 0 6px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.03em"><a href="https://www.carlsdaleescalo.com/">Bilyo ↗</a></h3>
+<p style="margin: 0; line-height: 1.55; color: #4A463F; font-size: 15px">Quotation maker for Filipino freelancers: one-tap client acceptance, PDF export, multi-currency, view tracking.</p>
+<p style="margin: 12px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">Next.js · Node.js · MongoDB · Vercel · Resend</p>
+</div>
+<div aria-hidden="true" style="position: absolute; left: -24px; bottom: 30px; transform: rotate(-7deg); font-family: Caveat, cursive; font-size: 28px; font-weight: 700; color: #B8361A; background: #E6E0D2; padding: 2px 10px; border-radius: 8px">my own product ✎</div>
+</article>
+
+<article class="case drift" style="--s: -30px; width: 500px; flex: none; position: relative; background: #FBFAF7; border: 1.5px solid #16161A; border-radius: 18px; box-shadow: 8px 8px 0 #16161A; rotate: -1deg">
+<div style="margin: 16px 16px 0; aspect-ratio: 16 / 10; border: 1.5px solid #16161A; border-radius: 12px; background: #E9E6DF; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">[Screenshot: Relato on a phone]</div>
+<div style="padding: 20px 26px 26px">
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F"><span>03 — Android</span><span style="color: #1F7A4D">● on Google Play</span></div>
+<h3 style="margin: 8px 0 6px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.03em"><a href="https://play.google.com/">Relato ↗</a></h3>
+<p style="margin: 0; line-height: 1.55; color: #4A463F; font-size: 15px">AI resume builder for Android. Designed, built and published to the Play Store myself.</p>
+<p style="margin: 12px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">Android · AI · Google Play</p>
+</div>
+</article>
+
+<article class="case drift" style="--s: 50px; width: 500px; flex: none; position: relative; background: #FBFAF7; border: 1.5px solid #16161A; border-radius: 18px; box-shadow: 8px 8px 0 #16161A; rotate: 1.5deg">
+<div style="margin: 16px 16px 0; aspect-ratio: 16 / 10; border: 1.5px solid #16161A; border-radius: 12px; background: #E9E6DF; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">[Screenshot: Ticketing dashboard]</div>
+<div style="padding: 20px 26px 26px">
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F"><span>04 — Citimax Group</span><span>● internal</span></div>
+<h3 style="margin: 8px 0 6px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.03em">IT Ticketing System</h3>
+<p style="margin: 0; line-height: 1.55; color: #4A463F; font-size: 15px">Affiliates file and track tickets in one place, wired to the Google Sheets API so task logs update themselves.</p>
+<p style="margin: 12px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">React · TypeScript · Firebase · Tailwind</p>
+</div>
+<div aria-hidden="true" style="position: absolute; right: -16px; top: -22px; transform: rotate(6deg); font-family: Caveat, cursive; font-size: 26px; font-weight: 700; color: #B8361A; background: #E6E0D2; padding: 2px 10px; border-radius: 8px">no more manual logs</div>
+</article>
+
+<div style="width: 340px; flex: none; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 44px; line-height: .95; letter-spacing: -.03em">+ 8 more<br>projects <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #B8361A">below ↓</span></div>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 6vw; right: 6vw; bottom: 36px; height: 3px; background: #16161A22; border-radius: 3px; overflow: hidden"><div class="bar" style="height: 100%; background: #E8492A"></div></div>
+</div>
+</section>
+
+<section data-bg="#E6E0D2" data-fg="#16161A" style="background: #E6E0D2; color: #16161A; padding: 40px 24px 140px">
+<div style="max-width: 1240px; margin: 0 auto">
+<div class="rv" style="border-top: 1.5px solid #16161A">
+<sc-for list="{{shown}}" as="p" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 24px; padding: 18px 0; border-bottom: 1px solid #16161A33">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -.02em">{{p.name}}</span>
+<span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">{{p.stack}} · {{p.kind}}</span>
+</div>
+</sc-for>
+<button class="btn" type="button" onClick="{{toggleMore}}" style="margin-top: 24px; min-height: 46px; padding: 12px 22px; border: 1.5px solid #16161A; border-radius: 999px; background: #FBFAF7; font: 600 14px Geist, sans-serif; color: #16161A; cursor: pointer">{{moreLabel}}</button>
+</div>
+<h3 class="ln" style="margin: 110px 0 28px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(40px, 5vw, 64px); letter-spacing: -.04em; line-height: .95"><span>Where I've <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #B8361A">built.</span></span></h3>
+<div class="rv" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); border: 1.5px solid #16161A; border-radius: 18px; overflow: hidden; background: #FBFAF7">
+<div style="padding: 24px; border-right: 1px solid #16161A33"><div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">2026 — now</div><div style="margin-top: 8px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">Systems Developer</div><div style="color: #4A463F; font-size: 15px">Rustan Marketing Corp.</div></div>
+<div style="padding: 24px; border-right: 1px solid #16161A33"><div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">2023 — 2025</div><div style="margin-top: 8px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">IT Staff / Web Developer</div><div style="color: #4A463F; font-size: 15px">Citimax Group Inc.</div></div>
+<div style="padding: 24px; border-right: 1px solid #16161A33"><div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">2023</div><div style="margin-top: 8px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">Web Developer Intern</div><div style="color: #4A463F; font-size: 15px">Business Machine Corp.</div></div>
+<div style="padding: 24px"><div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F">2019 — 2023</div><div style="margin-top: 8px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">BS Computer Science</div><div style="color: #4A463F; font-size: 15px">University of Makati</div></div>
+</div>
+</div>
+</section>
+
+<section class="pin" data-bg="#F3F1EC" data-fg="#16161A" style="position: relative; height: calc(min(100vh, 900px) + 1400px); background: #F3F1EC; color: #16161A">
+<div style="position: sticky; top: 0; height: min(100vh, 900px); overflow: hidden; display: flex; align-items: center; justify-content: center">
+<div class="split-l" aria-hidden="true" style="position: absolute; left: 3%; top: 16%; width: min(27vw, 380px); aspect-ratio: 3 / 4; border: 1.5px solid #16161A; border-radius: 20px; background: #E9E6DF; rotate: -5deg; box-shadow: 10px 10px 0 #16161A; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F; text-align: center; padding: 12px">[Photo: you at your desk / code on screen]</div>
+<div class="split-r" aria-hidden="true" style="position: absolute; right: 3%; top: 12%; width: min(27vw, 380px); aspect-ratio: 3 / 4; border: 1.5px solid #16161A; border-radius: 20px; background: #DCD8CF; rotate: 5deg; box-shadow: 10px 10px 0 #16161A; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 12px; color: #4A463F; text-align: center; padding: 12px">[Your favorite drawing]</div>
+<div style="position: relative; z-index: 2; display: flex; gap: 5vw; text-align: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(44px, 7.4vw, 118px); line-height: .86; letter-spacing: -.045em">
+<div><span style="display: block; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; letter-spacing: -.02em">On the</span>CLOCK<div style="margin-top: 18px; font-family: Caveat, cursive; font-weight: 700; font-size: 26px; letter-spacing: 0; color: #B8361A">↑ that was the day job</div></div>
+<div><span style="display: block; font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; letter-spacing: -.02em">Off the</span>CLOCK<div style="margin-top: 18px; font-family: Caveat, cursive; font-weight: 700; font-size: 26px; letter-spacing: 0; color: #B8361A">↓ here's the night shift</div></div>
+</div>
+<div class="split-o" style="position: absolute; inset: 0; z-index: 3; background: #16161A; color: #F3F1EC; display: flex; align-items: center; justify-content: center; text-align: center">
+<div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(64px, 12vw, 190px); line-height: .85; letter-spacing: -.05em">Ink by<br><span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #FF6A47">night.</span></div>
+</div>
+</div>
+</section>
+
+<section id="night" data-bg="#16161A" data-fg="#F3F1EC" style="background: #16161A; color: #F3F1EC; padding: 80px 24px 150px">
+<div style="max-width: 1240px; margin: 0 auto">
+<div style="display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: flex-end; justify-content: space-between">
+<h2 class="ln" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(48px, 7vw, 100px); line-height: .9; letter-spacing: -.045em"><span>Hall of <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #FF6A47">sketches.</span></span></h2>
+<p class="rv" style="margin: 0; max-width: 420px; font-size: 17px; line-height: 1.6; opacity: .8">Portraits and characters, painted in Clip Studio Paint and posted as <a href="https://www.instagram.com/daleonigiri/" style="color: #FF6A47; text-decoration: underline">@daleonigiri</a>. Same habit as coding: one finished piece at a time.</p>
+</div>
+<div style="margin-top: 80px; display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start">
+<sc-for list="{{cols}}" as="col" hint-placeholder-count="3">
+<div class="par" style="--s: {{col.s}}; flex: 1 1 260px; display: flex; flex-direction: column; gap: 28px; margin-top: {{col.mt}}">
+<sc-for list="{{col.items}}" as="a" hint-placeholder-count="3">
+<figure class="frame" style="margin: 0; border: 1px solid #F3F1EC26; border-radius: 16px; background: #1F1F25; padding: 12px">
+<div style="aspect-ratio: {{a.ar}}; border-radius: 10px; background: #2B2B33; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 11px; color: #C9C5BB">[Drawing from @daleonigiri]</div>
+<figcaption style="display: flex; justify-content: space-between; padding: 10px 4px 2px; font-family: 'Geist Mono', monospace; font-size: 12px; color: #C9C5BB"><span>{{a.cap}}</span><span style="color: #FF6A47">2026</span></figcaption>
+</figure>
+</sc-for>
+</div>
+</sc-for>
+</div>
+
+<div class="rv" style="margin-top: 120px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center; border: 1.5px solid #F3F1EC33; border-radius: 20px; padding: 32px">
+<div aria-hidden="true" style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); width: 200px; aspect-ratio: 1; border: 1.5px solid #F3F1EC; border-radius: 6px; overflow: hidden">
+<sc-for list="{{board}}" as="s" hint-placeholder-count="64"><span style="background: {{s.bg}}; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #16161A">{{s.p}}</span></sc-for>
+</div>
+<div style="flex: 1 1 280px">
+<div style="font-family: Caveat, cursive; font-size: 26px; font-weight: 700; color: #FF6A47">one move per day, one shared game</div>
+<h3 style="margin: 6px 0 10px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 36px; letter-spacing: -.03em">Make the next move.</h3>
+<p style="margin: 0 0 20px; opacity: .8; line-height: 1.6">Every visitor plays the same game of chess against everyone else.</p>
+<a class="btn" href="https://www.carlsdaleescalo.com/#chess" style="display: inline-block; padding: 13px 22px; border: 1.5px solid #F3F1EC; border-radius: 999px; font-weight: 600">Play your move →</a>
+</div>
+</div>
+</div>
+</section>
+
+<section class="fan-w" data-bg="#F3F1EC" data-fg="#16161A" style="background: #F3F1EC; color: #16161A; padding: 150px 24px 200px; text-align: center">
+<h2 class="ln" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(48px, 7vw, 100px); line-height: .9; letter-spacing: -.045em"><span>Follow the <span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #B8361A">sketchbook.</span></span></h2>
+<div style="position: relative; height: 420px; margin: 70px auto 0; max-width: 900px">
+<sc-for list="{{fan}}" as="c" hint-placeholder-count="5">
+<div class="fan" style="--i: {{c.i}}; --y: {{c.y}}; position: absolute; left: 50%; top: 0; margin-left: -120px; width: 240px; aspect-ratio: 3 / 4; z-index: {{c.z}}; background: #FBFAF7; border: 1.5px solid #16161A; border-radius: 18px; padding: 10px; box-shadow: 0 24px 50px rgb(0 0 0/.18); box-sizing: border-box">
+<div style="height: 100%; border-radius: 10px; background: {{c.bg}}; display: flex; align-items: center; justify-content: center; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4A463F; padding: 8px">[Instagram post]</div>
+</div>
+</sc-for>
+</div>
+<p style="margin: 40px 0 22px; font-size: 18px; color: #4A463F">New pieces every week, with process shots straight from Clip Studio.</p>
+<a class="btn" href="https://www.instagram.com/daleonigiri/" style="display: inline-block; padding: 15px 26px; border: 1.5px solid #16161A; border-radius: 999px; background: #E8492A; color: #16161A; font-weight: 600">@daleonigiri on Instagram ↗</a>
+</section>
+
+<section id="contact" class="grow" style="background: #16161A; color: #F3F1EC; padding: 140px 24px 120px; margin-top: -60px; position: relative; z-index: 2">
+<div style="max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 64px">
+<div style="flex: 999 1 460px; min-width: 0">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(56px, 9vw, 132px); line-height: .86; letter-spacing: -.05em"><span class="ln"><span>Let's build</span></span><span class="ln"><span style="font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: #FF6A47">something.</span></span></h2>
+<p class="rv" style="margin: 28px 0; max-width: 440px; font-size: 18px; line-height: 1.6; color: #C9C5BB">Freelance builds, internal tools, or a full-time role. Tell me what you're working on and I'll reply by email.</p>
+<button class="btn rv" type="button" onClick="{{copyEmail}}" style="min-height: 52px; padding: 12px 22px; border: 1.5px solid #F3F1EC; border-radius: 14px; background: transparent; color: #F3F1EC; font: 500 16px 'Geist Mono', monospace; cursor: pointer">mail@carlsdaleescalo.com <span style="margin-left: 10px; font-family: Caveat, cursive; font-size: 22px; font-weight: 700; color: #FF6A47">{{copyLabel}}</span></button>
+<div style="margin-top: 40px; font-family: Caveat, cursive; font-size: 44px; font-weight: 700; transform: rotate(-4deg); display: inline-block; color: #FF6A47">— Carls <span style="font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 400; color: #C9C5BB">[your real signature]</span></div>
+</div>
+<form class="rv" style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 16px; background: #F3F1EC; color: #16161A; border-radius: 20px; padding: 28px">
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500; font-size: 14px">Name<input type="text" style="min-height: 46px; padding: 0 14px; border: 1.5px solid #16161A; border-radius: 12px; background: #FBFAF7; font: 15px Geist, sans-serif"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500; font-size: 14px">Email<input type="email" style="min-height: 46px; padding: 0 14px; border: 1.5px solid #16161A; border-radius: 12px; background: #FBFAF7; font: 15px Geist, sans-serif"></label>
+<label style="display: flex; flex-direction: column; gap: 6px; font-weight: 500; font-size: 14px">What are you building, and when?<textarea rows="4" style="padding: 12px 14px; border: 1.5px solid #16161A; border-radius: 12px; background: #FBFAF7; font: 15px/1.5 Geist, sans-serif; resize: vertical"></textarea></label>
+<button class="btn" type="button" style="min-height: 50px; border: 1.5px solid #16161A; border-radius: 999px; background: #E8492A; color: #16161A; font: 600 16px Geist, sans-serif; cursor: pointer">Send it →</button>
+</form>
+</div>
+<div style="max-width: 1240px; margin: 100px auto 0; padding-top: 24px; border-top: 1px solid #F3F1EC33; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-family: 'Geist Mono', monospace; font-size: 12px; color: #C9C5BB"><span>© 2026 Carls Dale Escalo · Makati, PH</span><span>Coded in Next.js · drawn in Clip Studio</span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"motion":{"editor":"enum","options":["full","respect system setting"],"default":"full"},"$preview":{"width":1440,"height":13200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { mx: -400, my: -400, menuOpen: false, showMore: false, copied: false };
+  }
+  componentDidMount() {
+    let sysReduce = false;
+    try { sysReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    let reduce = false;
+    const cl = (v) => Math.max(0, Math.min(1, v));
+    const de = document.documentElement;
+    this.cur = window.scrollY; this.target = this.cur; this.smooth = false;
+    this.onWheel = (e) => {
+      if (reduce || e.ctrlKey || de.scrollHeight <= window.innerHeight + 20) return;
+      e.preventDefault();
+      if (!this.smooth) { this.cur = window.scrollY; this.target = this.cur; }
+      const max = de.scrollHeight - window.innerHeight;
+      this.target = Math.max(0, Math.min(max, this.target + e.deltaY * (e.deltaMode === 1 ? 40 : 1)));
+      this.smooth = true;
+    };
+    window.addEventListener('wheel', this.onWheel, { passive: false });
+    const tick = () => {
+      if (this.smooth) {
+        this.cur += (this.target - this.cur) * 0.09;
+        if (Math.abs(this.target - this.cur) < 0.5) { this.cur = this.target; this.smooth = false; }
+        window.scrollTo(0, this.cur);
+      }
+      const vh = window.innerHeight, vw = window.innerWidth, stick = Math.min(vh, 900);
+      const root = document.querySelector('.root');
+      const live = de.scrollHeight > vh + 20;
+      reduce = sysReduce && this.props.motion === 'respect system setting';
+      if (root) { root.classList.toggle('live', live); root.classList.toggle('calm', reduce); }
+      if (!reduce) {
+        document.querySelectorAll('.pin,.hz,.par,.drift,.grow,.wd,.ln,.fan-w,.rv').forEach((el) => {
+          const c = el.classList;
+          if (c.contains('drift')) return;
+          if (c.contains('hz')) {
+            const tr = el.querySelector('.track');
+            const tx = vw >= 760 && tr ? Math.max(0, tr.scrollWidth - vw) : 0;
+            el.style.height = vw >= 760 ? (stick + tx) + 'px' : '';
+            el.style.setProperty('--tx', tx + 'px');
+          }
+          const r = el.getBoundingClientRect();
+          let p;
+          if (c.contains('pin') || c.contains('hz')) p = cl(-r.top / Math.max(1, r.height - stick));
+          else if (c.contains('par')) p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / vh));
+          else if (c.contains('grow')) p = cl((vh - r.top) / (vh * 0.7));
+          else if (c.contains('wd')) p = cl((vh * 0.78 - r.top) / (vh * 0.18));
+          else if (c.contains('ln')) p = cl((vh * 0.95 - r.top) / (vh * 0.2));
+          else if (c.contains('fan-w')) p = cl((vh * 0.6 - r.top) / (vh * 0.45));
+          else p = cl((vh - r.top) / (vh * 0.3));
+          el.style.setProperty('--p', p.toFixed(3));
+        });
+      }
+      if (root && live) {
+        let pick = null;
+        document.querySelectorAll('[data-bg]').forEach((s) => { const r = s.getBoundingClientRect(); if (r.top <= vh * 0.5 && r.bottom > vh * 0.5) pick = s; });
+        if (pick) { root.style.setProperty('--bg', pick.dataset.bg); root.style.setProperty('--fg', pick.dataset.fg); }
+        else if (window.scrollY < stick) { root.style.setProperty('--bg', '#F3F1EC'); root.style.setProperty('--fg', '#16161A'); }
+      }
+      this.raf = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    window.removeEventListener('wheel', this.onWheel);
+  }
+  renderVals() {
+    const text = "I like owning a project end to end — from the first conversation with the people who'll use it, to the database, the interface, and the server it runs on.";
+    const more = [
+      { name: 'Employee Onboarding LMS', stack: 'React · TypeScript · Firebase', kind: 'Internal' },
+      { name: 'Hardrock Aggregates', stack: 'React · TypeScript · Vite', kind: 'Live site' },
+      { name: 'Citimax Group website', stack: 'HTML · CSS · JS', kind: 'Live site' },
+      { name: 'Lifecore Bio-Integrative', stack: 'React · TypeScript · Firebase', kind: 'Live site' },
+      { name: 'Marci Metzger Homes', stack: 'React · TypeScript · Firebase', kind: 'Freelance' },
+      { name: 'Library Seat Monitor', stack: 'PHP · MySQL · JS', kind: 'Internship' },
+      { name: 'Sticky White Board', stack: 'React · Firebase', kind: 'Side project' },
+      { name: 'Reflective Pomodoro', stack: 'MERN', kind: 'Side project' }
+    ];
+    const cols = [
+      { s: '60px', mt: '0px', items: [{ ar: '4 / 5', cap: 'portrait study' }, { ar: '1 / 1', cap: 'sketch → final' }, { ar: '3 / 4', cap: 'color study' }] },
+      { s: '-80px', mt: '120px', items: [{ ar: '3 / 4', cap: 'character piece' }, { ar: '4 / 5', cap: 'process shot' }, { ar: '1 / 1', cap: 'quick sketch' }] },
+      { s: '110px', mt: '40px', items: [{ ar: '1 / 1', cap: 'fan art' }, { ar: '3 / 4', cap: 'this week' }, { ar: '4 / 5', cap: 'portrait' }] }
+    ];
+    const fan = [-2, -1, 0, 1, 2].map((i) => ({ i, y: (Math.abs(i) * 28) + 'px', z: 10 - Math.abs(i), bg: ['#E9E6DF', '#DCD8CF', '#E8492A33', '#DCD8CF', '#E9E6DF'][i + 2] }));
+    const board = [];
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const p = (r === 3 && c === 4) ? '♟' : (r === 4 && c === 4) ? '♙' : '';
+      board.push({ bg: (r + c) % 2 ? '#8E8A80' : '#E9E6DF', p });
+    }
+    return {
+      mx: this.state.mx, my: this.state.my,
+      move: (e) => { const b = e.currentTarget.getBoundingClientRect(); this.setState({ mx: Math.round(e.clientX - b.left), my: Math.round(e.clientY - b.top) }); },
+      leave: () => this.setState({ mx: -400, my: -400 }),
+      band: [1, 2, 3, 4, 5, 6],
+      words: text.split(' '), cols, fan, board,
+      shown: this.state.showMore ? more : more.slice(0, 3),
+      moreLabel: this.state.showMore ? 'Show fewer ↑' : 'Show 5 more projects ↓',
+      menuOpen: this.state.menuOpen,
+      toggleMenu: () => this.setState({ menuOpen: !this.state.menuOpen }),
+      toggleMore: () => this.setState({ showMore: !this.state.showMore }),
+      copyLabel: this.state.copied ? 'copied!' : 'copy',
+      copyEmail: () => {
+        try { navigator.clipboard.writeText('mail@carlsdaleescalo.com'); } catch (e) {}
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 1800);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

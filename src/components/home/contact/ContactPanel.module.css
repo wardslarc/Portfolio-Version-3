@@ -1,0 +1,141 @@
+.cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(4 * var(--u));
+}
+
+.left {
+  flex: 999 1 calc(28.75 * var(--u));
+  min-width: 0;
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: clamp(56px, 9vw, 132px);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  color: var(--home-paper);
+}
+
+@media (min-width: 760px) {
+  .heading {
+    font-size: max(56px, calc(7 * var(--u)));
+  }
+}
+
+.headingAccent {
+  color: var(--home-coral-night);
+}
+
+.copy {
+  margin: calc(1.75 * var(--u)) 0;
+  max-width: calc(27.5 * var(--u));
+  font-size: max(15px, calc(1.125 * var(--u)));
+  line-height: 1.6;
+  color: var(--home-muted-dark);
+}
+
+.mail {
+  min-height: max(44px, calc(3.25 * var(--u)));
+  padding: calc(0.75 * var(--u)) calc(1.375 * var(--u));
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-paper);
+  border-radius: calc(0.875 * var(--u));
+  background: transparent;
+  color: var(--home-paper);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-weight: 500;
+  font-size: max(12px, calc(1 * var(--u)));
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.mail:hover {
+  transform: translate(calc(-0.1875 * var(--u)), calc(-0.1875 * var(--u)));
+  box-shadow: calc(0.3125 * var(--u)) calc(0.3125 * var(--u)) 0 currentColor;
+}
+
+.mailLabel {
+  margin-left: calc(0.625 * var(--u));
+  font-size: max(12px, calc(1.375 * var(--u)));
+  color: var(--home-coral-night);
+}
+
+.form {
+  flex: 1 1 calc(23.75 * var(--u));
+  display: flex;
+  flex-direction: column;
+  gap: calc(1 * var(--u));
+  background: var(--home-paper);
+  color: var(--home-ink);
+  border-radius: calc(1.25 * var(--u));
+  padding: calc(1.75 * var(--u));
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.375 * var(--u));
+  font-weight: 500;
+  font-size: max(12px, calc(0.875 * var(--u)));
+  color: var(--home-ink);
+}
+
+.field input,
+.field textarea {
+  min-height: max(44px, calc(2.875 * var(--u)));
+  padding: 0 calc(0.875 * var(--u));
+  border: max(1px, calc(0.09375 * var(--u))) solid var(--home-ink);
+  border-radius: calc(0.75 * var(--u));
+  background: var(--home-card);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: max(15px, calc(0.9375 * var(--u)));
+  color: var(--home-ink);
+}
+
+.field textarea {
+  padding: calc(0.75 * var(--u)) calc(0.875 * var(--u));
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.err {
+  color: var(--home-coral-text);
+  font-weight: 400;
+}
+
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.send {
+  min-height: max(44px, calc(3.125 * var(--u)));
+  background: var(--home-coral);
+  color: var(--home-ink);
+  font-size: max(12px, calc(1 * var(--u)));
+}
+
+.send:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.status {
+  min-height: 1.5em;
+  font-size: max(12px, calc(0.875 * var(--u)));
+}
+
+.statusOk {
+  color: var(--home-green);
+}
+
+.statusError {
+  color: var(--home-coral-text);
+}

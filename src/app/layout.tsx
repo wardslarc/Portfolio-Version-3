@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Telemetry from "@/components/Telemetry";
 import { site } from "@/content/site";
+import { themeScript } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -40,9 +41,6 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#111113" },
   ],
 };
-
-// Applies a saved theme before first paint so there's no light/dark flash.
-const themeScript = `try{var t=localStorage.getItem("cde-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
