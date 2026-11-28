@@ -546,6 +546,11 @@
     padding: 16px 20px;
   }
 
+  .back {
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
   .stage {
     gap: 32px;
     padding: 16px 20px 48px;
