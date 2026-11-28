@@ -8,9 +8,11 @@ Paste into a new chat: **"Read `docs/redesign-blog/HANDOFF.md`, then continue."*
   same branch, `redesign/ink-by-night`.
 - Carls approved the mockups (canvas https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS, slug
   `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`; sources copied to `mockups/`). Decisions BD1–BD8 are in `SPEC.md` §2.
-- B1 done and **R1 passed** (`REVIEW-R1.md`), pushed. B2 done (K04 `20e49d2`, K05 `232f788`, K06 `f99b28d`).
-  **R2 found 3 fixes** (`REVIEW-R2.md`); Gemini is doing them. Then Claude re-checks R2.1–R2.3, marks R2 passed, pushes
-  and gives the B3 prompt. Carls still has to eyeball the admin preview (end of REVIEW-R2; can wait until R4).
+- B1 + **R1 passed**, B2 + **R2 passed** (`REVIEW-R2.md`: K04 `20e49d2`, K05 `232f788`, K06 `f99b28d`, fixes
+  `8170f8f`, `5db7566`, `472e78a`). Pushed. **Now:** Carls runs Gemini on **B3** (K07 motion, K08 cover morph). Then Claude
+  runs **R3**. Carls still has to eyeball the admin preview (end of REVIEW-R2; can wait until R4).
+- **Don't click Like/Share/Copy link on the live post in reviews:** they write real engagement rows (R2 recorded one
+  share by accident). Stub `fetch` first, as R3 of the homepage did for the contact form.
 - Gemini has no browser in Antigravity, so Claude does the visual pass at every gate.
 
 ## How Claude reviews (same method as the homepage, see `docs/redesign/HANDOFF.md` "How Claude reviews" and "Gotchas")

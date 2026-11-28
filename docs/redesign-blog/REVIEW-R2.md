@@ -1,4 +1,4 @@
-# Review gate R2 (B2: K04–K06): 3 fixes
+# Review gate R2 (B2: K04–K06): **passed** (after 3 fixes)
 
 Reviewed 2026-11-28 by Claude, from `5965109` (R1 gate) to `f99b28d`. Commits: K04 `20e49d2`, K05 `232f788`,
 K06 `f99b28d`. Gemini had no browser this round, so Claude did the whole visual pass (headless Chrome, production build).
@@ -41,6 +41,15 @@ same moment as its text (often not announced). The pop is decorative; the button
 needs 4.5:1). It was already low in the old dark theme; the panel is now dark in both themes, so it shows everywhere.
 **Fix:** use `#A0A0A8` (6.95:1 on `#16161A`, 7.37:1 on `#0F0F12`), still italic.
 **Check:** computed color of a `.hljs-comment` inside `.blog-prose pre` is `rgb(160, 160, 168)` in light and dark.
+
+## Fixes re-checked (2026-11-28)
+
+- R2.1 `8170f8f`: the end row reads "liked it? · Like · SHARE · Copy link · Post on X · LinkedIn" at 1440 and wraps cleanly at 375 (dark).
+- R2.2 `5db7566`: after Copy link, the pop has `aria-hidden="true"` and no `aria-live`; the button's name is "Link copied".
+- R2.3 `472e78a`: `.hljs-comment` computes `rgb(160, 160, 168)`.
+- Lint clean, 145/145 tests, build passes with `/` still `○`.
+- Side effect: the re-check clicked Copy link on the live PHP2Shell post, which recorded one real share ("Shared 1 time").
+- Not a regression: `LikeButton` renders nothing until engagement data loads (unchanged code), so a fast screenshot can miss it.
 
 ## Not checked (needs Carls)
 
