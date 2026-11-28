@@ -10,7 +10,9 @@ Paste into a new chat: **"Read `docs/redesign-admin/HANDOFF.md`, then continue."
   (A01–A06, gates R1–R3) and `mockup.html` (artifact https://claude.ai/artifact/GEyYirQ462r2eTUKgk6ZnU, slug
   `7b6c98e1-6e7d-40f7-b5c6-a7a3639e32a5`).
 - B1 (A01, A02) done by Gemini; **R1 passed with fixes R1.1–R1.4** (`REVIEW-R1.md`), which Gemini does first in B2.
-- **Next:** Gemini runs R1 fixes + B2 (A03, A04, A05) → Claude does R2.
+- B2 (R1 fixes, A03–A05) done; **R2 not passed: fixes R2.1–R2.5** (`REVIEW-R2.md`; main one: media rules not scoped `.ink`, phone layouts broken).
+- **Next:** Gemini does R2 fixes → Claude re-checks R2.1–R2.5 → B3 (A06).
+- Gotcha: `pkill -f "next start"` leaves `next-server` running on 3100 (stale build). Kill by port: `ss -ltnp | grep 3100`.
 - Local sign-in: `.env.local` has no Resend key, so Carls signs in with a **backup code** (each works once).
 - Gemini codes everything; Claude only reviews (same split as the homepage and blog phases).
 

@@ -198,6 +198,8 @@ tilt or tape.
 
 ### 7.6 Charts and bars
 
+- (R2.4) Tracks inside `.admin-eng-tracks` (the stacked views/likes/shares rows of the daily chart): **no border**,
+  height 6px, `--k-chip` fill, radius 999px, 3px gap between the three. The outlined track below is for single bars only.
 - `.admin-eng-track`, the Overview "moves per day" track (§8): height 12px (`.lg` 16px), radius 999, `--k-chip` fill,
   `1.5px solid var(--k-line)`, overflow hidden. Fills: views / moves `#E8492A`, likes `--ok`, shares `--wait`, `.neg`
   `--danger`. Legend dots match. Dates and values mono 12px.
