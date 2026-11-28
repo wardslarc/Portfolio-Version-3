@@ -381,8 +381,9 @@ days" checkbox: custom 24px box (1.5px border, radius 6) with a coral tick that 
 
 ### 11.3 `OtpInput` (code step, email-code mode)
 
-- Six `<input>`s in a `<fieldset>` with `<legend>6-digit code</legend>`; each `inputMode="numeric"`,
-  `maxLength={1}`, `aria-label="Digit n of 6"`, 62px tall (54px narrow), Geist Mono 26px, filled boxes turn sand.
+- Six `<input>`s in a `<fieldset>` with `<legend>6-digit code</legend>`; each `inputMode="numeric"`, **no
+  `maxLength`** (R4.1: it blocks overwriting and phone autofill; the handler keeps one digit), content selected on focus,
+  `aria-label="Digit n of 6"`, 62px tall (54px narrow), Geist Mono 26px, filled boxes turn sand.
   The first has `autoComplete="one-time-code"` and `autoFocus`; the others `autoComplete="off"`.
 - One `<input type="hidden" name="code">` carries the joined value. The visible boxes have **no `name`**.
 - Typing a digit moves focus right; Backspace on an empty box moves left; non-digits are ignored; pasting (or an
