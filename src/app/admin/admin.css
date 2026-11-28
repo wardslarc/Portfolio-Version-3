@@ -67,14 +67,6 @@
   gap: 18px;
 }
 
-.ink .admin-auth-card h1 {
-  margin: 0;
-  font-family: var(--font-bricolage), system-ui, sans-serif;
-  font-size: 1.375rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
 .ink .admin-auth-sub.sm {
   font-size: 14px;
 }
@@ -472,6 +464,7 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 28px;
+  animation: k-fadeUp 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
 .ink .admin-page-head h1 {
@@ -532,10 +525,32 @@
 }
 
 .ink .admin-stats-grid:not(.cols-3) > .admin-card {
+  --r0: 6deg;
   rotate: var(--rot, 0deg);
+  animation: k-drop 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.25) backwards;
   transition: rotate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
     box-shadow 0.45s cubic-bezier(0.2, 0.7, 0.2, 1),
     translate 0.2s;
+}
+
+.ink .admin-stats-grid:not(.cols-3) > .admin-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.ink .admin-stats-grid:not(.cols-3) > .admin-card:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.ink .admin-stats-grid:not(.cols-3) > .admin-card:nth-child(3) {
+  animation-delay: 0.26s;
+}
+
+.ink .admin-stats-grid:not(.cols-3) > .admin-card:nth-child(4) {
+  animation-delay: 0.34s;
+}
+
+.ink .admin-stats-grid:not(.cols-3) > .admin-card:nth-child(5) {
+  animation-delay: 0.42s;
 }
 
 .ink .admin-stats-grid:not(.cols-3) > .admin-card:nth-child(4n + 1) {
@@ -1056,6 +1071,10 @@
   width: calc(100% - 32px);
 }
 
+.ink dialog.admin-dialog[open] {
+  animation: k-fadeUp 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
 .ink dialog.admin-dialog::backdrop {
   background: rgb(22 22 26 / 0.55);
   backdrop-filter: blur(2px);
@@ -1177,6 +1196,7 @@
   }
 
   .ink .admin-stats-grid:not(.cols-3) > .admin-card {
+    --rot: 0deg;
     rotate: 0deg;
   }
 
@@ -1362,10 +1382,6 @@
 .admin-mgrid > *,
 .admin-eside > * {
   min-width: 0;
-}
-
-.ink .admin-prow.readonly {
-  grid-template-columns: 72px minmax(0, 1fr) 104px 124px 64px 64px 64px;
 }
 
 .ink .admin-prow:first-child {
@@ -1556,7 +1572,6 @@
   position: fixed;
   right: 24px;
   bottom: 24px;
-  translate: 0 12px;
   opacity: 0;
   background: #16161A;
   color: #F3F1EC;
@@ -1566,7 +1581,7 @@
   font-size: 14px;
   font-weight: 500;
   box-shadow: 5px 5px 0 #E8492A;
-  transition: opacity 0.2s, translate 0.2s;
+  transition: opacity 0.2s;
   pointer-events: none;
   z-index: 40;
   max-width: calc(100vw - 32px);
@@ -1574,17 +1589,13 @@
 
 .ink .admin-toast.on {
   opacity: 1;
-  translate: 0 0;
+  animation: k-slap 0.45s backwards;
 }
 
 @media (max-width: 900px) {
   .ink .admin-prow {
     grid-template-columns: 56px minmax(0, 1fr) auto 44px;
     gap: 12px;
-  }
-
-  .ink .admin-prow.readonly {
-    grid-template-columns: 56px minmax(0, 1fr) auto;
   }
 
   .ink .admin-prow .thumb {
@@ -2274,4 +2285,58 @@
 .ink .admin-mitem .ma .admin-btn {
   padding: 0 10px;
   flex: 1;
+}
+
+/* Calm tier: fades only, no translate/rotate motion */
+@media (prefers-reduced-motion: reduce) {
+  .ink .admin-page-head,
+  .ink .admin-stats-grid:not(.cols-3) > .admin-card,
+  .ink .admin-toast.on,
+  .ink dialog.admin-dialog[open] {
+    animation-name: k-fade;
+  }
+
+  .ink .admin-btn {
+    transition: box-shadow 0.2s, background-color 0.2s;
+  }
+
+  .ink .admin-btn:hover:not(:disabled) {
+    translate: none;
+  }
+
+  .ink .admin-theme-toggle {
+    transition: box-shadow 0.2s;
+  }
+
+  .ink .admin-theme-toggle:hover {
+    translate: none;
+  }
+
+  .ink .admin-stats-grid:not(.cols-3) > .admin-card {
+    transition: box-shadow 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .ink .admin-stats-grid:not(.cols-3) > .admin-card:hover {
+    rotate: var(--rot, 0deg);
+  }
+
+  .ink .admin-card-link {
+    transition: box-shadow 0.2s;
+  }
+
+  .ink .admin-card-link:hover {
+    translate: none;
+  }
+
+  .ink .admin-mitem {
+    transition: box-shadow 0.2s;
+  }
+
+  .ink .admin-mitem:hover {
+    translate: none;
+  }
+
+  .ink .admin-switch-track::after {
+    transition: none;
+  }
 }
