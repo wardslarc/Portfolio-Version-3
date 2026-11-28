@@ -29,7 +29,8 @@
   --home-bg: #F3F1EC;
   --home-fg: #16161A;
   --u: 16px;
-  --header-h: calc(4.625 * var(--u));
+  /* nav padding + the 44px-floored button + border, so the hero pull-up matches the real header (D24, D27) */
+  --header-h: calc(1.75 * var(--u) + max(44px, calc(2.75 * var(--u))) + max(1px, calc(0.09375 * var(--u))));
   --stage-h: 100vh;
   --stage-h: 100svh;
 
