@@ -123,8 +123,9 @@ describe("admin management guards", () => {
     expect(await db.collection(ADMIN_TRUSTED_DEVICES_COLLECTION).countDocuments({ adminId: admin1._id })).toBe(0);
   });
 
-  it("signs out other sessions when changing own password", async () => {
+  it("signs out other sessions and forgets trusted devices when changing own password", async () => {
     const admin = await seedAdmin("sec@example.com", "viewer", "old-password-123");
+    await createTrustedDevice(db, admin._id, "UA");
     const s1 = await createSession(db, admin._id, { userAgent: "Browser 1", city: null, country: null, ipHash: "h1" });
     const s2 = await createSession(db, admin._id, { userAgent: "Browser 2", city: null, country: null, ipHash: "h2" });
 
@@ -142,6 +143,7 @@ describe("admin management guards", () => {
 
     expect(await db.collection<AdminSessionDoc>(ADMIN_SESSIONS_COLLECTION).findOne({ _id: s1.tokenHash })).not.toBeNull();
     expect(await db.collection<AdminSessionDoc>(ADMIN_SESSIONS_COLLECTION).findOne({ _id: s2.tokenHash })).toBeNull();
+    expect(await db.collection(ADMIN_TRUSTED_DEVICES_COLLECTION).countDocuments({ adminId: admin._id })).toBe(0);
   });
 
   it("prevents two Owners from concurrently demoting each other", async () => {

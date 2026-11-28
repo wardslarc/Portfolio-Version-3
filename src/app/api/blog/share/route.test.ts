@@ -27,6 +27,7 @@ function makeShareRequest(
 ): Request {
   const headers = new Headers({
     "content-type": "application/json",
+    origin: "http://localhost",
     "x-forwarded-for": opts?.ip ?? "198.51.100.20",
   });
   if (opts?.userAgent !== null) {

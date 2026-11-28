@@ -26,9 +26,24 @@ export interface ContactMessage {
   emailed: boolean;
 }
 
+/**
+ * Secret salt for visitor hashes. A known salt would let anyone hash every IPv4 address
+ * and reverse the stored hashes, so production refuses to run without one.
+ */
+export function getIpHashSalt(): string {
+  const salt = process.env.IP_HASH_SALT;
+  if (!salt) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("IP_HASH_SALT is not set in production");
+    }
+    return "portfolio";
+  }
+  return salt;
+}
+
 /** Hash the client IP so we can rate-limit without storing raw addresses. */
 export function hashIp(ip: string): string {
-  const salt = process.env.IP_HASH_SALT || "portfolio";
+  const salt = getIpHashSalt();
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 32);
 }
 

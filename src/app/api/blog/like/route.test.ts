@@ -27,6 +27,7 @@ function makeLikeRequest(
 ): Request {
   const headers = new Headers({
     "content-type": "application/json",
+    origin: "http://localhost",
     "x-forwarded-for": opts?.ip ?? "198.51.100.10",
   });
   if (opts?.userAgent !== null) {
@@ -45,6 +46,12 @@ function makeLikeRequest(
 }
 
 describe("POST /api/blog/like", () => {
+  it("rejects likes sent from another site", async () => {
+    const req = makeLikeRequest({ slug: "any-post", liked: true }, { visitorId: crypto.randomUUID() });
+    req.headers.set("origin", "https://evil.example");
+    expect((await POST(req)).status).toBe(403);
+  });
+
   let mongod: MongoMemoryServer;
   let client: MongoClient;
   let db: Db;

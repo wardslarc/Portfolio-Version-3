@@ -96,6 +96,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (msg === "Forbidden") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
-    return NextResponse.json({ error: msg }, { status: 400 });
+    console.error("Blob upload token request failed", err);
+    return NextResponse.json({ error: "Upload failed." }, { status: 400 });
   }
 }

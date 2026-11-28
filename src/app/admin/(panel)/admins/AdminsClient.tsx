@@ -104,7 +104,7 @@ export default function AdminsClient({
       setCurPw("");
       setNewPw("");
       setConfirmPw("");
-      setFeedback({ kind: "ok", text: "Password updated. Other sessions signed out." });
+      setFeedback({ kind: "ok", text: "Password updated. Other sessions signed out and trusted devices forgotten." });
       router.refresh();
     });
   }

@@ -286,25 +286,7 @@ export function geoFromHeaders(headers: Headers): { city: string | null; country
   return { city, country };
 }
 
-export function isSameOrigin(request: Request): boolean {
-  const origin = request.headers.get("origin");
-  if (!origin) return false;
-  let originUrl: URL;
-  try {
-    originUrl = new URL(origin);
-  } catch {
-    return false;
-  }
-  const reqUrl = new URL(request.url);
-  const host =
-    request.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ||
-    request.headers.get("host") ||
-    reqUrl.host;
-  const proto =
-    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
-    reqUrl.protocol.replace(/:$/, "");
-  return originUrl.host === host && originUrl.protocol.replace(/:$/, "") === proto;
-}
+export { isSameOrigin } from "./request-guard";
 
 export function matchesIfNoneMatch(headerValue: string | null, etag: string): boolean {
   if (!headerValue) return false;
