@@ -11,6 +11,7 @@ import {
 } from "@/lib/blog/route-helpers";
 import { clientIp, hashIp } from "@/lib/contact";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
+import { rejectCrossSiteJsonPost } from "@/lib/request-guard";
 import {
   hasNoTrackCookie,
   hashBlogVisitor,
@@ -27,6 +28,9 @@ const likeBodySchema = z.object({
 });
 
 export async function POST(request: Request): Promise<Response> {
+  const rejected = rejectCrossSiteJsonPost(request);
+  if (rejected) return rejected;
+
   const body = await readJsonBody(request);
   if (!body.ok) {
     return jsonNoStore({ error: "Invalid JSON body." }, 400);

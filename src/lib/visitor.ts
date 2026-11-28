@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { z } from "zod";
+import { getIpHashSalt } from "./contact";
 
 export const VISITOR_COOKIE_NAME = "visitor_id";
 export const VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year in seconds
@@ -82,7 +83,7 @@ export function noTrackCookieOptions() {
 }
 
 export function hashBlogVisitor(visitorId: string): string {
-  const salt = process.env.IP_HASH_SALT || "portfolio";
+  const salt = getIpHashSalt();
   return createHash("sha256").update(`${salt}:blog:v:${visitorId}`).digest("hex").slice(0, 32);
 }
 

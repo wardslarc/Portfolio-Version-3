@@ -27,6 +27,7 @@ function makeViewRequest(
 ): Request {
   const headers = new Headers({
     "content-type": "application/json",
+    origin: "http://localhost",
     "x-forwarded-for": opts?.ip ?? "203.0.113.9",
   });
   if (opts?.userAgent !== null) {

@@ -26,6 +26,7 @@ function makeRequest(body: unknown, ip = "203.0.113.10"): Request {
     method: "POST",
     headers: {
       "content-type": "application/json",
+      origin: "http://localhost",
       "x-forwarded-for": ip,
       "user-agent": "vitest",
     },
@@ -75,6 +76,28 @@ afterEach(() => {
 });
 
 describe("POST /api/contact", () => {
+  it("rejects posts from another site with 403", async () => {
+    const req = makeRequest(validPayload);
+    req.headers.set("origin", "https://evil.example");
+    const res = await POST(req);
+    expect(res.status).toBe(403);
+    expect(await currentDb.collection("messages").countDocuments()).toBe(0);
+  });
+
+  it("rejects posts with no Origin header with 403", async () => {
+    const req = makeRequest(validPayload);
+    req.headers.delete("origin");
+    expect((await POST(req)).status).toBe(403);
+  });
+
+  it("rejects a text/plain body (a cross-site form) with 415", async () => {
+    const req = makeRequest(validPayload);
+    req.headers.set("content-type", "text/plain");
+    const res = await POST(req);
+    expect(res.status).toBe(415);
+    expect(await currentDb.collection("messages").countDocuments()).toBe(0);
+  });
+
   it("returns 400 for malformed JSON", async () => {
     const res = await POST(makeRequest("{not-json"));
     expect(res.status).toBe(400);

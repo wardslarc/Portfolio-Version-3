@@ -471,14 +471,27 @@ export async function changeOwnPassword(
   if (input.newPassword.length < 12) {
     return { ok: false, error: "New password must be at least 12 characters." };
   }
+  if (input.newPassword.length > 200) {
+    return { ok: false, error: "New password must be 200 characters or fewer." };
+  }
 
   const passwordHash = await hashPassword(input.newPassword);
   await db.collection<AdminDoc>(ADMINS_COLLECTION).updateOne(
     { _id: actor._id },
     { $set: { passwordHash, passwordChangedAt: new Date() } },
   );
-  await revokeAllAdminSessions(db, actor._id, currentSessionTokenHash);
-  await logAudit(db, actor, "security.password_changed", actor.email, "Signed out other sessions");
+  // Trusted devices skip the email code, so a password change must end them too.
+  await Promise.all([
+    revokeAllAdminSessions(db, actor._id, currentSessionTokenHash),
+    revokeAllAdminDevices(db, actor._id),
+  ]);
+  await logAudit(
+    db,
+    actor,
+    "security.password_changed",
+    actor.email,
+    "Signed out other sessions and forgot trusted devices",
+  );
   return { ok: true };
 }
 

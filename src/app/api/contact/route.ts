@@ -2,6 +2,7 @@ import type { Db } from "mongodb";
 import { z } from "zod";
 import { clientIp, contactSchema, hashIp, notifyByEmail, type ContactMessage } from "@/lib/contact";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
+import { rejectCrossSiteJsonPost } from "@/lib/request-guard";
 
 const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const MAX_PER_WINDOW = 3;
@@ -75,6 +76,9 @@ async function countAttempt(db: Db, ipHash: string): Promise<number> {
 }
 
 export async function POST(request: Request) {
+  const rejected = rejectCrossSiteJsonPost(request);
+  if (rejected) return rejected;
+
   let raw: unknown;
   try {
     raw = await request.json();

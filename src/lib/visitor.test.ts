@@ -20,6 +20,17 @@ describe("visitor helpers", () => {
     delete process.env.IP_HASH_SALT;
   });
 
+  it("refuses to hash without IP_HASH_SALT in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      expect(() => hashBlogVisitor("00000000-0000-4000-8000-000000000000")).toThrow("IP_HASH_SALT");
+      process.env.IP_HASH_SALT = "a-real-secret";
+      expect(hashBlogVisitor("00000000-0000-4000-8000-000000000000")).toMatch(/^[0-9a-f]{32}$/);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it("detects likely bots and empty user agents", () => {
     expect(isLikelyBot("")).toBe(true);
     expect(isLikelyBot("   ")).toBe(true);

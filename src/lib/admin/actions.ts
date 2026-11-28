@@ -167,9 +167,15 @@ export async function changeOwnPasswordAction(
   currentPassword: string,
   newPassword: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  const passwords = z
+    .object({ currentPassword: z.string().max(200), newPassword: z.string().max(200) })
+    .safeParse({ currentPassword, newPassword });
+  if (!passwords.success) {
+    return { ok: false, error: "Passwords must be 200 characters or fewer." };
+  }
   const { admin, session } = await requireAdminAction("security:self");
   const db = await getDb();
-  const res = await changeOwnPassword(db, admin, session._id, { currentPassword, newPassword });
+  const res = await changeOwnPassword(db, admin, session._id, passwords.data);
   revalidatePath("/admin/admins");
   return res.ok ? { ok: true } : { ok: false, error: res.error };
 }
