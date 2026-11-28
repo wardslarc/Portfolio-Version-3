@@ -161,7 +161,7 @@ export function ShareChannelsCard({ byChannel }: { byChannel: PostShares }) {
               <div className="admin-eng-track lg" title={`${row.label}: ${NUMBER_FMT.format(val)}`}>
                 <div className="admin-eng-fill shares" style={{ width: `${pct}%` }} />
               </div>
-              <span className="mono" style={{ textAlign: "right", fontSize: "0.8125rem" }}>
+              <span className="mono admin-channel-val">
                 {NUMBER_FMT.format(val)}
               </span>
             </div>

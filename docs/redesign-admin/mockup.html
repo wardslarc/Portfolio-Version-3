@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin ink mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Caveat:wght@700&family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm working tool in Carls's ink house style; personality only at the edges.
+   IDEA: a sketchbook desk at night: dark ink sidebar, graph-paper desk, paper cards pinned with tape.
+   PICTURE: the admin itself (sidebar + overview + posts table + form kit).
+   COLOUR and TYPE: paper #F3F1EC / ink #16161A / coral #E8492A; Bricolage 800 heads, Geist body, Geist Mono meta, Caveat notes.
+   LAYOUT: 264px ink sidebar, content max 1240px; below 760px the sidebar becomes a dark top bar with scrolling tabs. */
+:root{color-scheme:light;
+ --bg:#F3F1EC;--fg:#16161A;--sf:#FBFAF7;--muted:#4A463F;--faint:#6B665C;--line:#16161A;--rule:#16161A33;--shadow:#16161A;
+ --acc:#E8492A;--acct:#B8361A;--chip:#E6E0D2;--tape:#E8492A99;--grid:rgb(128 128 128/.1);
+ --ok:#166A42;--wait:#8A5300;--danger:#B42318;--side:#16161A;--sideb:transparent;--sq-l:#E9E6DF;--sq-d:#8E8A80}
+:root[data-theme=dark]{color-scheme:dark;
+ --bg:#16161A;--fg:#F3F1EC;--sf:#1F1F25;--muted:#C9C5BB;--faint:#A39F96;--line:#F3F1EC;--rule:#F3F1EC33;--shadow:#E8492A;
+ --acct:#FF6A47;--chip:#2B2B33;--ok:#4CC38A;--wait:#F0B351;--danger:#FF7B72;--side:#0F0F12;--sideb:#F3F1EC33}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;
+ --bg:#16161A;--fg:#F3F1EC;--sf:#1F1F25;--muted:#C9C5BB;--faint:#A39F96;--line:#F3F1EC;--rule:#F3F1EC33;--shadow:#E8492A;
+ --acct:#FF6A47;--chip:#2B2B33;--ok:#4CC38A;--wait:#F0B351;--danger:#FF7B72;--side:#0F0F12;--sideb:#F3F1EC33}}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 Geist,system-ui,sans-serif;overflow-x:clip}
+.mono{font-family:"Geist Mono",ui-monospace,monospace}
+a{color:inherit}
+:focus-visible{outline:3px solid #E8492A;outline-offset:2px}
+/* shell */
+.shell{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100dvh}
+.side{background:var(--side);color:#F3F1EC;border-right:1.5px solid var(--sideb);padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100dvh}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 4px 0 8px}
+.brand b{font:800 22px/1 "Bricolage Grotesque";letter-spacing:-.03em;display:flex;align-items:center;gap:8px}
+.brand b i{width:22px;height:22px;border-radius:50% 50% 40% 40%;background:#F3F1EC;box-shadow:inset 0 -7px 0 #16161A;display:inline-block}
+.brand small{display:block;font:12px "Geist Mono";color:#C9C5BB;margin-top:4px}
+.note{font:700 22px/1 Caveat;color:#FF6A47;rotate:-4deg;display:inline-block}
+.nav{display:grid;gap:4px}
+.nav a{display:flex;justify-content:space-between;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;color:#C9C5BB;font-weight:500;border:1.5px solid transparent}
+.nav a:hover{color:#F3F1EC;border-color:#F3F1EC33}
+.nav a[aria-current]{background:#E8492A;color:#16161A;border-color:#16161A;font-weight:600}
+.nav .bd{font:12px "Geist Mono";background:#F3F1EC;color:#16161A;border-radius:999px;padding:1px 8px}
+.foot{margin-top:auto;border-top:1.5px solid #F3F1EC33;padding-top:16px;display:grid;gap:12px}
+.foot .who{font-weight:600}.foot .role{font:12px "Geist Mono";color:#C9C5BB}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.side .btn{background:transparent;color:#F3F1EC;border-color:#F3F1EC}
+.tog{width:44px;height:44px;border-radius:50%;border:1.5px solid #F3F1EC;background:transparent;color:#F3F1EC;cursor:pointer;font-size:18px}
+/* main */
+main{padding:36px 40px 72px;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px}
+.wrap{max-width:1160px}
+.kick{font:500 13px "Geist Mono";letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin:0 0 28px}
+h1{font:800 clamp(34px,4vw,52px)/.95 "Bricolage Grotesque";letter-spacing:-.045em;margin:6px 0 0}
+h1::after{content:".";font:italic 400 1.05em "Instrument Serif";color:var(--acct)}
+h2{font:800 20px/1.1 "Bricolage Grotesque";letter-spacing:-.02em;margin:0}
+.sub{color:var(--muted);margin:6px 0 0}
+.card{position:relative;background:var(--sf);border:1.5px solid var(--line);border-radius:18px;box-shadow:4px 4px 0 var(--shadow);padding:20px;display:grid;gap:14px;align-content:start}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin-bottom:32px}
+.stat{box-shadow:8px 8px 0 var(--shadow);rotate:var(--rot);transition:rotate .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s;text-decoration:none}
+.stat:hover{rotate:0deg;box-shadow:12px 14px 0 var(--shadow)}
+.stat:nth-child(1){--rot:-.8deg}.stat:nth-child(2){--rot:.6deg}.stat:nth-child(3){--rot:-.4deg}.stat:nth-child(4){--rot:.8deg}
+.lab{font:500 12px "Geist Mono";letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.val{font:800 44px/1 "Bricolage Grotesque";letter-spacing:-.04em}
+.up{color:var(--ok);font:12px "Geist Mono"}.down{color:var(--danger);font:12px "Geist Mono"}
+.tape{position:absolute;top:-14px;left:22px;width:96px;height:26px;background:var(--tape);rotate:-4deg;pointer-events:none}
+.chipnote{position:absolute;top:-16px;right:-10px;background:var(--chip);color:var(--acct);font:700 20px/1 Caveat;padding:4px 12px;border-radius:6px;rotate:5deg}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-bottom:24px}
+.bars{display:grid;gap:9px}
+.bar{display:grid;grid-template-columns:52px minmax(0,1fr) 32px;gap:10px;align-items:center;font:12px "Geist Mono"}
+.trk{height:12px;border-radius:999px;background:var(--chip);border:1.5px solid var(--line);overflow:hidden}
+.trk i{display:block;height:100%;background:var(--acc)}
+.msg{display:grid;gap:2px;padding:12px 14px;border-radius:12px;text-decoration:none;border:1.5px solid transparent}
+.msg:hover{border-color:var(--line);background:var(--bg)}
+.msg b{display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.msg span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* controls */
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1.5px solid var(--line);background:var(--sf);color:var(--fg);font:500 14px Geist;cursor:pointer;text-decoration:none;transition:translate .2s,box-shadow .2s;white-space:nowrap}
+.btn:hover{translate:-3px -3px;box-shadow:5px 5px 0 currentColor}
+.btn.pri{background:#E8492A;color:#16161A;border-color:#16161A;font-weight:600}
+.btn.dan{color:var(--danger);border-color:var(--danger)}
+.btn:disabled{opacity:.5;cursor:not-allowed;translate:0;box-shadow:none}
+.badge{font:12px "Geist Mono";border-radius:999px;padding:2px 9px;border:1.5px solid currentColor;white-space:nowrap}
+.b-ok{color:var(--ok)}.b-wait{color:var(--wait)}.b-acc{color:var(--acct)}.b-mut{color:var(--muted)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:8px}
+.seg a{min-height:40px;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--chip);font:13px "Geist Mono";text-decoration:none}
+.seg a:nth-child(odd){rotate:-1deg}.seg a:nth-child(even){rotate:1deg}
+.seg a[aria-current]{background:var(--fg);color:var(--bg)}
+.tool{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+input,select,textarea{font:16px Geist;min-height:46px;padding:10px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--sf);color:var(--fg);width:100%}
+.search{max-width:320px}
+table{width:100%;border-collapse:collapse}
+th{font:500 12px "Geist Mono";letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--line)}
+td{padding:12px;border-bottom:1px solid var(--rule);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--chip) 55%,transparent)}
+td.t a{font-weight:600;text-decoration:none}td.t a:hover{color:var(--acct)}
+td.n{text-align:right;font-family:"Geist Mono";white-space:nowrap}
+.thumb{width:56px;height:36px;border-radius:8px;border:1.5px solid var(--line);background:var(--chip)}
+.tw{overflow-x:auto;padding:0}
+.kit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.f{display:grid;gap:6px}.f label{font-weight:500;font-size:14px}
+.sw{display:inline-flex;align-items:center;gap:10px;min-height:44px}
+.sw i{width:46px;height:26px;border-radius:999px;border:1.5px solid var(--line);background:var(--chip);position:relative}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--fg);transition:translate .2s}
+.sw.on i{background:#E8492A}.sw.on i::after{translate:20px}
+.alert{border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14px}
+.a-err{background:#E8492A22;color:var(--danger)}.a-ok{background:#1F7A4D1F;color:var(--ok)}
+.dlg{border:1.5px solid var(--line);border-radius:20px;background:var(--bg);box-shadow:10px 10px 0 #E8492A;padding:24px;display:grid;gap:14px;max-width:440px}
+.empty{border:1.5px dashed var(--line);border-radius:18px;padding:28px;text-align:center;color:var(--muted);display:grid;gap:6px;box-shadow:none}
+.sec{display:flex;align-items:center;gap:14px;margin:40px 0 20px}.sec::after{content:"";flex:1;height:1.5px;background:var(--rule)}
+.toast{position:fixed;right:24px;bottom:24px;background:#16161A;color:#F3F1EC;border:1.5px solid #F3F1EC33;border-radius:999px;padding:12px 20px;font-weight:500;box-shadow:5px 5px 0 #E8492A}
+.in{animation:up .7s cubic-bezier(.2,.7,.2,1) backwards}
+@keyframes up{from{opacity:0;translate:0 18px}}
+.drop{animation:dr .7s cubic-bezier(.2,.9,.25,1.25) backwards}
+@keyframes dr{from{opacity:0;translate:0 -30px;rotate:6deg}}
+@media (prefers-reduced-motion:reduce){.in,.drop{animation:fd .5s backwards}@keyframes fd{from{opacity:0}}.btn,.stat{transition:none}}
+@media (max-width:1100px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:759.98px){
+ .shell{grid-template-columns:minmax(0,1fr)}
+ .side{position:sticky;height:auto;z-index:5;padding:12px 16px;gap:10px;border-right:0;border-bottom:1.5px solid var(--sideb)}
+ .side>.note{display:none}
+ .nav{display:flex;overflow-x:auto;padding-bottom:2px}.nav a{flex:none}
+ .foot{margin:0;padding-top:8px;display:flex;justify-content:space-between;align-items:center}
+ main{padding:24px 16px 56px}
+ .stats,.two,.kit{grid-template-columns:minmax(0,1fr)}
+ .stat{rotate:0deg}
+ .hide-s{display:none}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+ <aside class="side" aria-label="Admin navigation">
+  <div class="brand"><div><b><i></i>Admin</b><small>carlsdaleescalo.com</small></div><a class="btn" href="#">Site ↗</a></div>
+  <span class="note" aria-hidden="true">control panel ✎</span>
+  <nav class="nav">
+   <a href="#" aria-current="page">Overview</a>
+   <a href="#">Messages <span class="bd">3</span></a>
+   <a href="#">Blog</a><a href="#">Media</a><a href="#">Chess</a><a href="#">Admins</a>
+  </nav>
+  <div class="foot">
+   <div><div class="who">Carls Dale Escalo</div><div class="role">Signed in as · Owner</div></div>
+   <div class="row"><button class="tog" id="tog" aria-label="Switch theme">◐</button><button class="btn">Sign out</button></div>
+  </div>
+ </aside>
+ <main><div class="wrap">
+  <div class="head in"><div><h1>Overview</h1></div><span class="mono b-mut">Sample data</span></div>
+
+  <div class="stats">
+   <a href="#" class="card stat drop" style="animation-delay:.1s"><span class="tape" aria-hidden="true"></span><span class="lab">Unread messages</span><span class="val">3</span><span class="up">12 total</span></a>
+   <a href="#" class="card stat drop" style="animation-delay:.18s"><span class="lab">Chess moves (7d)</span><span class="val">148</span><span class="up">▲ 22% vs prev 7 days</span></a>
+   <a href="#" class="card stat drop" style="animation-delay:.26s"><span class="lab">Published posts</span><span class="val">9</span><span class="mono b-mut">2 drafts</span></a>
+   <a href="#" class="card stat drop" style="animation-delay:.34s"><span class="lab">Blog (7d)</span><span class="val" style="font-size:26px">412 views · 31 likes</span><span class="down">▼ 4% vs prev 7 days</span></a>
+  </div>
+
+  <div class="two">
+   <div class="card in"><h2>Moves per day (7d)</h2><div class="bars" id="bars"></div></div>
+   <div class="card in"><div class="row" style="justify-content:space-between"><h2>Latest messages</h2><a class="btn" href="#">View all</a></div>
+    <a class="msg" href="#"><b><span class="dot" aria-label="Unread"></span>Mara Lim <span class="mono b-mut" style="margin-left:auto">Nov 27</span></b><span>Hi Carls, we're looking for someone to build an internal tool for our clinic.</span></a>
+    <a class="msg" href="#"><b>Jon Reyes <span class="mono b-mut" style="margin-left:auto">Nov 25</span></b><span>Loved the chess board. Is the code open?</span></a>
+    <a class="msg" href="#"><b>Ana Cruz <span class="mono b-mut" style="margin-left:auto">Nov 22</span></b><span>Freelance inquiry: a booking site for a small café.</span></a>
+   </div>
+  </div>
+
+  <div class="sec"><span class="kick">Blog posts page</span></div>
+  <div class="tool"><div class="seg"><a href="#" aria-current="page">All <span>11</span></a><a href="#">Published <span>9</span></a><a href="#">Drafts <span>2</span></a></div>
+   <div class="row" style="flex:1;justify-content:flex-end"><input class="search" placeholder="Search posts" aria-label="Search posts"><a class="btn pri" href="#">New post</a></div></div>
+  <div class="card tw"><table><thead><tr><th class="hide-s"></th><th>Title</th><th>Status</th><th class="hide-s">Updated</th><th style="text-align:right">Views</th></tr></thead><tbody id="rows"></tbody></table></div>
+
+  <div class="sec"><span class="kick">Form kit</span></div>
+  <div class="kit">
+   <div class="card">
+    <h2>Invite admin</h2>
+    <div class="f"><label for="em">Email</label><input id="em" value="friend@example.com"></div>
+    <div class="f"><label for="rl">Role</label><select id="rl"><option>Editor</option><option>Viewer</option></select></div>
+    <label class="sw on"><i></i>Featured post</label>
+    <div class="alert a-ok">Invite sent.</div>
+    <div class="alert a-err">That email already has an account.</div>
+    <div class="row"><button class="btn pri">Send invite</button><button class="btn">Cancel</button><button class="btn dan">Revoke</button><button class="btn" disabled>Disabled</button></div>
+    <div class="row"><span class="badge b-ok">Published</span><span class="badge b-wait">Draft</span><span class="badge b-acc">3 unread</span><span class="badge b-mut">Viewer</span></div>
+   </div>
+   <div style="display:grid;gap:24px;align-content:start">
+    <div class="dlg" role="dialog" aria-label="Delete post"><h2>Delete this post?</h2><p class="sub" style="margin:0">This can't be undone.</p><div class="row"><button class="btn dan">Delete</button><button class="btn">Cancel</button></div></div>
+    <div class="card empty"><span>No messages yet.</span><span class="note" aria-hidden="true" style="justify-self:center">all quiet ✎</span></div>
+   </div>
+  </div>
+ </div></main>
+</div>
+<div class="toast" role="status">Saved</div>
+<script>
+{
+ const days=[["11-22",14],["11-23",22],["11-24",9],["11-25",31],["11-26",27],["11-27",19],["11-28",26]],max=31;
+ document.getElementById("bars").innerHTML=days.map(([d,n])=>`<div class="bar"><span>${d}</span><span class="trk"><i style="width:${Math.round(n/max*100)}%"></i></span><span style="text-align:right">${n}</span></div>`).join("");
+ const posts=[["Building a chess board everyone shares","Published","Nov 26","1,204"],["What I learned shipping an IT ticketing tool","Published","Nov 18","688"],["Notes on drawing in Clip Studio at night","Draft","Nov 28","0"],["Scroll storytelling with GSAP, gently","Published","Nov 10","402"]];
+ document.getElementById("rows").innerHTML=posts.map(([t,s,u,v])=>`<tr><td class="hide-s"><span class="thumb" style="display:block"></span></td><td class="t"><a href="#">${t}</a></td><td><span class="badge ${s==="Draft"?"b-wait":"b-ok"}">${s}</span></td><td class="hide-s mono">${u}</td><td class="n">${v}</td></tr>`).join("");
+ const r=document.documentElement;
+ document.getElementById("tog").addEventListener("click",()=>{const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark"});
+}
+</script>
+</body>
+</html>

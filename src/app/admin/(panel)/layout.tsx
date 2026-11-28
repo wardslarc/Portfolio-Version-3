@@ -1,7 +1,13 @@
 import { Suspense, type ReactNode } from "react";
+import type { Viewport } from "next";
 import { requireAdmin } from "@/lib/admin/auth";
 import { getDb, isMongoConfigured } from "@/lib/mongodb";
+import InkScope from "@/components/ink/InkScope";
 import AdminShellNav from "./AdminShellNav";
+
+export const viewport: Viewport = {
+  themeColor: "#16161A",
+};
 
 async function GuardedShell({ children }: { children: ReactNode }) {
   const { admin } = await requireAdmin("viewer");
@@ -27,14 +33,16 @@ async function GuardedShell({ children }: { children: ReactNode }) {
 
 export default function AdminPanelLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense
-      fallback={
-        <div className="admin-auth-wrap">
-          <div className="admin-auth-card">Loading admin…</div>
-        </div>
-      }
-    >
-      <GuardedShell>{children}</GuardedShell>
-    </Suspense>
+    <InkScope>
+      <Suspense
+        fallback={
+          <div className="admin-auth-wrap">
+            <div className="admin-auth-card">Loading admin…</div>
+          </div>
+        }
+      >
+        <GuardedShell>{children}</GuardedShell>
+      </Suspense>
+    </InkScope>
   );
 }
