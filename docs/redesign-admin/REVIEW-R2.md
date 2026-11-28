@@ -63,3 +63,17 @@ background: transparent`) and keep the 3px coral focus ring (`outline-offset: -3
 
 After these fixes Claude re-checks only R2.1–R2.5 (375, 1024 and 1440 on Blog, editor, Chess, Media, Engagement);
 if they pass, R2 passes and B3 (A06) starts.
+
+## Re-check after `296c414` — R2 passed
+
+| Fix | Result |
+|---|---|
+| R2.1 | No unscoped selector in `@media` blocks; at 375 the posts rows, editor (one column), chess move log (compact grid rows) and every panel page have `scrollWidth === 375`; at 1024 the editor side panel drops below (single 665px column); 1440 unchanged |
+| R2.2 | Dot touches the word ("Overview.", "Chess · Game 1." then the badge) |
+| R2.3 | Search takes the full row, filters wrap under it (Blog, Media) |
+| R2.4 | Daily engagement rows are three thin borderless bars; channels keep the outlined track |
+| R2.5 | One frame around the writing area |
+
+Note (not from this branch): Gemini saw two minute-bucketed rate-limit tests (`engagement/route.test.ts`,
+`view/route.test.ts`) fail once when a run crossed a minute boundary; the re-run passed. Pre-existing flakiness; leave
+it for now.
