@@ -1,0 +1,33 @@
+.hero {
+  padding: 96px 0 56px;
+}
+
+.h1 {
+  margin: 14px 0 0;
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  font-size: clamp(52px, 8vw, 112px);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+.lede {
+  margin: 28px 0 0;
+  max-width: 560px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--k-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+@media (max-width: 759.98px) {
+  .hero {
+    padding: 56px 0 32px;
+  }
+}
