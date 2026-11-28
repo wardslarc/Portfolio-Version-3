@@ -12,7 +12,8 @@ Paste into a new chat: **"Read `docs/redesign-admin/HANDOFF.md`, then continue."
 - B1 (A01, A02) done by Gemini; **R1 passed with fixes R1.1–R1.4** (`REVIEW-R1.md`), which Gemini does first in B2.
 - B2 (R1 fixes, A03–A05) done; **R2 not passed: fixes R2.1–R2.5** (`REVIEW-R2.md`; main one: media rules not scoped `.ink`, phone layouts broken).
 - R2 fixes `296c414` re-checked: **R2 passed**.
-- **Next:** Gemini does B3 (A06 motion, calm tier, cleanup) → Claude does R3 (final: motion, reduced motion, Lighthouse, then summary + merge).
+- B3 (A06) done; **R3 passed** (`REVIEW-R3.md`, includes the phase summary). Open: pre-existing a11y items R3.1 (one attribute) and R3.2.
+- **Next:** Carls merges `redesign/admin-ink` into `main` (after R3.1 if he wants it first).
 - Gotcha: `pkill -f "next start"` leaves `next-server` running on 3100 (stale build). Kill by port: `ss -ltnp | grep 3100`.
 - Local sign-in: `.env.local` has no Resend key, so Carls signs in with a **backup code** (each works once).
 - Gemini codes everything; Claude only reviews (same split as the homepage and blog phases).
