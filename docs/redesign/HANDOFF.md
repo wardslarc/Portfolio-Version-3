@@ -29,6 +29,7 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
   with ≥ 6% clearance, one container (`--gutter`/`--wrap`, header aligned on `/`), calmer section headings. Spec:
   TASKS T18 (batch B5, gate R6). Baseline measurements before T18: logo 24px×(u/16) right of the hero edge; at
   1903×945 the note sat 11px under the header and the CTAs 34px above the bottom.
+  **R6 passed** (`REVIEW-R6.md`): T18 `2e1ce41` (Gemini), R6.1 `642f848` (Claude). Not pushed yet.
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.
