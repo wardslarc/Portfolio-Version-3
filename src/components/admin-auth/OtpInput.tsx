@@ -33,7 +33,9 @@ export function applyOtpInput(
   raw: string,
 ): OtpInputUpdate {
   const onlyDigits = raw.replace(/\D/g, "");
-  if (onlyDigits.length > 1) {
+  const prevDigit = prev[index];
+
+  if (onlyDigits.length >= 3 || (!prevDigit && onlyDigits.length > 1)) {
     const spread = spreadOtpDigits(onlyDigits);
     if (!spread) return { digits: prev, nextFocus: null };
     const nextEmpty = spread.findIndex((d) => !d);
@@ -43,7 +45,12 @@ export function applyOtpInput(
     };
   }
 
-  const digit = extractLastDigit(raw);
+  const digit =
+    prevDigit && onlyDigits.length === 2
+      ? onlyDigits[0] === prevDigit
+        ? onlyDigits[1]
+        : onlyDigits[0]
+      : extractLastDigit(raw);
   const next = prev.slice();
   next[index] = digit;
   return {

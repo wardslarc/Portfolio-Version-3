@@ -48,4 +48,28 @@ describe("OtpInput helpers", () => {
       nextFocus: 1,
     });
   });
+
+  it("replaces the existing digit when typing into a filled box without selection", () => {
+    const partial = ["1", "2", "5", "4", "", ""];
+    expect(applyOtpInput(partial, 2, "57")).toEqual({
+      digits: ["1", "2", "7", "4", "", ""],
+      nextFocus: 3,
+    });
+    expect(applyOtpInput(partial, 2, "75")).toEqual({
+      digits: ["1", "2", "7", "4", "", ""],
+      nextFocus: 3,
+    });
+    expect(applyOtpInput(partial, 2, "55")).toEqual({
+      digits: ["1", "2", "5", "4", "", ""],
+      nextFocus: 3,
+    });
+  });
+
+  it("spreads 2-digit input when the target box is empty", () => {
+    const empty = ["", "", "", "", "", ""];
+    expect(applyOtpInput(empty, 0, "12")).toEqual({
+      digits: ["1", "2", "", "", "", ""],
+      nextFocus: 2,
+    });
+  });
 });
