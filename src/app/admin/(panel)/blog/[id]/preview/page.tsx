@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import ArticleView from "@/components/blog/ArticleView";
+import InkScope from "@/components/ink/InkScope";
 import { requireAdmin } from "@/lib/admin/auth";
 import { extractToc, renderMarkdown } from "@/lib/blog/markdown";
 import { getAdminPostById } from "@/lib/blog/posts";
@@ -70,7 +71,7 @@ async function PreviewContent({ params }: { params: Promise<{ id: string }> }) {
         </div>
       </div>
 
-      <div className="wrap" style={{ paddingLeft: 0, paddingRight: 0 }}>
+      <InkScope contained>
         <ArticleView
           post={post}
           html={html}
@@ -79,7 +80,7 @@ async function PreviewContent({ params }: { params: Promise<{ id: string }> }) {
           backLabel="← Back to editor"
           showShare={false}
         />
-      </div>
+      </InkScope>
     </div>
   );
 }

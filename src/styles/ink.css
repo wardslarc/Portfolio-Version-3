@@ -30,6 +30,11 @@
   color-scheme: light;
 }
 
+.ink.ink-contained {
+  min-height: 0;
+  display: block;
+}
+
 :root[data-theme="dark"] .ink,
 .ink.ink-dark {
   --home-bg: #16161A;

@@ -6,11 +6,18 @@ import "@/styles/ink-blog.css";
 interface InkScopeProps {
   children: ReactNode;
   forceDark?: boolean;
+  contained?: boolean;
 }
 
-export default function InkScope({ children, forceDark = false }: InkScopeProps) {
+export default function InkScope({
+  children,
+  forceDark = false,
+  contained = false,
+}: InkScopeProps) {
   return (
-    <div className={`ink${forceDark ? " ink-dark" : ""} ${homeFontVariables}`}>
+    <div
+      className={`ink${forceDark ? " ink-dark" : ""}${contained ? " ink-contained" : ""} ${homeFontVariables}`}
+    >
       {children}
     </div>
   );
