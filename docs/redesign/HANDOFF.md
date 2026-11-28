@@ -24,6 +24,11 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
   tall screens) and scale the homepage with the viewport like landonorris.com. Spec: D27, DESIGN_TOKENS §0, TASKS T17
   (batch B4, gate R5). Claude's review compares screenshots at 1280×720, 1440×900, 1920×1080, 2560×1440 and 1903×945
   against the baseline taken before T17.
+- **2026-11-28, T18 (D28).** After R5, Carls found the hero overflowing at 1903×945 and everything too big. D28:
+  `--u = 8px + 8px × min(W/1440, H/900)` (width clamped 1024–2560), smaller hero (h1 104px at 1440), hero centred
+  with ≥ 6% clearance, one container (`--gutter`/`--wrap`, header aligned on `/`), calmer section headings. Spec:
+  TASKS T18 (batch B5, gate R6). Baseline measurements before T18: logo 24px×(u/16) right of the hero edge; at
+  1903×945 the note sat 11px under the header and the CTAs 34px above the bottom.
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.

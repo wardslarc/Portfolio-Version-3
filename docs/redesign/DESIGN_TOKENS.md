@@ -8,7 +8,7 @@ Where both sources give a value, they agree unless noted.
 
 ---
 
-## 0. Fluid unit `--u` and the conversion rule (D27)
+## 0. Fluid unit `--u` and the conversion rule (D27, D28)
 
 **Every px value in §2–§5 is the 1440×900 design value.** In the homepage CSS it's written in the fluid unit `--u`, so
 at 1920 wide the composition is the 1440 design scaled up, not the same size with more empty space.
@@ -17,8 +17,9 @@ at 1920 wide the composition is the 1440 design scaled up, not the same size wit
 |---|---|
 | Registration (`globals.css`) | `@property --u { syntax: "<length>"; inherits: true; initial-value: 16px; }`. Outside the homepage root (`/blog`, the 404, the shared header there) `--u` is 16px, so converted values render at their old px size. |
 | Below 760px (`.root`) | `--u: 16px` (mobile is unchanged) |
-| 760px and up (`.root`) | `--u: clamp(calc(1024px / 90), min(100vw / 90, 100vh / 44), calc(2560px / 90));` then the same line with `100svh / 44` |
-| Resulting `--u` | 11.38px (≤ 1024 wide) · 14.22px at 1280 · **16px at 1440** · 21.14px at 1903 · 21.33px at 1920 · 28.44px (≥ 2560 wide). The height term `100svh / 44` only wins when width ÷ height > 2.05 (for example 2560×1080: 24.55px). |
+| 760px and up (`.root`) | **D28:** `--u: max(calc(1024px / 90), calc(8px + min(clamp(1024px, 100vw, 2560px) / 180, 100vh / 112.5)));` then the same line with `100svh / 112.5`. That is `8px + 8px × min(W / 1440, H / 900)`: half-rate scaling by the tighter dimension, width clamped to 1024–2560, never under 11.38px. (D27's `clamp(…, min(100vw / 90, 100svh / 44), …)` is gone.) |
+| Resulting `--u` | 1024×560 12.98 · 1366×657 13.84 · 1280×720 14.40 · **1440×900 16** · 1903×945 16.40 · 1920×1080 17.60 · 1920×1200 18.67 · 2560×1080 17.60 · 2560×1440 20.80 · max 22.22 (2560 wide, tall enough) · 760–1023 wide 13.69 when the height allows |
+| Container tokens (`.root`, D28) | `--gutter: calc(1.5 * var(--u))`; `--wrap: calc(77.5 * var(--u))`; `--nav-max: calc(var(--wrap) + 2 * var(--gutter))` (read by the header's nav, homepage only). Left edge of every left-aligned block: `max(var(--gutter), calc((100% - var(--wrap)) / 2))` of the full-width parent. |
 | Conversion | `X px` → `calc(X / 16 * var(--u))`, written as the multiplier: `124px` → `calc(7.75 * var(--u))`, `32px` → `calc(2 * var(--u))`, `1240px` → `calc(77.5 * var(--u))`. X is what the current CSS **computes at 1440×900** (a `clamp(…vw…)` resolves to its 1440 value first). |
 | Stays as is | `vw`, `%`, `em`, unitless and degree values; px inside `(max-width: 759.98px)` blocks |
 | Sizes that use `vw` (`clamp(MINpx, Nvw, MAXpx)` fonts) | base rule unchanged (mobile); at ≥ 760px `max(MINpx, calc(<1440 value / 16> * var(--u)))` |
@@ -38,10 +39,11 @@ Examples at 1440 → u (the full list is the current CSS):
 
 | Token | 1440 value | In u |
 |---|---|---|
-| h1 (pinned) | 120.96px | `max(44px, calc(7.56 * var(--u)))` |
-| Hero card padding (tall) | `92px 24px 32px` | `5.75u 1.5u 2u` |
-| Hero row gap | 56px | 3.5u |
-| Hero portrait column max | 390px | 24.375u |
+| h1 (≥ 760px, D28) | 104px | `max(44px, calc(6.5 * var(--u)))` |
+| Hero card padding (pinned, D28) | `header-h + clear` / gutter / `clear` | `calc(var(--header-h) + var(--hero-clear)) var(--gutter) var(--hero-clear)`, `--hero-clear: max(6svh, calc(2 * var(--u)))` |
+| Hero card padding (not pinned) | `92px 24px 32px` | `5.75u 1.5u 2u` |
+| Hero row gap (D28) | 96px | 6u |
+| Hero portrait width (D28) | 330px | 20.625u |
 | Track card / intro / end panel | 500 / 420 / 340px | 31.25u / 26.25u / 21.25u |
 | Track gap | 64px | 4u |
 | Track fallback distance | `3080px + 12vw - 100vw` | `calc(192.5 * var(--u)) + 12vw - 100vw` |
@@ -172,18 +174,18 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Header links | Geist 500 | 14px | — | — | inherit | 40 |
 | "Let's talk" pill | Geist 600 | 14px (inherited) | — | — | ink on coral | 42 |
 | Mobile menu links | Bricolage 700 | 22px | — | — | inherit; the last one is coral | 47–48 |
-| Hero note "hi, I'm Carls ↘" | Caveat 700 | 30px | — | — | coral-text, `rotate(-3deg)`, inline-block | 62 |
-| Hero h1 | Bricolage 800 | `clamp(52px, 8.4vw, 124px)` | .9 | -.045em | ink | 63 |
+| Hero note "hi, I'm Carls ↘" | Caveat 700 | 30px; **26px / 1.625u (D28)** | — | — | coral-text, `rotate(-3deg)`, inline-block | 62 |
+| Hero h1 | Bricolage 800 | `clamp(52px, 8.4vw, 124px)` below 760px; **≥ 760px `max(44px, calc(6.5 * var(--u)))` = 104px at 1440 (D28)** | .9 | -.045em | ink | 63 |
 | Hero "actually" | Instrument italic 400 | inherit | — | -.02em | coral | 65 |
-| Hero paragraph | Geist | 19px | 1.55 | — | muted; max-width 540px | 68 |
+| Hero paragraph | Geist | 19px; **18px / `max(15px, calc(1.125 * var(--u)))` (D28)** | 1.55 | — | muted; max-width 540px | 68 |
 | Hero buttons | Geist 600 | inherit (16px) | — | — | see §4.2 | 70–72 |
-| Portrait notes "brow line", "it's all structure." | Caveat 700 | 24px | — | — | coral-text | 83–84 |
-| Portrait caption | Caveat 700 | 24px | — | — | muted, centered | 89 |
+| Portrait notes "brow line", "it's all structure." | Caveat 700 | 24px; **22px / 1.375u (D28)** | — | — | coral-text | 83–84 |
+| Portrait caption | Caveat 700 | 24px; **22px / 1.375u (D28)** | — | — | muted, centered | 89 |
 | Marquee rows | Bricolage 800 | `clamp(72px, 13vw, 210px)` | .92 | -.045em | paper; ✦ coral-night; "night" Instrument italic 400 | 55–56 |
 | Marquee row 2 | same | same | same | same | `color: transparent; -webkit-text-stroke: 2px #F3F1EC` | 57 |
 | Statement | Bricolage 700 | `clamp(30px, 4.6vw, 60px)` | 1.12 | -.03em | ink; last sentence Instrument italic 400, coral | 98–99 |
 | Track label "01 / SELECTED WORK" | Geist Mono | 13px | — | .08em | inherit | 107 |
-| Track h2 "On the *clock.*" | Bricolage 800 | `clamp(56px, 7vw, 104px)` | .88 | -.045em | ink; "clock." coral-text | 108 |
+| Track h2 "On the *clock.*" | Bricolage 800 | `clamp(56px, 7vw, 104px)` below 760px; **≥ 760px `max(56px, calc(5.4 * var(--u)))` (D28, was 6.3u)** | .88 | -.045em | ink; "clock." coral-text | 108 |
 | Track intro copy | Geist | 17px | 1.6 | — | muted | 109 |
 | "keep scrolling →" | Caveat 700 | 30px | — | — | coral-text | 110 |
 | Card meta row | Geist Mono | 12px | — | — | muted; status colored (§4.4) | 117 |
@@ -202,13 +204,13 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Split heading | Bricolage 800 | `clamp(44px, 7.4vw, 118px)` | .86 | -.045em | ink; "On the"/"Off the" Instrument italic 400, -.02em, `display: block` | 189–191 |
 | Split notes | Caveat 700 | 26px | — | 0 | coral-text; margin-top 18px | 190–191 |
 | "Ink by / *night.*" | Bricolage 800 | `clamp(64px, 12vw, 190px)` | .85 | -.05em | paper; "night." Instrument italic 400 coral-night | 194 |
-| Night h2 "Hall of *sketches.*" | Bricolage 800 | `clamp(48px, 7vw, 100px)` | .9 | -.045em | paper; "sketches." coral-night | 202 |
+| Night h2 "Hall of *sketches.*" | Bricolage 800 | `clamp(48px, 7vw, 100px)` below 760px; **≥ 760px `max(48px, calc(5.375 * var(--u)))` (D28, was 6.25u)** | .9 | -.045em | paper; "sketches." coral-night | 202 |
 | Night blurb | Geist | 17px | 1.6 | — | paper at `opacity: .8`; link coral-night, underlined | 203 |
 | Art caption | Geist Mono | 12px | — | — | muted-dark; year coral-night | 211 |
 | Chess note "one move per day, one shared game" | Caveat 700 | 26px | — | — | coral-night | 223 |
-| Sketchbook h2 "Follow the *sketchbook.*" | Bricolage 800 | `clamp(48px, 7vw, 100px)` | .9 | -.045em | ink; "sketchbook." coral-text | 233 |
+| Sketchbook h2 "Follow the *sketchbook.*" | Bricolage 800 | `clamp(48px, 7vw, 100px)` below 760px; **≥ 760px `max(48px, calc(5.375 * var(--u)))` (D28, was 6.25u)** | .9 | -.045em | ink; "sketchbook." coral-text | 233 |
 | Sketchbook copy | Geist | 18px | — | — | muted | 241 |
-| Contact h2 "Let's build / *something.*" | Bricolage 800 | `clamp(56px, 9vw, 132px)` | .86 | -.05em | paper; "something." Instrument italic coral-night | 248 |
+| Contact h2 "Let's build / *something.*" | Bricolage 800 | `clamp(56px, 9vw, 132px)` below 760px; **≥ 760px `max(56px, calc(7 * var(--u)))` (D28, was 8.1u)** | .86 | -.05em | paper; "something." Instrument italic coral-night | 248 |
 | Contact copy | Geist | 18px | 1.6 | — | muted-dark; max-width 440px | 249 |
 | Email button | Geist Mono 500 | 16px | — | — | paper; label Caveat 700 22px coral-night, margin-left 10px | 250 |
 | Form labels | Geist 500 | 14px | — | — | ink | 254–256 |
@@ -223,7 +225,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Item | Value | P line |
 |---|---|---|
 | Content max width | 1240px, `margin: 0 auto` | 38, 60, 165, 200, 246, 260 |
-| Header nav | `padding: 14px 24px; gap: 16px` | 38 |
+| Header nav | `padding: 14px 24px; gap: 16px`; on `/` `max-width: var(--nav-max)` = 1240 + 2 × 24px, so the logo lines up with the sections (D28) | 38 |
 | Header link gap | 28px | 40 |
 | Logo gap / icon size | 10px / 30×30 | 39 |
 | "Let's talk" pill | `padding: 10px 18px` | 42 |
@@ -233,13 +235,13 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Stage height (`--stage-h`) | `100vh`; `100svh` where supported. **No 900px cap** (D27; was `min(100svh, 900px)`) | 53–54, 104, 186 |
 | Hero pin extra | **1 × `--stage-h`**: section `height: calc(var(--stage-h) * 2)` (D27; was 1000px) | 53 |
 | Hero card padding | `92px 24px 32px` | 59 |
-| Hero inner | `flex-wrap: wrap; gap: 56px; align-items: center` | 60 |
+| Hero inner | `flex-wrap: wrap; gap: 56px; align-items: center`; **gap 96px / 6u (D28)** | 60 |
 | Hero text column | `flex: 999 1 520px; min-width: 0` | 61 |
-| Hero portrait column | `flex: 1 1 300px; max-width: 390px` | 75 |
+| Hero portrait column | `flex: 1 1 300px; max-width: 390px`; **max-width 330px / 20.625u (D28)** | 75 |
 | h1 margin | `12px 0 0` | 63 |
 | Hero paragraph margin | `32px 0 0` | 68 |
 | CTA row | `gap: 12px; margin-top: 36px; flex-wrap: wrap` | 69 |
-| CTA button padding | `15px 24px` | 70–72 |
+| CTA button padding | `15px 24px`; hero CTAs **13px 22px / `0.8125u 1.375u` (D28)** | 70–72 |
 | Underline SVG | `position: absolute; left: 0; bottom: -6px; width: 100%; height: 22px` | 65 |
 | Portrait aspect ratio | `4 / 5` | 76 |
 | Portrait notes position | "brow line" `left: 22px; top: 20px`; "it's all structure." `right: 22px; bottom: 26px` | 83–84 |
@@ -247,7 +249,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Marquee row gap | 4px; item `padding-right: 60px`; **6** repeats per row | 55–57, 360 |
 | Onigiri drawing size | `width: min(46vw, 420px); height: min(46vw, 420px)` | 93 |
 | Statement section padding | `160px 24px`; paragraph max-width 1100px | 97–98 |
-| Track | `gap: 64px; padding: 40px 6vw 0` | 105 |
+| Track | `gap: 64px; padding: 40px 6vw 0`; **D28: side padding = the container edge `max(var(--gutter), calc((100% - var(--wrap)) / 2))` instead of 6vw** | 105 |
 | Track intro panel width | 420px | 106 |
 | Track h2 margin | `14px 0 18px` | 108 |
 | "keep scrolling" margin-top | 26px | 110 |
@@ -257,7 +259,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Card h3 margin | `8px 0 6px` | 118 |
 | Card stack margin | `12px 0 0` | 120 |
 | End panel width | 340px | 158 |
-| Progress bar | `left: 6vw; right: 6vw; bottom: 36px; height: 3px` | 160 |
+| Progress bar | `left: 6vw; right: 6vw; bottom: 36px; height: 3px`; **D28: left and right = the container edge** | 160 |
 | More section padding | `40px 24px 140px` | 164 |
 | Project row | `padding: 18px 0; gap: 6px 24px` | 168 |
 | Show more button | `margin-top: 24px; min-height: 46px; padding: 12px 22px` | 173 |
@@ -297,10 +299,11 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 |---|---|
 | Pin threshold | `(min-width: 1024px) and (min-height: 560px)` and no reduced motion |
 | Section pull-up | `margin-top: calc(-1 * var(--header-h))` |
-| h1 size | `max(44px, calc(7.56 * var(--u)))` (D27; the `--u` height guard replaces the old stage-height fit `clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)`) |
-| Portrait width | `min(100%, calc(24.375 * var(--u)))` (D27; was `min(100%, calc((var(--stage-h) - 280px) * .8))`) |
-| Short screens `(max-height: 759.98px)` | card padding `84px 24px 20px`; row gap 40px; paragraph margin-top 20px; CTA margin-top 24px; caption margin-top 12px |
-| Tall screens | card padding `92px 24px 32px` (P 59); gap 56px; margins as in §3 |
+| h1 size | `max(44px, calc(6.5 * var(--u)))` (D28; D27 had 7.56u; the `--u` height guard replaces the old stage-height fit `clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)`) |
+| Portrait width | `min(100%, calc(20.625 * var(--u)))` (D28; D27 had 24.375u; was `min(100%, calc((var(--stage-h) - 280px) * .8))`) |
+| Card padding and centring (D28) | `padding: calc(var(--header-h) + var(--hero-clear)) var(--gutter) var(--hero-clear)` with `--hero-clear: max(6vh, calc(2 * var(--u)))` then `max(6svh, …)`; content centred (`align-items: center`). Replaces both padding rows below. |
+| Short screens `(max-height: 759.98px)` | ~~card padding `84px 24px 20px`~~ (D28: removed); row gap 40px (2.5u); paragraph margin-top 20px; CTA margin-top 24px; caption margin-top 12px |
+| Tall screens | ~~card padding `92px 24px 32px`~~ (D28); gap 96px (6u); margins as in §3 |
 
 ### 3.2 Reduced-motion desktop layout, `wideCalm` (D26)
 

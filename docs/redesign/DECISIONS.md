@@ -708,3 +708,41 @@ the two places where pure width scaling would break (content taller than a very 
 
 **Unchanged.** D24's pin threshold (`min-width: 1024px and min-height: 560px`), the media queries in DESIGN_TOKENS §6,
 the mobile layout, the reduced-motion tiers (D25, D26), and all colors and timings.
+
+## D28. Gentler scaling, height-aware, smaller hero, one container (Carls, 2026-11-28)
+
+**Problem (after D27).** At 1903×945 the hero overflowed the pinned frame: `--u` followed the width only (21.14px), so
+the "hi, I'm Carls" note sat 11px under the header and the CTAs 34px above the bottom edge. Everything also felt too big:
+D27 scaled 1:1 with the width, so 1920 was 33% bigger than 1440. And the header's logo started 1.5u right of every
+section's left edge (the header put its 24px padding *inside* its 1240px max-width; the sections put it outside).
+
+**Choices**
+
+1. **Scale by the tighter dimension, at half rate.** `s = min(W / 1440, H / 900)` and `--u = 8px + 8px × s`
+   (16px at 1440×900; every 1% of extra screen adds 0.5% to the size). The width term is clamped to 1024–2560px wide, so
+   `--u` doesn't shrink below its 1024-wide value (13.69px) and stops growing at 2560 wide (22.22px). The height term
+   can go lower than 13.69px on short windows, so the pinned hero still fits; `--u` never goes under 11.38px.
+   In CSS (≥ 760px; below that `--u` stays 16px):
+   `--u: max(calc(1024px / 90), calc(8px + min(clamp(1024px, 100vw, 2560px) / 180, 100svh / 112.5)));`
+   (a `100vh` line first as the fallback). This replaces D27 §2's `clamp(…, min(100vw / 90, 100svh / 44), …)`.
+   Results: 1366×657 13.84 · 1280×720 14.40 · **1440×900 16** · 1903×945 16.40 · 1920×1080 17.60 · 1920×1200 18.67 ·
+   2560×1440 20.80 · 1024×560 12.98 · 760–1023 wide 13.69 (when the height allows).
+   Note: 16:9 screens are height-limited against the 16:10 baseline, so 1920×1080 is +10% over 1440×900 (1920×1200 is
+   +16.7%). That follows from "whichever dimension is tighter".
+2. **Smaller hero at the 1440 baseline:** h1 104px (6.5u, was 121), note 26px (1.625u, was 30), paragraph 18px
+   (1.125u, was 19), CTA padding 13px 22px (0.8125u 1.375u, was 15px 24px), portrait 330px wide (20.625u, was up to
+   390), portrait caption and sketch notes 22px (1.375u, was 24), and the text–portrait gap 96px (6u, was 56).
+3. **Vertically centred hero, with clearance.** The pinned card's padding is `header-h + clear` on top and `clear` at
+   the bottom, `clear = max(6svh, 2u)`, and its content stays centred (`align-items: center`). So the note is always at
+   least 6% of the screen height under the header and the CTAs at least 6% above the bottom edge.
+4. **One container.** Tokens on `.root`: `--gutter: 1.5u`, `--wrap: 77.5u`. Every left-aligned block's content box is
+   `--wrap` wide, centred, with at least `--gutter` on each side: its left edge is `max(gutter, (width − wrap) / 2)`.
+   The sections already do this. The header now does too on `/` (its nav max-width becomes `wrap + 2 × gutter`, through
+   a `--nav-max` variable that only `.root` sets, so `/blog` and the 404 keep their header). The pinned work track uses
+   the same edge instead of `6vw` for its side padding and its progress rail.
+5. **Calmer section headings,** the same ≈0.86 ratio as the h1: "On the clock." 5.4u (86px, was 6.3u), "Hall of
+   sketches." and "Follow the sketchbook." 5.375u (86px, was 6.25u), "Let's build something." 7u (112px, was 8.1u).
+   Their mobile `clamp(…vw…)` rules and floors stay.
+
+**Unchanged.** D24's pin threshold, D27's scroll lengths in screens, motion offsets in u, the stage height, mobile
+(below 760px: `--u` 16px and every size as before; the new hero and heading sizes apply at 760px and up), the media queries, colors and timings.

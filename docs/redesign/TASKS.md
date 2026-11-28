@@ -14,6 +14,8 @@ Branch: **`redesign/ink-by-night`**. Do the tasks **in order**. A task can start
 | R3 | Claude | review gate: **T14 security review** (honeypot, payload, API unchanged), then **T16** final review | B3 is done |
 | B4 | Gemini | T17 (fluid scaling, D27; added 2026-11-28) | now (T16 done) |
 | R5 | Claude | review gate: T17, screenshots at the five sizes in its Acceptance | B4 is done |
+| B5 | Gemini | T18 (gentler height-aware scaling, smaller hero, one container, D28; added 2026-11-28) | R5 passed |
+| R6 | Claude | review gate: T18, screenshots at 1366×657, 1440×900, 1903×945, 1920×1080, 2560×1440 | B5 is done |
 
 - `[gemini]`: Gemini implements it. Tasks marked **⚑ review gate** are the risky ones: Gemini stops at the end of its
   batch so Claude can review before anything is built on top.
@@ -779,6 +781,63 @@ block), every `*.module.css` under `src/components/home/`, `src/components/home/
 
 **Do not:** change the media queries (DESIGN_TOKENS §6), the root `html` font-size, any color or timing, the
 `heroPinned` threshold, or anything outside the files listed.
+
+---
+
+## T18 [gemini] ⚑ review gate R6: Gentler height-aware scaling, smaller hero, one container (D28)
+
+**How:** DECISIONS D28 and DESIGN_TOKENS §0, §2.2, §3 and §3.1 (rows marked D28). Read them first. Sizes and alignment
+only: no layout-mode, color, timing or media-query changes.
+
+**Depends on:** T17.
+**Files:** `src/components/home/HomeShell.module.css`, `HomeHeader.module.css`, `hero/Hero.module.css`,
+`hero/PortraitReveal.module.css`, `work/WorkTrack.module.css`, `NightSection.module.css`, `Sketchbook.module.css`,
+`contact/ContactPanel.module.css`. No TS changes are expected (the motion code already reads `--u`); if one turns out
+to be needed, stop and ask.
+
+**Steps**
+1. **The unit.** In `HomeShell.module.css` `.root` at `(min-width: 760px)`, replace the two `--u` lines with the D28
+   formula (`100vh / 112.5` line first, then `100svh / 112.5`). Below 760px `--u` stays `16px`.
+2. **Container tokens** on `.root` (all widths): `--gutter: calc(1.5 * var(--u))`, `--wrap: calc(77.5 * var(--u))`,
+   `--nav-max: calc(var(--wrap) + 2 * var(--gutter))`. In `HomeHeader.module.css` `.nav`:
+   `max-width: var(--nav-max, calc(77.5 * var(--u)))` (the fallback keeps `/blog` and the 404 exactly as now).
+   Replace the existing `calc(1.5 * var(--u))` side paddings and `calc(77.5 * var(--u))` max-widths of the homepage
+   sections with `var(--gutter)` / `var(--wrap)` where they are the container (hero card, Night, MoreWork,
+   ContactShell, SplitScene reduced, WorkTrack reduced). Same values, so nothing moves except the header.
+3. **Track edge.** In the pinned track block, `.track` side padding and the `.rail` `left`/`right` become
+   `max(var(--gutter), calc((100% - var(--wrap)) / 2))`. Update the `--hz-extra` fallback to
+   `max(0px, calc(192.5 * var(--u) + 2 * max(var(--gutter), calc((100vw - var(--wrap)) / 2)) - 100vw))`.
+4. **Hero sizes** (≥ 760px unless noted): h1 `max(44px, calc(6.5 * var(--u)))`; `.heroNote` `max(12px, calc(1.625 *
+   var(--u)))`; `.paragraph` `max(15px, calc(1.125 * var(--u)))`; `.btnPrimary`/`.btnSecondary` padding
+   `calc(0.8125 * var(--u)) calc(1.375 * var(--u))`; `.inner` gap `calc(6 * var(--u))`; `.portraitCol` max-width
+   `calc(20.625 * var(--u))`; pinned `.frame` width `min(100%, calc(20.625 * var(--u)))`; `.sketchNote1/2` and
+   `.caption` `max(12px, calc(1.375 * var(--u)))`. Put every one of these in a `(min-width: 760px)` block (add one to
+   `PortraitReveal.module.css`); the base rules stay as they are, so mobile doesn't change.
+5. **Hero centring.** In the pinned block, `.card` padding becomes
+   `calc(var(--header-h) + var(--hero-clear)) var(--gutter) var(--hero-clear)`, with `--hero-clear` declared on `.card`
+   as `max(6vh, calc(2 * var(--u)))` then `max(6svh, calc(2 * var(--u)))`. Keep `display: flex; align-items: center`.
+   In the `(max-height: 759.98px)` block delete the `.card` padding rule; keep the gap/margin rules.
+6. **Section headings** (≥ 760px rules only): Track `.heading` `max(56px, calc(5.4 * var(--u)))`; Night and Sketchbook
+   `.heading` `max(48px, calc(5.375 * var(--u)))`; Contact `.heading` `max(56px, calc(7 * var(--u)))`.
+7. One commit: `feat(home): T18 gentler height-aware scaling, smaller hero, one container (D28)`.
+
+**Acceptance** (headless or DevTools, full motion unless noted)
+- **--u** = 13.84 at 1366×657, 14.40 at 1280×720, 16 at 1440×900, 16.40 at 1903×945, 17.60 at 1920×1080, 20.80 at
+  2560×1440, 12.98 at 1024×560 (±0.02). At 1440×900: h1 104px, note 26px, paragraph 18px, portrait frame 330px wide.
+- **Hero fits with clearance:** at 1366×657, 1440×900, 1903×945, 1920×1080, 2560×1440, 1280×720 and 1024×560, at
+  scroll 0: (note top − header bottom) ≥ 6% of `innerHeight` and (`innerHeight` − bottom of the CTA row) ≥ 6% of
+  `innerHeight`, and the two gaps differ by less than 4% of `innerHeight` (centred). Measure the note with its
+  bounding box (it's rotated −3°).
+- **One left edge:** at every size above and 820×1180, the header logo's left, the h1's left, and the left of the
+  "On the clock." heading (track at progress 0), "Hall of sketches.", the More work list and "Let's build something."
+  are equal (±2px; glyph side bearings aside). Centred blocks (Statement, split scene, sketchbook) are exempt.
+- **No overflow:** no horizontal overflow at 760×1024, 820×1180, 1024×768 and all sizes above; nothing in the pinned
+  hero, track or split stage is cut off.
+- **Unchanged:** `/blog`, a post and the 404 header: logo left and header height identical to before T18 at 1440 and
+  1920. Mobile 390×844: pixel-identical to before T18.
+- Pins still take 1 / 1.5 screens; `npm run lint`, `npm test`, `npm run build` pass.
+
+**Do not:** touch the motion TS, the stage height, the media queries, the `--header-h` formula, colors or timings.
 
 ---
 
