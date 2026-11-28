@@ -20,6 +20,10 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
   https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS (slug `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`). After Carls
   approves them, write `docs/redesign-blog/` (spec and tasks) for Gemini.
 - **2026-11-28: spec written.** That phase continues in `docs/redesign-blog/HANDOFF.md`.
+- **2026-11-28, later: T17 fluid scaling (D27).** Carls asked to drop the 900px stage cap (dark band under the hero on
+  tall screens) and scale the homepage with the viewport like landonorris.com. Spec: D27, DESIGN_TOKENS §0, TASKS T17
+  (batch B4, gate R5). Claude's review compares screenshots at 1280×720, 1440×900, 1920×1080, 2560×1440 and 1903×945
+  against the baseline taken before T17.
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.

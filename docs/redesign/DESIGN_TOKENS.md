@@ -8,6 +8,44 @@ Where both sources give a value, they agree unless noted.
 
 ---
 
+## 0. Fluid unit `--u` and the conversion rule (D27)
+
+**Every px value in §2–§5 is the 1440×900 design value.** In the homepage CSS it's written in the fluid unit `--u`, so
+at 1920 wide the composition is the 1440 design scaled up, not the same size with more empty space.
+
+| Item | Value |
+|---|---|
+| Registration (`globals.css`) | `@property --u { syntax: "<length>"; inherits: true; initial-value: 16px; }`. Outside the homepage root (`/blog`, the 404, the shared header there) `--u` is 16px, so converted values render at their old px size. |
+| Below 760px (`.root`) | `--u: 16px` (mobile is unchanged) |
+| 760px and up (`.root`) | `--u: clamp(calc(1024px / 90), min(100vw / 90, 100vh / 44), calc(2560px / 90));` then the same line with `100svh / 44` |
+| Resulting `--u` | 11.38px (≤ 1024 wide) · 14.22px at 1280 · **16px at 1440** · 21.14px at 1903 · 21.33px at 1920 · 28.44px (≥ 2560 wide). The height term `100svh / 44` only wins when width ÷ height > 2.05 (for example 2560×1080: 24.55px). |
+| Conversion | `X px` → `calc(X / 16 * var(--u))`, written as the multiplier: `124px` → `calc(7.75 * var(--u))`, `32px` → `calc(2 * var(--u))`, `1240px` → `calc(77.5 * var(--u))`. X is what the current CSS **computes at 1440×900** (a `clamp(…vw…)` resolves to its 1440 value first). |
+| Stays as is | `vw`, `%`, `em`, unitless and degree values; px inside `(max-width: 759.98px)` blocks |
+| Hairlines | `max(1px, calc(<X/16> * var(--u)))`, for example `1.5px` → `max(1px, calc(0.09375 * var(--u)))` |
+| Font floors | body and paragraph text `max(15px, …)`; labels, captions, mono, nav and buttons `max(12px, …)`; headings keep their `clamp` floor (h1 44px) or `max(24px, …)` |
+| Content max width | `calc(77.5 * var(--u))` (was 1240px) |
+| Header height `--header-h` | `calc(4.625 * var(--u))` (74px at 1440) |
+| Stage height `--stage-h` | `100vh`, then `100svh`. **No cap** (was `min(…, 900px)`). |
+| Graph paper | `background-size: calc(2 * var(--u)) calc(2 * var(--u))` |
+| Motion offsets in JS | `px × u / 16`, with `u = parseFloat(getComputedStyle(root).getPropertyValue("--u"))`, re-read on every ScrollTrigger refresh (function-based values plus `invalidateOnRefresh: true`) |
+| Scroll lengths | hero pin **1 × `--stage-h`**, split pin **1.5 × `--stage-h`**, track pin = measured `track.scrollWidth − innerWidth` |
+
+Examples at 1440 → u (the full list is the current CSS):
+
+| Token | 1440 value | In u |
+|---|---|---|
+| h1 (pinned) | 120.96px | `max(44px, calc(7.56 * var(--u)))` |
+| Hero card padding (tall) | `92px 24px 32px` | `5.75u 1.5u 2u` |
+| Hero row gap | 56px | 3.5u |
+| Hero portrait column max | 390px | 24.375u |
+| Track card / intro / end panel | 500 / 420 / 340px | 31.25u / 26.25u / 21.25u |
+| Track gap | 64px | 4u |
+| Track fallback distance | `3080px + 12vw - 100vw` | `calc(192.5 * var(--u)) + 12vw - 100vw` |
+| Split card width | `min(27vw, 380px)` | `min(27vw, calc(23.75 * var(--u)))` |
+| Hero shrink corners / shadow | 36px / `0 50px 90px` | 2.25u / `0 3.125u 5.625u` |
+
+---
+
 ## 1. Color
 
 ### 1.1 Core palette (B, table; P throughout)
@@ -189,8 +227,8 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Mobile menu button | 44×44 | 44 |
 | Mobile menu panel | `padding: 4px 24px 20px`; links `padding: 12px 0` | 47–48 |
 | Header height (`--header-h`) | **74px** (nav padding 14 + 44px button + 14 + 1.5px border); the pinned hero pulls up by this (D24) | — |
-| Stage height (`--stage-h`) | `min(100vh, 900px)`; `min(100svh, 900px)` where supported (D: svh) | 53–54, 104, 186 |
-| Hero pin extra | **1000px** (B "about 1000px"; P `calc(min(100vh, 900px) + 1000px)`) | 53 |
+| Stage height (`--stage-h`) | `100vh`; `100svh` where supported. **No 900px cap** (D27; was `min(100svh, 900px)`) | 53–54, 104, 186 |
+| Hero pin extra | **1 × `--stage-h`**: section `height: calc(var(--stage-h) * 2)` (D27; was 1000px) | 53 |
 | Hero card padding | `92px 24px 32px` | 59 |
 | Hero inner | `flex-wrap: wrap; gap: 56px; align-items: center` | 60 |
 | Hero text column | `flex: 999 1 520px; min-width: 0` | 61 |
@@ -222,7 +260,7 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 | Show more button | `margin-top: 24px; min-height: 46px; padding: 12px 22px` | 173 |
 | "Where I've built." margin | `110px 0 28px` | 175 |
 | Experience grid | `grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr))`; cell padding 24px; role margin-top 8px | 176–180 |
-| Split pin extra | **1400px** (B "about 1400px"; P) | 185 |
+| Split pin extra | **1.5 × `--stage-h`**: section `height: calc(var(--stage-h) * 2.5)` (D27; was 1400px) | 185 |
 | Split cards | `width: min(27vw, 380px); aspect-ratio: 3 / 4; padding: 12px`; left `left: 3%; top: 16%`; right `right: 3%; top: 12%` | 187–188 |
 | Split heading | `gap: 5vw; z-index: 2; text-align: center` | 189 |
 | Split overlay | `inset: 0; z-index: 3` | 193 |
@@ -257,8 +295,8 @@ usually with `letter-spacing: -.02em` (P 65, 190–191).
 |---|---|
 | Pin threshold | `(min-width: 1024px) and (min-height: 560px)` and no reduced motion |
 | Section pull-up | `margin-top: calc(-1 * var(--header-h))` |
-| h1 size | `clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)` |
-| Portrait width | `min(100%, calc((var(--stage-h) - 280px) * .8))`, so the height is about `--stage-h` − 280px |
+| h1 size | `max(44px, calc(7.56 * var(--u)))` (D27; the `--u` height guard replaces the old stage-height fit `clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)`) |
+| Portrait width | `min(100%, calc(24.375 * var(--u)))` (D27; was `min(100%, calc((var(--stage-h) - 280px) * .8))`) |
 | Short screens `(max-height: 759.98px)` | card padding `84px 24px 20px`; row gap 40px; paragraph margin-top 20px; CTA margin-top 24px; caption margin-top 12px |
 | Tall screens | card padding `92px 24px 32px` (P 59); gap 56px; margins as in §3 |
 
@@ -471,13 +509,13 @@ The note's `rotate(-3deg)` conflicts with the `up` keyframes' `transform`. Use t
 
 Rows are `display: flex; width: max-content; white-space: nowrap`, with 6 copies each. Under reduced motion they're static.
 
-### 5.3 Hero shrink (scrub over the 1000px pin, `heroPinned`)
+### 5.3 Hero shrink (scrub over a 1-screen pin, `heroPinned`; D27)
 
 | Property | Start | End | Progress window |
 |---|---|---|---|
 | Card scale | 1 | **0.6** | 0 → 1 |
 | Card rotation | 0deg | **-2deg** | 0 → 1 |
-| Card corner radius (clip-path round) | 0px | **36px** | 0 → 1 |
+| Card corner radius (clip-path round) | 0px | **36px** (2.25u, D27) | 0 → 1 |
 | Shadow layer opacity (`0 50px 90px rgb(0 0 0)`) | 0 | **0.7** | 0 → 1 |
 | Onigiri opacity | 0 | 1 | 0.50 → 0.55 |
 | Onigiri stroke-dashoffset (pathLength 1000) | 1000 | 0 | 0.55 → 0.95 |
@@ -492,12 +530,12 @@ The text is split on single spaces (P 334). "Then I go home and draw." is **one*
 
 ### 5.5 Work track (P 24, 301–305)
 
-- Distance `tx = max(0, track.scrollWidth − window.innerWidth)`, only at ≥ 760px. Section height = `stage + tx`.
+- Distance `tx = max(0, track.scrollWidth − window.innerWidth)`, only at ≥ 760px. Section height = `stage + tx`. The track's widths are in u (D27), so `tx` grows with the screen.
 - Track `x: 0 → −tx`. Progress bar `scaleX: 0 → 1`, `transform-origin: left`, fill `#E8492A`, rail `#16161A22`, radius 3px.
-- Card drift `y: 0 → s`, with s = −50, 40, −30, 50 px (B "±30–50px"). Applied as `translate: 0 var(--drift-y)`, tweening `--drift-y` (ARCHITECTURE §7.3, R2.1).
+- Card drift `y: 0 → s × u/16`, with s = −50, 40, −30, 50 px at 1440 (B "±30–50px"; D27). Applied as `translate: 0 var(--drift-y)`, tweening `--drift-y` (ARCHITECTURE §7.3, R2.1).
 - Hover: `rotate: 0deg` and `box-shadow: 12px 14px 0 #16161A`, `transition: rotate .45s cubic-bezier(.2,.7,.2,1), box-shadow .45s` (P 28).
 
-### 5.6 Split scene (scrub over the 1400px pin, P 25)
+### 5.6 Split scene (scrub over a 1.5-screen pin, section `calc(var(--stage-h) * 2.5)`; D27, was 1400px)
 
 | Property | Start | End | Progress window |
 |---|---|---|---|
@@ -508,12 +546,12 @@ The text is split on single spaces (P 334). "Then I go home and draw." is **one*
 ### 5.7 Gallery parallax (P 21, 310)
 
 `translateY = −p × s`, `p = clamp((center − vh/2) / vh, −1, 1)`, so y goes from −s to +s while the column center
-travels from 1.5·vh to −0.5·vh. s = **+60px, −80px, +110px** (B and P agree).
+travels from 1.5·vh to −0.5·vh. s = **+60px, −80px, +110px** at 1440, × u/16 (B and P agree; D27).
 
 ### 5.8 Fan (P 26, 314, 350)
 
 `p = clamp((0.6·vh − top) / (0.45·vh))`, i.e. section `"top 60%"` → `"top 15%"`. Per card, at p = 1:
-`x = i × 140px` (70px below 760px, D17), `y = |i| × 28px`, `rotate = i × 9°`, for i = −2…2.
+`x = i × 140px` (70px below 760px, D17), `y = |i| × 28px`, `rotate = i × 9°`, for i = −2…2. At ≥ 760px x and y are × u/16 (D27).
 
 ### 5.9 Contact rise (P 27, 311)
 
@@ -527,7 +565,7 @@ start `inset(9% 5% 0% 5% round 96px 96px 0px 0px)`, end `inset(0% 0% 0% 0% round
 |---|---|---|
 | Background/text theme tween | **0.9s**, triggered when a section crosses the viewport middle (`top 50%` / `bottom 50%`) | B; P 16, 321 |
 | Heading reveal | inner line `translateY 110% → 0` behind `overflow: clip; display: block; padding-bottom: .08em`, `"top 95%"` → `"top 75%"` | B; P 20, 313 |
-| Generic reveal | `opacity 0 → 1`, `translateY 56px → 0`, `"top bottom"` → `"top 70%"` | B; P 20, 315 |
+| Generic reveal | `opacity 0 → 1`, `translateY 56px → 0` (× u/16, D27), `"top bottom"` → `"top 70%"` | B; P 20, 315 |
 | Button hover | `transform: translate(-3px, -3px); box-shadow: 5px 5px 0 currentColor; transition: transform .2s, box-shadow .2s` | B; P 29 |
 | Card hover | straighten (`rotate: 0deg`) plus `12px 14px 0` shadow, .45s | B; P 28 |
 | Art frame hover | `transform: scale(1.03); transition: transform .4s` | B; P 29 |

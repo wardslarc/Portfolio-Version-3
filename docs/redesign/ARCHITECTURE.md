@@ -269,8 +269,8 @@ re-pointing in `.chessFrame` (§9).
 ## 6. Layout modes (pure CSS, D8)
 
 Each pinned scene has a **pinned layout** under one media query and a **static layout** otherwise. Copy the query
-strings exactly from DESIGN_TOKENS §6. `--stage-h` is defined on `.root` as `min(100vh, 900px)`, then redefined as
-`min(100svh, 900px)` (later declaration, for browsers that support `svh`).
+strings exactly from DESIGN_TOKENS §6. `--stage-h` is defined on `.root` as `100vh`, then redefined as
+`100svh` (later declaration, for browsers that support `svh`). No cap (D27). The fluid unit `--u` is in DESIGN_TOKENS §0.
 
 Rule for initial values: **CSS describes the finished, fully visible state.** GSAP `fromTo` (with default
 `immediateRender`) applies the starting state when motion starts. Reduced-motion and no-JS visitors therefore see
@@ -279,7 +279,7 @@ everything. The one exception is §6.1's onigiri under `heroPinned`.
 ### 6.1 Hero (`Hero.module.css`)
 
 - Pinned (`heroPinned` query, D24):
-  - section `height: calc(var(--stage-h) + 1000px); margin-top: calc(-1 * var(--header-h))`, background ink.
+  - section `height: calc(var(--stage-h) * 2); margin-top: calc(-1 * var(--header-h))`, background ink.
     `--header-h: 74px` is on `.root`. The pull-up puts the stage under the frosted header, so the whole stage is in the
     first screen.
   - fitting: h1 `font-size: clamp(44px, min(8.4vw, calc((var(--stage-h) - 360px) * .37)), 124px)`; portrait
@@ -322,7 +322,7 @@ everything. The one exception is §6.1's onigiri under `heroPinned`.
 ### 6.3 Split scene (`SplitScene.module.css`)
 
 - Pinned (`full`):
-  - section `height: calc(var(--stage-h) + 1400px)`
+  - section `height: calc(var(--stage-h) * 2.5)`
   - stage `position: sticky; top: 0; height: var(--stage-h); overflow: hidden; display: flex; align-items: center; justify-content: center`
   - the left and right cards and the overlay are absolute (DESIGN_TOKENS §4.6)
   - the overlay's finished state is `clip-path: circle(150% at 72% 50%)`

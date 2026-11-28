@@ -12,6 +12,8 @@ Branch: **`redesign/ink-by-night`**. Do the tasks **in order**. A task can start
 | R2 | Claude | review gate: B2, with extra care on **T10** (Activity cleanup, Lenis), **T12** (pins) and **T13** (chess untouched) | B2 is done |
 | B3 | Gemini | T14, T15 | R2 passed |
 | R3 | Claude | review gate: **T14 security review** (honeypot, payload, API unchanged), then **T16** final review | B3 is done |
+| B4 | Gemini | T17 (fluid scaling, D27; added 2026-11-28) | now (T16 done) |
+| R5 | Claude | review gate: T17, screenshots at the five sizes in its Acceptance | B4 is done |
 
 - `[gemini]`: Gemini implements it. Tasks marked **⚑ review gate** are the risky ones: Gemini stops at the end of its
   batch so Claude can review before anything is built on top.
@@ -311,6 +313,9 @@ Source) now includes the Instagram URL.
 - "Résumé (PDF)" opens `/Escalo-CarlsDale_Resume.pdf` in a new tab, and Network shows the analytics event request
   (or `track` is called, in dev).
 - Lighthouse mobile: the LCP element is the h1 or the portrait, and nothing shifts while fonts load (CLS < 0.1).
+- **Fluid scaling (D27):** the composition matches proportionally at 1280 × 720, 1440 × 900, 1920 × 1080 and
+  2560 × 1440 (and 1903 × 945); no next section visible inside a pinned frame at load.
+  At scroll 0 the hero card covers the whole viewport behind the sticky header, with no dark band under it.
 
 **Do not:** add GSAP code; use the prototype's placeholder photo layer (we have the real photo).
 
@@ -445,7 +450,7 @@ from `src/components/Writing.tsx`.
   - frame hover per DESIGN_TOKENS §5.10; stagger and mobile behavior per ARCHITECTURE §6.4
 
 **Acceptance**
-- At 1440, while scrolling the split scene: the stage sticks for about 1400px. Since there's no motion until T12, the
+- At 1440, while scrolling the split scene: the stage sticks for 1.5 screens (D27; was about 1400px). Since there's no motion until T12, the
   CSS finished state shows: both tilted cards in place and the dark "Ink by night." overlay covering the stage.
 - In reduced motion (static layout), **both** split cards are visible at full size: the desk card on the left and the
   drawing card on the right. Neither is a 1px clipped box (D23). In the console,
@@ -456,6 +461,8 @@ from `src/components/Writing.tsx`.
   heading, on the same row, and "Ink by night." is a full-bleed dark block below. No sticking.
 - The night section is ink with paper text, and "sketches." is coral-night. 9 frames appear in 3 columns (desktop,
   staggered by 0/120/40px) or 1 column (375, no stagger). Captions match DESIGN_TOKENS §4.8. Hovering a frame scales it to 1.03.
+- **Fluid scaling (D27), split scene:** the composition matches proportionally at 1280 × 720, 1440 × 900, 1920 × 1080 and
+  2560 × 1440 (and 1903 × 945); no next section visible inside a pinned frame at load.
 
 **Do not:** import `ChessSection` (T13 does); add GSAP code.
 
@@ -535,7 +542,7 @@ vanilla JS. The real build uses `gsap.matchMedia()` conditions instead of the pr
 Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines normalized to 1, `fromTo` for every tween.
 
 **Acceptance**
-- **Hero (1440 × 900):** over the first about 1000px of scroll, the card shrinks to 0.6, rotates -2° and gains 36px
+- **Hero (1440 × 900):** over the first screen of scroll (D27; was about 1000px), the card shrinks to 0.6, rotates -2° and gains 36px
   corners and a deep shadow, revealing the dark band with the two marquee rows. From about 50% of the pin, the coral
   onigiri fades in and strokes itself; it's fully drawn at about 95%. Scrolling back reverses it frame by frame.
 - **Hero (1000 × 800 and 375):** no pin. The onigiri strokes as the band scrolls through the viewport.
@@ -575,12 +582,15 @@ Follow the rules in §4.2: synchronous, `scrub: true`, `ease: "none"`, timelines
   pin. The section's height equals the stage height plus the measured distance (no dead scroll at the end, no
   jump at the start).
 - Resize from 1440 to 900 wide during the track: the distance and height recompute and nothing jumps or overflows.
-- **Split (1440 × 900):** about 1400px pin. The desk photo slides in from the left and the drawing from the right by 35%.
+- **Split (1440 × 900):** 1.5-screen pin (D27; was about 1400px). The desk photo slides in from the left and the drawing from the right by 35%.
   From 50% to 92%, a dark circle grows from about 72%/50% (the drawing) until the screen is ink with "Ink by night."
   The night section that follows starts ink-on-ink with no seam.
 - At 759px wide and below: both scenes are the stacked layouts from T07 and T08. Under reduced motion at ≥ 760px:
   the desktop static layouts (D26): the 2-column card grid, and the split cards beside the heading.
 - After Show more/fewer (T07), the split scene's start is still in the right place (it doesn't start early or late).
+- **Fluid scaling (D27), track and split:** the composition matches proportionally at 1280 × 720, 1440 × 900, 1920 × 1080 and
+  2560 × 1440 (and 1903 × 945); no next section visible inside a pinned frame at load.
+  The track stage and the split stage are each exactly one viewport tall.
 
 ---
 
@@ -686,6 +696,75 @@ and `validate.ts` (cut and paste, then fix the imports; don't rewrite it). Keep 
 - Activity: `/` → `/blog` → back → `/blog/<slug>` → back, with no leaked Lenis, triggers, `data-home` or inline styles.
 - A summary for Carls: what changed, the new dependencies, every placeholder still waiting for an asset
   (ARCHITECTURE §12), and how to tune the pin lengths and parallax (DESIGN_TOKENS §3 and §5, `home.ts` drift values).
+
+---
+
+## T17 [gemini] ⚑ review gate R5: No stage-height cap, fluid scaling (D27)
+
+**How:** DECISIONS D27 and DESIGN_TOKENS §0. Read both first. This task changes sizes only, not layout, colors,
+timings or media queries.
+
+**Depends on:** T16.
+**Files:** `src/app/globals.css` (add **only** the `@property --u` block; this overrides ground rule 4 for that one
+block), every `*.module.css` under `src/components/home/`, `src/components/home/motion/{track,gallery,fan,reveals,refresh}.ts`,
+`math.ts` and `math.test.ts`.
+
+**Steps**
+1. **Stage height.** In `HomeShell.module.css`, `--stage-h: 100vh;` then `--stage-h: 100svh;`. Remove the 900px cap.
+   Grep for any other cap: `grep -rn "900" src/components/home` must show nothing that limits a height (the
+   Sketchbook `max-width: 900px` is a width; convert it like any other px value).
+2. **The unit.** Add to `globals.css`:
+   `@property --u { syntax: "<length>"; inherits: true; initial-value: 16px; }`. In `HomeShell.module.css` `.root`:
+   `--u: 16px;`, and under `@media (min-width: 760px)` the two `clamp(…)` declarations from DESIGN_TOKENS §0 (the
+   `100vh` one first, then `100svh`). Confirm in the built CSS (`.next/static/**/*.css`) that `@property --u` is present.
+3. **Convert every px value** in the homepage CSS modules with the rule in DESIGN_TOKENS §0 (multiplier = value at
+   1440×900 ÷ 16, written `calc(N * var(--u))`). That includes font sizes, padding, margin, gap, width, height,
+   max-width, min-width, top/left/right/bottom, radii, borders, box-shadows, outline widths and offsets,
+   `background-size`, `--header-h`, `--note-top`/`--note-top-narrow`, the portrait mask radius and `--r`, and the
+   `min-height: 44px` on buttons (keep that one as `max(44px, …)` so tap targets never shrink). Leave px inside
+   `(max-width: 759.98px)` blocks. Apply the hairline floor and the font floors from §0. Replace the six
+   `max-width: 1240px` containers with `calc(77.5 * var(--u))`.
+4. **Hero.** Section `height: calc(var(--stage-h) * 2)`. h1 and portrait width per DESIGN_TOKENS §3.1 (the
+   stage-height formulas go). Keep the `(max-height: 759.98px)` block, converted to u.
+5. **Track.** Keep `--hz-extra` from JS; convert the CSS fallback to `calc(192.5 * var(--u)) + 12vw - 100vw`.
+6. **Split.** Section `height: calc(var(--stage-h) * 2.5)`.
+7. **Motion offsets.** Add to `math.ts` a pure `scalePx(px: number, u: number): number` (`px * u / 16`) with tests
+   (16 → unchanged, 21.33 → ×1.333, 11.38 → ×0.711). Add a small DOM helper (in `motion/`, not `math.ts`) that reads
+   `parseFloat(getComputedStyle(root).getPropertyValue("--u")) || 16`. Use function-based values so they re-read on
+   refresh, and add `invalidateOnRefresh: true` to every tween that uses them:
+   - track drift (`--drift-y` target `${scalePx(drift, u)}px`)
+   - gallery parallax (`parallaxRange(scalePx(speed, u))`)
+   - fan (`fanTarget(i, step)` x and y scaled: pass the scaled step and scale y, or give `fanTarget` a `u` argument;
+     update its tests)
+   - the generic reveal's 56px slide
+   Keep the existing `trackDistance`, `fanTarget` and `parallaxRange` tests passing (u = 16 is the old behavior).
+8. **Resize.** In `refresh.ts`, add a window `resize` listener, debounced 200ms, that calls `ScrollTrigger.refresh()`
+   only if `innerWidth` or `innerHeight` changed since the last refresh. Remove it in the cleanup.
+9. One commit: `feat(home): T17 fluid scaling and uncapped stage height (D27)`.
+
+**Acceptance**
+- **No band (A):** at 1903 × 945, 1920 × 1080 and 2560 × 1440 (and 1280 × 720, 1440 × 900), at scroll 0,
+  `document.elementFromPoint(innerWidth / 2, innerHeight - 2).closest('[data-anim="hero-card"]')` is not null, and
+  `document.querySelector('[data-anim="hero-stage"]').offsetHeight === innerHeight`.
+- **Fluid (B):** `getComputedStyle(document.querySelector('[data-motion]')).getPropertyValue('--u')` is 14.2222px at
+  1280, 16px at 1440, 21.3333px at 1920 and 28.4444px at 2560 (±0.01). The h1 is about 108 / 121 / 161 / 215px.
+  At each of those sizes the hero, the track mid-scroll and the split scene look like the 1440 × 900 screenshot
+  scaled, with the same margins in proportion; no fixed-size block floats in extra empty space.
+- **Screens of scroll:** hero pin (section height − stage height) = `innerHeight` (±1px); split pin = 1.5 ×
+  `innerHeight` (±1px); track pin = `track.scrollWidth − innerWidth`.
+- **Pinned frames:** at all five sizes, at load and mid-pin, no part of the next section shows inside the hero, track or
+  split stage, and the hero card content fits (the check from T06 Acceptance: the card's first child's bottom <
+  `innerHeight`). Also at 2560 × 1080 (height guard) and 1280 × 600 and 1024 × 560 (D24).
+- **Unchanged elsewhere:** at 390 × 844 the homepage is pixel-identical to before T17 (u = 16px). `/blog`, a post,
+  `/admin/login` and the 404 look exactly as before (their header is the shared `HomeHeader`, which now renders with
+  the registered 16px default). Reduced motion at 1440 and 1920 still shows the D26 desktop layout, scaled.
+- **Readability:** at 1024 × 768 no text on `/` computes under 12px, and paragraph text is at least 15px.
+- **Resize:** resizing the window from 1440 × 900 to 1920 × 1080 while in the middle of the track re-measures the pin
+  (no dead scroll, no jump) within about 200ms.
+- No horizontal overflow at any size; `npm run lint`, `npm test` and `npm run build` pass.
+
+**Do not:** change the media queries (DESIGN_TOKENS §6), the root `html` font-size, any color or timing, the
+`heroPinned` threshold, or anything outside the files listed.
 
 ---
 

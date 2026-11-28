@@ -646,3 +646,65 @@ wider with reduced motion (`wideCalm`):
 
 **Why:** reduced motion is a motion preference, not a screen size. Desktop visitors who set it should still get the
 desktop composition.
+
+---
+
+## D27. No stage-height cap, and the homepage scales with the viewport (Carls, 2026-11-28)
+
+**Problem.** `--stage-h` was `min(100svh, 900px)`. The 900px cap was a workaround for the design canvas. On any viewport
+taller than 900px it leaves a dark strip under the pinned hero card (measured at 1903×945, 1920×1080 and 2560×1440: the
+bottom pixel row at scroll 0 is the hero section's background, not the card). Also, every size was fixed in px, so a
+1920 screen showed the 1440 composition at the same size with more empty space around it.
+
+**Reference.** Carls measured landonorris.com: root font-size is exactly `100vw / 108`, headlines scale 1:1 with it, and
+pinned sections are sized in viewport heights (the hero section is 2 × 100vh at every size).
+
+**Choices**
+
+1. **`--stage-h: 100svh`** (with a `100vh` fallback declared first) for every pinned scene. No cap, in CSS or JS.
+2. **One fluid unit `--u`, on the homepage root only** (`.root` in `HomeShell.module.css`), never on `html`, so `/blog`,
+   `/admin` and the 404 keep normal sizing. It's registered with `@property --u { syntax: "<length>"; inherits: true;
+   initial-value: 16px }` in `globals.css`, so anywhere outside the homepage root (the shared `HomeHeader` on `/blog`
+   and the 404) `--u` is exactly 16px and every converted value renders at its old px size. Registering it also makes
+   `getComputedStyle(el).getPropertyValue("--u")` return a resolved px length for the motion code.
+   - below 760px: `--u: 16px` (the mobile layout stays pixel-identical to today)
+   - 760px and up: `--u: clamp(calc(1024px / 90), min(100vw / 90, 100svh / 44), calc(2560px / 90))`
+     - `100vw / 90` is the 1440 design scaled to the viewport (`100vw / 1440 × 16`): 16px at 1440, 14.22px at 1280,
+       21.33px at 1920, 28.44px at 2560
+     - the clamp stops it shrinking below 1024px wide (11.38px) and growing above 2560px wide (28.44px)
+     - **`100svh / 44` is a height guard Claude added.** It only applies when the screen is wider than about 2.05:1
+       (for example 2560×1080 or a short browser window), where scaling by width alone would make the pinned hero
+       content taller than the screen. At 16:10, 16:9 and 1903×945 (2.01:1) it doesn't apply, so the scale is purely
+       by width there, as on landonorris.com.
+3. **Conversion rule.** Every px value in the homepage CSS (font sizes, spacing, widths and max-widths, radii, borders,
+   shadows, offsets, background-size, `--header-h`) becomes `calc(<value at 1440×900> / 16 * var(--u))`, written as
+   the multiplier, for example `124px` → `calc(7.75 * var(--u))`. "Value at 1440×900" means what the current CSS
+   computes there: `clamp(44px, min(8.4vw, …), 124px)` is 120.96px at 1440×900, so it becomes 7.56u. Formulas that
+   only fitted content to the capped stage height (`(var(--stage-h) - 360px) * .37` for the h1,
+   `(var(--stage-h) - 280px) * .8` for the portrait) are replaced by their 1440×900 value in u, since the height
+   guard now does that job. Exceptions:
+   - values already in `vw`, `%`, `em` or unitless stay as they are; a px cap next to one (`min(27vw, 380px)`) converts
+   - px values that only apply below 760px (inside `(max-width: 759.98px)` blocks) stay px
+   - hairlines get a floor so they never drop under one device pixel: `max(1px, calc(0.09375 * var(--u)))` for 1.5px
+   - **minimum font sizes**, so text stays readable when `--u` is under 16px (760–1439px wide): body and paragraph text
+     `max(15px, …)`, labels, captions, mono and nav text `max(12px, …)`, headings keep their existing `clamp` floor
+     (44px for the h1) or `max(24px, …)`
+4. **Scroll lengths in screens, not px.** Hero pin = **1 × `--stage-h`** (section `calc(var(--stage-h) * 2)`, was +1000px).
+   Split pin = **1.5 × `--stage-h`** (section `calc(var(--stage-h) * 2.5)`, was +1400px). Track pin = measured track
+   width − viewport width, as before; the track's widths are in u now, so it grows with the screen. Every other trigger
+   already uses viewport percentages (`top 60%`, `top bottom` …) and stays.
+5. **Motion offsets scale with `--u`** (px × u / 16), read from the root on every refresh: card drift
+   (−50/40/−30/50), gallery parallax (60/−80/110), the fan (x step 140, y 28 per card) and the reveal slide (56px).
+   They're sizes of things that are themselves in u, so they keep the same proportion to the cards. (Below 760px u is
+   16px, so the mobile values are unchanged.) Percent and degree values (split ±130%, rotations, scale 0.6) are
+   already proportional.
+6. **Resize.** A debounced (200ms) window `resize` listener calls `ScrollTrigger.refresh()` when the viewport size
+   actually changed, so the pins, `--hz-extra` and the function-based offsets recompute.
+
+**Why.** A visitor on a 1920 or 2560 monitor should see the same composition as on a 1440 laptop, only bigger, and
+every animation should take the same number of screens of scrolling everywhere. The height guard and font floors are
+the two places where pure width scaling would break (content taller than a very wide, short screen; 12px text at
+1024px wide).
+
+**Unchanged.** D24's pin threshold (`min-width: 1024px and min-height: 560px`), the media queries in DESIGN_TOKENS §6,
+the mobile layout, the reduced-motion tiers (D25, D26), and all colors and timings.
