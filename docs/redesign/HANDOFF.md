@@ -14,7 +14,11 @@ Paste this into a new chat to continue: **"Read `docs/redesign/HANDOFF.md`, then
   87/100, CLS 0). **Left for Carls:** real browsers and devices (checklist in REVIEW-T16), deleting the 3 "R3 review
   test" messages, then merging to `main`.
 - **Next (Carls asked 2026-11-28):** bring `/blog` (index and post) and `/admin/login` into the landing page's design.
-  Claude presents a plan first, then makes artifact mockups.
+  Carls approved the plan with Claude's recommendations: keep the blog's light/dark toggle in the new palette
+  (light = paper + graph grid, dark = ink #16161A with coral), the homepage header everywhere, and restyle only
+  `/admin/login` (and invite, which shares its layout), not the admin panel. Mockups (design canvas):
+  https://claude.ai/artifact/9cESW7sS12T127KmdZXvTS (slug `45b46c79-ca8f-4d5f-a4d1-ed3b04ce6ba1`). After Carls
+  approves them, write `docs/redesign-blog/` (spec and tasks) for Gemini.
 - **Who codes:** Gemini (Antigravity) implements **every** task, T01–T15. Claude writes **no feature code**: it runs
   review gates R1–R3 and the final review T16, and owns `docs/redesign/` (it may fix a spec gap there, as in R1).
   Carls decided this on 2026-11-27 to save Claude usage.
