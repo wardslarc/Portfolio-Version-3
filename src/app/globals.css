@@ -43,6 +43,9 @@ html:root[data-home] {
   --bg: #F3F1EC; --surface: #FBFAF7; --ink: #16161A; --muted: #4A463F; --faint: #4A463F; --line: #16161A33;
   --accent: #E8492A; color-scheme: light; scroll-behavior: auto;
 }
+:root:not([data-home]):has(.ink) { --bg: #F3F1EC; --ink: #16161A; }
+:root[data-theme="dark"]:not([data-home]):has(.ink), :root:not([data-home]):has(.ink-dark) { --bg: #16161A; --ink: #F3F1EC; }
+@media (prefers-color-scheme: dark) { :root:not([data-home]):not([data-theme="light"]):has(.ink) { --bg: #16161A; --ink: #F3F1EC; } }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
