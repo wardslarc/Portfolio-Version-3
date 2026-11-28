@@ -16,7 +16,7 @@ export default function LikeButton() {
     <div className="blog-like-wrap">
       <button
         type="button"
-        className={`blog-btn sm blog-like${liked ? " liked" : ""}`}
+        className={`k-pill k-lift blog-like${liked ? " liked" : ""}`}
         aria-pressed={liked}
         aria-label={liked ? "Unlike this post" : "Like this post"}
         onClick={() => void setLiked(!liked)}

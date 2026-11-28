@@ -34,16 +34,18 @@ export default function Toc({ items }: { items: TocItem[] }) {
   return (
     <nav className="blog-toc" aria-label="On this page">
       <div className="blog-toc-inner">
-        <b>On this page</b>
-        {items.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            className={activeId === item.id ? "on" : undefined}
-          >
-            {item.text}
-          </a>
-        ))}
+        <div className="k-note blog-toc-title" aria-hidden="true">
+          on this page ↓
+        </div>
+        <ol>
+          {items.map((item) => (
+            <li key={item.id}>
+              <a href={`#${item.id}`} className={activeId === item.id ? "on" : undefined}>
+                {item.text}
+              </a>
+            </li>
+          ))}
+        </ol>
       </div>
     </nav>
   );
