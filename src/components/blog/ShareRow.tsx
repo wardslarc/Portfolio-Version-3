@@ -65,7 +65,7 @@ export default function ShareRow({ url, title }: { url: string; title: string })
       >
         {copied ? "Link copied" : "Copy link"}
         {copied ? (
-          <span className="k-note blog-copied" aria-live="polite">
+          <span className="k-note blog-copied" aria-hidden="true">
             copied!
           </span>
         ) : null}
