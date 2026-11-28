@@ -161,18 +161,22 @@ export default async function BlogTagPage({
               { label: tagInfo.name },
             ]}
           />
-          <p className="k-kicker">Tag</p>
+          <p className="k-kicker k-in-fade" style={{ animationDelay: "0.05s" }}>
+            Tag
+          </p>
           <h1 className="blog-hero-h1">
             <span className="k-ln">
-              <span>Posts about</span>
+              <span className="k-in-line" style={{ animationDelay: "0.15s" }}>
+                Posts about
+              </span>
             </span>
             <span className="k-ln">
-              <span>
+              <span className="k-in-line" style={{ animationDelay: "0.27s" }}>
                 <span className="k-serif">{tagInfo.name}.</span>
               </span>
             </span>
           </h1>
-          <p className="blog-hero-lede">
+          <p className="blog-hero-lede k-in-up" style={{ animationDelay: "0.5s" }}>
             {tagInfo.count} {tagInfo.count === 1 ? "post" : "posts"} tagged {tagInfo.name}.
           </p>
         </div>

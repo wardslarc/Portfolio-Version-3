@@ -13,6 +13,7 @@ import ShareRow from "./ShareRow";
 import Toc from "./Toc";
 
 const STICKER_ROTS = ["-1.5deg", "1deg", "-0.5deg", "1.5deg"];
+const STICKER_R0S = ["10deg", "-8deg", "12deg", "-10deg"];
 
 export interface ArticleDisplayPost {
   title: string;
@@ -77,7 +78,7 @@ export default function ArticleView({
       <article className="blog-art k-grid">
         <div className="k-wrap">
           {backHref && backLabel ? (
-            <Link className="blog-crumb" href={backHref}>
+            <Link className="blog-crumb k-in-fade" href={backHref} style={{ animationDelay: "0.05s" }}>
               {backLabel}
             </Link>
           ) : (
@@ -90,7 +91,7 @@ export default function ArticleView({
             />
           )}
 
-          <p className="blog-meta blog-art-meta">
+          <p className="blog-meta blog-art-meta k-in-fade" style={{ animationDelay: "0.1s" }}>
             <span>{formatArticleDate(post.publishedAt)}</span>
             <span>{post.readingMinutes} min read</span>
             <ArticleMetaViews />
@@ -98,10 +99,16 @@ export default function ArticleView({
 
           <h1 className="blog-art-h1">
             <span className="k-ln">
-              <span>{post.title || "Untitled post"}</span>
+              <span className="k-in-line" style={{ animationDelay: "0.15s" }}>
+                {post.title || "Untitled post"}
+              </span>
             </span>
           </h1>
-          {post.excerpt ? <p className="blog-lede">{post.excerpt}</p> : null}
+          {post.excerpt ? (
+            <p className="blog-lede k-in-up" style={{ animationDelay: "0.45s" }}>
+              {post.excerpt}
+            </p>
+          ) : null}
 
           {post.tags.length > 0 ? (
             <div className="blog-art-tags">
@@ -109,8 +116,14 @@ export default function ArticleView({
                 <Link
                   key={`${tag}-${i}`}
                   href={`/blog/tag/${tagToSlug(tag)}`}
-                  className="blog-fchip k-lift"
-                  style={{ "--rot": STICKER_ROTS[i % STICKER_ROTS.length] } as CSSProperties}
+                  className="blog-fchip k-lift k-in-drop"
+                  style={
+                    {
+                      "--rot": STICKER_ROTS[i % STICKER_ROTS.length],
+                      "--r0": STICKER_R0S[i % STICKER_R0S.length],
+                      animationDelay: `${(0.6 + i * 0.08).toFixed(2)}s`,
+                    } as CSSProperties
+                  }
                 >
                   {tag}
                 </Link>
@@ -118,7 +131,7 @@ export default function ArticleView({
             </div>
           ) : null}
 
-          <div className="blog-author">
+          <div className="blog-author k-in-up" style={{ animationDelay: "0.8s" }}>
             <Image
               className="blog-av"
               src={site.photo}
@@ -130,7 +143,11 @@ export default function ArticleView({
               <b>{post.authorName || site.name}</b>
               <span>{site.role}</span>
             </div>
-            <span className="k-note blog-author-note" aria-hidden="true">
+            <span
+              className="k-note blog-author-note k-in-write"
+              style={{ animationDelay: "1.3s" }}
+              aria-hidden="true"
+            >
               ← that&apos;s me
             </span>
           </div>
@@ -139,11 +156,23 @@ export default function ArticleView({
 
       <div className="k-wrap">
         {post.cover ? (
-          <figure className="blog-cov k-card">
-            <span className="k-tape blog-cov-tape-l" aria-hidden="true" />
-            <span className="k-tape blog-cov-tape-r" aria-hidden="true" />
+          <figure
+            className="blog-cov k-card k-in-drop"
+            style={{ "--r0": "4deg", animationDelay: "0.35s" } as CSSProperties}
+          >
+            <span
+              className="k-tape blog-cov-tape-l k-in-slap"
+              style={{ animationDelay: "1s" }}
+              aria-hidden="true"
+            />
+            <span
+              className="k-tape blog-cov-tape-r k-in-slap"
+              style={{ animationDelay: "1.12s" }}
+              aria-hidden="true"
+            />
             <div className="blog-cov-frame">
               <Image
+                className="k-sc-para"
                 src={post.cover.url}
                 alt={post.cover.alt || post.title}
                 width={post.cover.width || 1600}
@@ -170,15 +199,15 @@ export default function ArticleView({
               <div className="blog-aend">
                 {showShare ? (
                   <>
-                    <div className="blog-react">
+                    <div className="blog-react k-sc-up">
                       <span className="k-note blog-react-note" aria-hidden="true">
                         liked it?
                       </span>
                       <LikeButton />
                       <ShareRow url={canonicalUrl} title={post.title} />
                     </div>
-                    <aside className="blog-bio k-card" aria-label="About the author">
-                      <span className="k-tape blog-bio-tape" aria-hidden="true" />
+                    <aside className="blog-bio k-card k-sc-settle" aria-label="About the author">
+                      <span className="k-tape blog-bio-tape k-sc-slap" aria-hidden="true" />
                       <Image
                         className="blog-av blog-bio-av"
                         src={site.photo}
@@ -199,7 +228,7 @@ export default function ArticleView({
                 {prev || next ? (
                   <div className="blog-nextprev">
                     {prev ? (
-                      <Link className="blog-np k-card" href={`/blog/${prev.slug}`}>
+                      <Link className="blog-np k-card k-sc-settle" href={`/blog/${prev.slug}`}>
                         <small>← Previous</small>
                         <b>{prev.title}</b>
                       </Link>
@@ -207,7 +236,7 @@ export default function ArticleView({
                       <div />
                     )}
                     {next ? (
-                      <Link className="blog-np n k-card" href={`/blog/${next.slug}`}>
+                      <Link className="blog-np n k-card k-sc-settle k-s2" href={`/blog/${next.slug}`}>
                         <small>Next →</small>
                         <b>{next.title}</b>
                       </Link>
@@ -218,16 +247,16 @@ export default function ArticleView({
                 ) : null}
                 {related.length > 0 ? (
                   <section className="blog-related" aria-labelledby="keep-reading-heading">
-                    <div className="k-sec-label">
+                    <div className="k-sec-label k-sc-up">
                       <h2 id="keep-reading-heading" className="k-kicker">
                         Keep reading
                       </h2>
                     </div>
                     <div className="blog-related-grid">
-                      {related.slice(0, 3).map((item) => (
+                      {related.slice(0, 3).map((item, idx) => (
                         <Link
                           key={item.slug}
-                          className="blog-rcard k-card"
+                          className={`blog-rcard k-card k-sc-settle${idx === 1 ? " k-s2" : idx === 2 ? " k-s3" : ""}`}
                           href={`/blog/${item.slug}`}
                         >
                           <p className="blog-meta">

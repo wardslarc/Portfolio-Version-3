@@ -5,6 +5,7 @@ import { formatEngagementMeta } from "@/lib/blog/format";
 import type { PublicPostSummary, TagIndexEntry } from "@/lib/blog/public";
 
 const STICKER_ROTS = ["-1.5deg", "1deg", "-0.5deg", "1.5deg"];
+const STICKER_R0S = ["10deg", "-8deg", "12deg", "-10deg"];
 const CARD_ROTS = ["-1.2deg", "0.8deg", "-0.6deg"];
 
 function formatPostDate(iso: string): string {
@@ -49,9 +50,15 @@ export default function PostList({
           <nav className="blog-filters" aria-label="Filter by tag">
             <Link
               href="/blog"
-              className="blog-fchip k-lift"
+              className="blog-fchip k-lift k-in-drop"
               aria-current={!activeTagSlug ? "page" : undefined}
-              style={{ "--rot": STICKER_ROTS[0] } as CSSProperties}
+              style={
+                {
+                  "--rot": STICKER_ROTS[0],
+                  "--r0": STICKER_R0S[0],
+                  animationDelay: "0.65s",
+                } as CSSProperties
+              }
             >
               All
             </Link>
@@ -59,9 +66,15 @@ export default function PostList({
               <Link
                 key={tag.slug}
                 href={`/blog/tag/${tag.slug}`}
-                className="blog-fchip k-lift"
+                className="blog-fchip k-lift k-in-drop"
                 aria-current={activeTagSlug === tag.slug ? "page" : undefined}
-                style={{ "--rot": STICKER_ROTS[(idx + 1) % STICKER_ROTS.length] } as CSSProperties}
+                style={
+                  {
+                    "--rot": STICKER_ROTS[(idx + 1) % STICKER_ROTS.length],
+                    "--r0": STICKER_R0S[(idx + 1) % STICKER_R0S.length],
+                    animationDelay: `${(0.65 + (idx + 1) * 0.08).toFixed(2)}s`,
+                  } as CSSProperties
+                }
               >
                 {tag.name}
               </Link>
@@ -83,22 +96,23 @@ export default function PostList({
         <>
           {featured ? (
             <section className="k-wrap blog-section" aria-labelledby="latest-h">
-              <div className="k-sec-label">
+              <div className="k-sec-label k-sc-up">
                 <span className="k-kicker" id="latest-h">
                   Latest
                 </span>
               </div>
               <Link
-                className={`blog-feat k-card${featured.cover ? "" : " no-cover"}`}
+                className={`blog-feat k-card k-sc-settle${featured.cover ? "" : " no-cover"}`}
                 href={`/blog/${featured.slug}`}
               >
-                <span className="k-tape blog-feat-tape" aria-hidden="true" />
-                <span className="k-note k-note-chip blog-feat-note" aria-hidden="true">
+                <span className="k-tape blog-feat-tape k-sc-slap" aria-hidden="true" />
+                <span className="k-note k-note-chip blog-feat-note k-sc-pop" aria-hidden="true">
                   fresh off the press!
                 </span>
                 {featured.cover ? (
                   <div className="im">
                     <Image
+                      className="k-sc-para"
                       src={featured.cover.url}
                       alt={featured.cover.alt || featured.title}
                       width={featured.cover.width || 1600}
@@ -139,7 +153,7 @@ export default function PostList({
               aria-labelledby={renderFeatured ? "older-h" : undefined}
             >
               {renderFeatured ? (
-                <div className="k-sec-label">
+                <div className="k-sec-label k-sc-up">
                   <span className="k-kicker" id="older-h">
                     Older notes
                   </span>
@@ -149,13 +163,13 @@ export default function PostList({
                 {listItems.map((post, idx) => (
                   <li key={post.id}>
                     <Link
-                      className="blog-pitem k-card"
+                      className={`blog-pitem k-card k-sc-settle${idx % 3 === 1 ? " k-s2" : idx % 3 === 2 ? " k-s3" : ""}`}
                       href={`/blog/${post.slug}`}
                       style={{ "--rot": CARD_ROTS[idx % CARD_ROTS.length] } as CSSProperties}
                     >
                       {idx % 2 === 0 ? (
                         <span
-                          className={`k-tape ${idx % 4 === 0 ? "blog-pitem-tape-r" : "blog-pitem-tape-l"}`}
+                          className={`k-tape ${idx % 4 === 0 ? "blog-pitem-tape-r" : "blog-pitem-tape-l"} k-sc-slap`}
                           aria-hidden="true"
                         />
                       ) : null}

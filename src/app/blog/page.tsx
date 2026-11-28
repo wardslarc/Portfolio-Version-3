@@ -128,17 +128,21 @@ export default function BlogIndexPage({
       />
       <section className="blog-hero k-grid">
         <div className="k-wrap">
-          <p className="k-kicker">Blog</p>
+          <p className="k-kicker k-in-fade" style={{ animationDelay: "0.05s" }}>
+            Blog
+          </p>
           <h1 className="blog-hero-h1">
             <span className="k-ln">
-              <span>Notes from</span>
+              <span className="k-in-line" style={{ animationDelay: "0.15s" }}>
+                Notes from
+              </span>
             </span>
             <span className="k-ln">
-              <span>
+              <span className="k-in-line" style={{ animationDelay: "0.27s" }}>
                 building{" "}
                 <span className="k-serif blog-scrib">
                   things.
-                  <svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">
+                  <svg className="k-in-draw" viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true">
                     <path
                       d="M3 13c40-9 95-11 194-4"
                       pathLength={1}
@@ -146,6 +150,7 @@ export default function BlogIndexPage({
                       stroke="currentColor"
                       strokeWidth={4}
                       strokeLinecap="round"
+                      style={{ animationDelay: "0.95s" }}
                     />
                   </svg>
                 </span>
@@ -153,11 +158,15 @@ export default function BlogIndexPage({
             </span>
           </h1>
           <div className="blog-hero-row">
-            <p className="blog-hero-lede">
+            <p className="blog-hero-lede k-in-up" style={{ animationDelay: "0.5s" }}>
               Write-ups on the systems behind this site and the tools I build at work: what I
               tried, what broke, what I&apos;d do again.
             </p>
-            <span className="k-note blog-hero-note" aria-hidden="true">
+            <span
+              className="k-note blog-hero-note k-in-write"
+              style={{ animationDelay: "1.2s" }}
+              aria-hidden="true"
+            >
               plain English, promise ✎
             </span>
           </div>

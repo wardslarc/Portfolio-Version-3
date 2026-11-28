@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ThemeToggle from "@/components/ink/ThemeToggle";
+import ReadingProgress from "@/components/ink/ReadingProgress";
 import { nav } from "@/content/home";
 import styles from "./HomeHeader.module.css";
 import shellStyles from "./HomeShell.module.css";
@@ -18,6 +19,8 @@ export default function HomeHeader({ variant = "home" }: HomeHeaderProps) {
   const isSite = variant === "site";
   const isBlog =
     isSite && (pathname === "/blog" || pathname.startsWith("/blog/"));
+  const isBlogPost =
+    isSite && pathname.startsWith("/blog/") && !pathname.startsWith("/blog/tag/");
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -154,6 +157,7 @@ export default function HomeHeader({ variant = "home" }: HomeHeaderProps) {
           </div>
         )}
       </div>
+      {isBlogPost && <ReadingProgress />}
     </header>
   );
 }

@@ -255,3 +255,238 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
     animation: none;
   }
 }
+
+/* Motion layer (SPEC §9) */
+@keyframes k-lineUp {
+  from { translate: 0 105%; }
+  to { translate: 0 0; }
+}
+
+@keyframes k-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes k-fadeUp {
+  from { opacity: 0; translate: 0 24px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes k-slap {
+  0% { opacity: 0; scale: 1.5; }
+  60% { opacity: 1; scale: 0.94; }
+  100% { opacity: 1; scale: 1; }
+}
+
+@keyframes k-drop {
+  from { opacity: 0; translate: 0 -36px; rotate: var(--r0, 8deg); }
+  to { opacity: 1; translate: 0 0; rotate: var(--rot, 0deg); }
+}
+
+@keyframes k-settle {
+  from { opacity: 0; translate: 0 70px; rotate: calc(var(--rot, 0deg) + 5deg); }
+  to { opacity: 1; translate: 0 0; rotate: var(--rot, 0deg); }
+}
+
+@keyframes k-write {
+  from { clip-path: inset(-20% 100% -20% 0); }
+  to { clip-path: inset(-20% 0 -20% 0); }
+}
+
+@keyframes k-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes k-underline {
+  from { background-size: 0% 6px; }
+  to { background-size: 100% 6px; }
+}
+
+@keyframes k-pop {
+  0% { scale: 0.4; opacity: 0; }
+  70% { scale: 1.15; opacity: 1; }
+  100% { scale: 1; opacity: 1; }
+}
+
+@keyframes k-grow {
+  from { clip-path: inset(0 5% 0 5% round 40px 40px 0 0); }
+  to { clip-path: inset(0 0 0 0 round 40px 40px 0 0); }
+}
+
+@keyframes k-progress {
+  from { scale: 0 1; }
+  to { scale: 1 1; }
+}
+
+@keyframes k-parallax {
+  from { translate: 0 -7%; }
+  to { translate: 0 7%; }
+}
+
+@keyframes k-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -10px 0; }
+  40% { translate: 9px 0; }
+  60% { translate: -6px 0; }
+  80% { translate: 4px 0; }
+}
+
+@keyframes k-cardIn {
+  from { opacity: 0; translate: 0 -140px; rotate: -9deg; }
+  to { opacity: 1; translate: 0 0; rotate: 1deg; }
+}
+
+@keyframes k-stamp {
+  0% { opacity: 0; scale: 2.2; rotate: -24deg; }
+  70% { opacity: 1; scale: 0.92; rotate: -8deg; }
+  100% { opacity: 1; scale: 1; rotate: -8deg; }
+}
+
+@keyframes k-drift {
+  from { background-position: 0 0; }
+  to { background-position: 32px 32px; }
+}
+
+/* On-load animations */
+.ink .k-in-fade {
+  animation: k-fade 0.6s ease-out backwards;
+}
+
+.ink .k-in-line {
+  animation: k-lineUp 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.ink .k-in-up {
+  animation: k-fadeUp 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.ink .k-in-drop {
+  animation: k-drop 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.25) backwards;
+}
+
+.ink .k-in-write {
+  animation: k-write 0.9s steps(14, end) backwards;
+}
+
+.ink .k-in-slap {
+  animation: k-slap 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.ink .k-in-draw path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: k-draw 0.8s cubic-bezier(0.6, 0, 0.2, 1) backwards;
+}
+
+/* Reading progress bar */
+.ink .k-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1.5px;
+  height: 3px;
+  background: var(--k-accent);
+  transform-origin: 0 50%;
+  scale: 0 1;
+  pointer-events: none;
+}
+
+@supports not (animation-timeline: view()) {
+  .ink .k-progress {
+    display: none;
+  }
+}
+
+/* Scroll-driven animations */
+@supports (animation-timeline: view()) {
+  .ink .k-sc-up {
+    animation: k-fadeUp linear backwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 90%;
+  }
+
+  .ink .k-sc-settle {
+    animation: k-settle linear backwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+
+  .ink .k-sc-settle.k-s2 {
+    animation-range: entry 15% entry 100%;
+  }
+
+  .ink .k-sc-settle.k-s3 {
+    animation-range: entry 30% entry 100%;
+  }
+
+  .ink .k-sc-slap {
+    animation: k-slap linear backwards;
+    animation-timeline: view();
+    animation-range: entry 60% entry 100%;
+  }
+
+  .ink .k-sc-pop {
+    animation: k-pop linear backwards;
+    animation-timeline: view();
+    animation-range: entry 30% entry 100%;
+  }
+
+  .ink .k-sc-grow {
+    animation: k-grow linear backwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+
+  .ink .k-sc-under {
+    animation: k-underline linear backwards;
+    animation-timeline: view();
+    animation-range: entry 40% entry 100%;
+  }
+
+  .ink .k-sc-para {
+    scale: 1.16;
+    animation: k-parallax linear both;
+    animation-timeline: view();
+    animation-range: cover;
+  }
+
+  .ink .k-progress {
+    animation: k-progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+/* Calm tier (SPEC §9.6) */
+@media (prefers-reduced-motion: reduce) {
+  .ink .k-in-line,
+  .ink .k-in-up,
+  .ink .k-in-drop,
+  .ink .k-in-slap,
+  .ink .k-in-write,
+  .ink .k-sc-up,
+  .ink .k-sc-settle,
+  .ink .k-sc-slap,
+  .ink .k-sc-pop {
+    animation-name: k-fade !important;
+  }
+
+  .ink .k-sc-para,
+  .ink .k-sc-grow,
+  .ink .k-in-draw path,
+  .ink .k-sc-under {
+    animation: none !important;
+  }
+
+  .ink .k-sc-para {
+    scale: 1;
+  }
+
+  .ink .k-sc-under {
+    background-size: 100% 6px;
+  }
+
+  .ink .k-progress {
+    display: none;
+  }
+}

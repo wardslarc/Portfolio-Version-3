@@ -27,21 +27,25 @@ export default function NotFound() {
       <main id="main">
         <section className={`k-grid ${styles.hero}`}>
           <div className="k-wrap">
-            <p className="k-kicker" style={{ margin: 0 }}>
+            <p className="k-kicker k-in-fade" style={{ margin: 0, animationDelay: "0.05s" }}>
               404
             </p>
             <h1 className={styles.h1}>
               <span className="k-ln">
-                <span>This page</span>
+                <span className="k-in-line" style={{ animationDelay: "0.15s" }}>
+                  This page
+                </span>
               </span>{" "}
               <span className="k-ln">
-                <span>doesn&apos;t exist</span>
+                <span className="k-in-line" style={{ animationDelay: "0.27s" }}>
+                  doesn&apos;t exist
+                </span>
               </span>
             </h1>
-            <p className={styles.lede}>
+            <p className={`${styles.lede} k-in-up`} style={{ animationDelay: "0.5s" }}>
               The link may be old or mistyped. Try the homepage or the blog.
             </p>
-            <div className={styles.actions}>
+            <div className={`${styles.actions} k-in-up`} style={{ animationDelay: "0.6s" }}>
               <Link className="k-pill k-pill-coral" href="/">
                 Home
               </Link>

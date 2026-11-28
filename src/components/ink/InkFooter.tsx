@@ -4,13 +4,13 @@ import styles from "./InkFooter.module.css";
 
 export default function InkFooter() {
   return (
-    <footer className={styles.foot}>
+    <footer className={`${styles.foot} k-sc-grow`}>
       <div className="k-wrap">
-        <h2 className={styles.heading}>
+        <h2 className={`${styles.heading} k-sc-up`}>
           Let&rsquo;s build{" "}
           <span className={styles.serif}>something.</span>
         </h2>
-        <div className={styles.ctaRow}>
+        <div className={`${styles.ctaRow} k-sc-up`}>
           <p className={styles.lead}>
             Freelance builds, internal tools, or a full-time role. Tell me what
             you&rsquo;re working on.
