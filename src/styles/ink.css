@@ -224,3 +224,29 @@
 .ink .k-ln > span {
   display: block;
 }
+
+/* Theme toggle circle reveal (SPEC §9.4) */
+@keyframes k-circle {
+  from {
+    clip-path: circle(0 at var(--vx, 50%) var(--vy, 0));
+  }
+  to {
+    clip-path: circle(150vmax at var(--vx, 50%) var(--vy, 0));
+  }
+}
+
+html:active-view-transition-type(theme)::view-transition-old(root),
+html:active-view-transition-type(theme)::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html:active-view-transition-type(theme)::view-transition-new(root) {
+  animation: k-circle 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:active-view-transition-type(theme)::view-transition-new(root) {
+    animation: none;
+  }
+}

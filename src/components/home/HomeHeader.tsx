@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import ThemeToggle from "@/components/ink/ThemeToggle";
 import { nav } from "@/content/home";
 import styles from "./HomeHeader.module.css";
 import shellStyles from "./HomeShell.module.css";
 import Onigiri from "./Onigiri";
 
-export default function HomeHeader() {
+interface HomeHeaderProps {
+  variant?: "home" | "site";
+}
+
+export default function HomeHeader({ variant = "home" }: HomeHeaderProps) {
+  const pathname = usePathname();
+  const isSite = variant === "site";
+  const isBlog =
+    isSite && (pathname === "/blog" || pathname.startsWith("/blog/"));
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
 
@@ -31,27 +41,49 @@ export default function HomeHeader() {
 
   const closeMenu = () => setOpen(false);
 
+  const resolveHref = (href: string) =>
+    isSite && href.startsWith("#") ? `/${href}` : href;
+
   return (
     <header className={styles.header}>
       <nav aria-label="Primary" className={styles.nav}>
-        <a href="#top" className={styles.logo}>
-          <Onigiri variant="logo" className={styles.logoIcon} />
-          <span>carls.dale.escalo</span>
-        </a>
+        {isSite ? (
+          <Link href="/" className={styles.logo}>
+            <Onigiri variant="logo" className={styles.logoIcon} />
+            <span>carls.dale.escalo</span>
+          </Link>
+        ) : (
+          <a href="#top" className={styles.logo}>
+            <Onigiri variant="logo" className={styles.logoIcon} />
+            <span>carls.dale.escalo</span>
+          </a>
+        )}
 
         <div className={styles.desktopLinks}>
-          {nav.links.map((item) =>
-            item.href.startsWith("/") ? (
-              <Link key={item.href} href={item.href} className={styles.navLink}>
+          {nav.links.map((item) => {
+            const href = resolveHref(item.href);
+            const current =
+              isBlog && item.href === "/blog" ? "page" : undefined;
+            return item.href.startsWith("/") ? (
+              <Link
+                key={item.href}
+                href={href}
+                className={styles.navLink}
+                aria-current={current}
+              >
                 {item.label}
               </Link>
             ) : (
-              <a key={item.href} href={item.href} className={styles.navLink}>
+              <a key={item.href} href={href} className={styles.navLink}>
                 {item.label}
               </a>
-            )
-          )}
-          <a href={nav.cta.href} className={`${shellStyles.btn} ${styles.cta}`}>
+            );
+          })}
+          {isSite && <ThemeToggle className={styles.themeBtn} />}
+          <a
+            href={resolveHref(nav.cta.href)}
+            className={`${shellStyles.btn} ${styles.cta}`}
+          >
             {nav.cta.label}
           </a>
         </div>
@@ -85,12 +117,15 @@ export default function HomeHeader() {
       </nav>
 
       <div id="home-menu" className={styles.menu} hidden={!open}>
-        {nav.links.map((item) =>
-          item.href.startsWith("/") ? (
+        {nav.links.map((item) => {
+          const href = resolveHref(item.href);
+          const current = isBlog && item.href === "/blog" ? "page" : undefined;
+          return item.href.startsWith("/") ? (
             <Link
               key={item.href}
-              href={item.href}
+              href={href}
               className={styles.menuLink}
+              aria-current={current}
               onClick={closeMenu}
             >
               {item.label}
@@ -98,21 +133,26 @@ export default function HomeHeader() {
           ) : (
             <a
               key={item.href}
-              href={item.href}
+              href={href}
               className={styles.menuLink}
               onClick={closeMenu}
             >
               {item.label}
             </a>
-          )
-        )}
+          );
+        })}
         <a
-          href={nav.cta.href}
+          href={resolveHref(nav.cta.href)}
           className={`${styles.menuLink} ${styles.menuCta}`}
           onClick={closeMenu}
         >
           {nav.cta.label} →
         </a>
+        {isSite && (
+          <div className={styles.menuThemeRow}>
+            <ThemeToggle className={styles.themeBtn} />
+          </div>
+        )}
       </div>
     </header>
   );
