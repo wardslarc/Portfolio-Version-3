@@ -159,7 +159,7 @@ export default function PostStatsClient({
                     <td className="mono" style={{ textAlign: "right" }}>
                       {row.count}
                     </td>
-                    <td style={{ color: "var(--muted)" }}>{formatRelativeTime(row.lastAt)}</td>
+                    <td className="admin-muted">{formatRelativeTime(row.lastAt)}</td>
                     <td>
                       {row.flagged ? (
                         <span className="admin-badge danger">Flagged</span>

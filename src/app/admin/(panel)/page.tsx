@@ -37,6 +37,7 @@ async function OverviewContent() {
 
       <div className="admin-stats-grid">
         <div className="admin-card">
+          <span className="k-tape admin-tape" aria-hidden="true" />
           <div className="admin-stat-label">Unread messages</div>
           <div className="admin-stat-val">{data.unreadCount}</div>
         </div>
@@ -54,26 +55,17 @@ async function OverviewContent() {
             {data.activeGame ? `#${data.activeGame.number}` : "—"}
           </div>
           {data.activeGame ? (
-            <div className="mono" style={{ color: "var(--muted)", fontSize: "0.75rem" }}>
+            <div className="admin-meta">
               {data.activeGame.moveCount} moves · {data.activeGame.visitorCount} visitors
             </div>
           ) : null}
         </div>
         <Link href="/admin/blog/engagement" className="admin-card admin-card-link">
           <div className="admin-stat-label">Blog (7d)</div>
-          <div className="admin-stat-val" style={{ fontSize: "1.375rem" }}>
+          <div className="admin-stat-val sm">
             {engagement7d.totals.views} views · {engagement7d.totals.likes} likes
           </div>
-          <div
-            className="mono"
-            style={{
-              color: "var(--muted)",
-              fontSize: "0.75rem",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <div className="admin-meta admin-ellipsis">
             {engagement7d.topPosts[0]?.title ?? "No post activity yet"}
           </div>
         </Link>
@@ -82,40 +74,17 @@ async function OverviewContent() {
       <div className="admin-two-col">
         <div className="admin-card">
           <h2>Moves per day (7d)</h2>
-          <div style={{ display: "grid", gap: "8px" }}>
+          <div className="admin-bars">
             {data.movesPerDay.map((d) => (
-              <div
-                key={d.date}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "84px minmax(0, 1fr) 32px",
-                  alignItems: "center",
-                  gap: "10px",
-                }}
-              >
-                <span className="mono" style={{ color: "var(--muted)", fontSize: "0.75rem" }}>
-                  {d.date.slice(5)}
-                </span>
-                <div
-                  style={{
-                    height: "10px",
-                    borderRadius: "999px",
-                    background: "var(--surface)",
-                    overflow: "hidden",
-                  }}
-                >
+              <div key={d.date} className="admin-bar">
+                <span className="admin-meta">{d.date.slice(5)}</span>
+                <div className="admin-bar-track">
                   <div
-                    style={{
-                      height: "100%",
-                      width: `${Math.round((d.count / maxMoves) * 100)}%`,
-                      background: "var(--accent)",
-                      borderRadius: "999px",
-                    }}
+                    className="admin-bar-fill"
+                    style={{ width: `${Math.round((d.count / maxMoves) * 100)}%` }}
                   />
                 </div>
-                <span className="mono" style={{ textAlign: "right", fontSize: "0.75rem" }}>
-                  {d.count}
-                </span>
+                <span className="admin-bar-count">{d.count}</span>
               </div>
             ))}
           </div>
@@ -126,22 +95,11 @@ async function OverviewContent() {
           {data.topCountries.length === 0 ? (
             <p className="admin-auth-sub">No country data recorded yet.</p>
           ) : (
-            <div style={{ display: "grid", gap: "8px" }}>
+            <div className="admin-bars">
               {data.topCountries.map((c) => (
-                <div
-                  key={c.country}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    paddingBottom: "6px",
-                    borderBottom: "1px solid var(--line)",
-                  }}
-                >
+                <div key={c.country} className="admin-kv">
                   <span>{c.country}</span>
-                  <span className="mono" style={{ color: "var(--muted)" }}>
-                    {c.count} moves
-                  </span>
+                  <span className="mono admin-muted">{c.count} moves</span>
                 </div>
               ))}
             </div>
@@ -172,7 +130,7 @@ async function OverviewContent() {
                       {!m.readAt ? <span className="admin-unread-dot" aria-label="Unread" /> : null}
                       {m.name}
                     </span>
-                    <span className="mono" style={{ color: "var(--faint)", fontSize: "0.75rem" }}>
+                    <span className="admin-meta faint">
                       {new Date(m.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                     </span>
                   </div>
