@@ -1,4 +1,4 @@
-# Review gate R1 (B1: K01–K03): 2 fixes
+# Review gate R1 (B1: K01–K03): **passed** (after 2 fixes)
 
 Reviewed 2026-11-28 by Claude, from `9e5e4c4` (spec commit) to `71d5bd7`. Commits: K01 `ec4ab9a`, K02 `cc12d6e`,
 K03 `71d5bd7`.
@@ -40,6 +40,12 @@ same paper/ink page.
 **Fix:** export the same `viewport` (`themeColor` light `#F3F1EC`, dark `#16161A`, media-scoped) from
 `src/app/not-found.tsx`. If the Next docs say `not-found` can't export `viewport`, stop and report instead.
 **Check:** `curl -s localhost:3000/nope | grep theme-color` shows `#F3F1EC` and `#16161A`.
+
+## Fixes re-checked (2026-11-28)
+
+- R1.1 `c0733f6`: footer "something." computes `rgb(255, 106, 71)`, Instrument Serif italic, in light and dark.
+- R1.2 `43e8fb1`: `/nope` serves `#F3F1EC` / `#16161A` theme-color tags.
+- Lint clean, 145/145 tests, build passes with `/` still `○`.
 
 ## Note for K06 (no action now)
 
